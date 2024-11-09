@@ -17,7 +17,7 @@
 
    ```bash
    git clone --depth 1 https://github.com/NibrasoftNet/soccer-book-server
-   cd my-soccer-book-server/
+   cd soccer-book-server/
    ```
 
 1. Go to folder, and copy `.development.env` as `.env`.
