@@ -1,0 +1,68 @@
+volumes:
+  soccerBook-db-prod:
+  uploads:
+
+services:
+  postgres:
+    image: postgis/postgis:16-3.4-alpine
+    container_name: soccerBook-postgres-prod
+    ports:
+      - 5434:5432
+    volumes:
+      - soccerBook-db-prod:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    networks:
+      - soccerBookServerNetwork
+  maildev:
+    build:
+      context: .
+      dockerfile: maildev.Dockerfile
+    ports:
+      - ${MAIL_CLIENT_PORT}:1080
+      - ${MAIL_PORT}:1025
+    networks:
+      - traefikNetwork
+      - soccerBookServerNetwork
+  adminer:
+    image: adminer
+    container_name: soccerBook-adminer-prod
+    restart: always
+    ports:
+      - 8082:8080
+    networks:
+      - traefikNetwork
+      - soccerBookServerNetwork
+  backend:
+    build:
+      context: .
+      dockerfile: server.Dockerfile
+    container_name: soccerBook-server
+    ports:
+      - ${APP_PORT}:4001
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgres://root:secret@postgres:5432/soccerBook-db-prod
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.soccerBookbackend.rule=Host(`backend.soccerBook.store`)"
+      - "traefik.http.routers.soccerBookbackend.entrypoints=websecure"
+      - "traefik.http.routers.soccerBookbackend.tls=true"
+      - "traefik.http.routers.soccerBookbackend.tls.certresolver=le"
+      - "traefik.http.routers.soccerBookbackend.tls.domains[0].main=backend.soccerBookbackend.store"
+      - "traefik.http.middlewares.soccerBookbackend-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.soccerBookbackend.middlewares=soccerBookbackend-redirect"
+    networks:
+      - traefikNetwork
+      - soccerBookServerNetwork
+    volumes:
+      - uploads:/app/uploads
+      - "~/shared_vps/traefik/certs:/letsencrypt"
+networks:
+  traefikNetwork:
+    external: true
+  soccerBookServerNetwork:
+    internal: true
