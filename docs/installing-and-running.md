@@ -5,7 +5,7 @@
 ## Table of Contents <!-- omit in toc -->
 
 - [Comfortable development](#comfortable-development)
-- [Quick run](#quick-run)
+- [Quick run](quick-run)
   - [Video guideline](#video-guideline)
 - [Links](#links)
 
@@ -16,14 +16,14 @@
 1. Clone repository
 
    ```bash
-   git clone --depth 1 https://github.com/brocoders/nestjs-boilerplate.git my-app
+   git clone --depth 1 https://github.com/NibrasoftNet/soccer-book-server
+   cd my-soccer-book-server/
    ```
 
-1. Go to folder, and copy `env-example` as `.env`.
+1. Go to folder, and copy `.development.env` as `.env`.
 
    ```bash
-   cd my-app/
-   cp env-example .env
+   cp .development.env .env
    ```
 
 1. Change `DATABASE_HOST=postgres` to `DATABASE_HOST=localhost`
@@ -42,58 +42,14 @@
    npm install
    ```
 
-1. Run migrations
-
-   ```bash
-   npm run migration:run
-   ```
-
-1. Run seeds
-
-   ```bash
-   npm run seed:run
-   ```
-
 1. Run app in dev mode
 
    ```bash
    npm run start:dev
    ```
 
-1. Open <http://localhost:3000>
+1. Open <http://localhost:5001>
 
----
-
-## Quick run
-
-If you want quick run your app, you can use following commands:
-
-1. Clone repository
-
-   ```bash
-   git clone --depth 1 https://github.com/brocoders/nestjs-boilerplate.git my-app
-   ```
-
-1. Go to folder, and copy `env-example` as `.env`.
-
-   ```bash
-   cd my-app/
-   cp env-example .env
-   ```
-
-1. Run containers
-
-   ```bash
-   docker compose up -d
-   ```
-
-1. For check status run
-
-   ```bash
-   docker compose logs
-   ```
-
-1. Open <http://localhost:3000>
 
 ### Video guideline
 
@@ -103,8 +59,8 @@ If you want quick run your app, you can use following commands:
 
 ## Links
 
-- Swagger (API docs): <http://localhost:3000/docs>
-- Adminer (client for DB): <http://localhost:8080>
+- Swagger (API docs): <http://localhost:5001/docs>
+- Adminer (client for DB): <http://localhost:8085>
 - Maildev: <http://localhost:1080>
 
 ---

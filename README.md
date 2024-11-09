@@ -1,5 +1,4 @@
-
-# Soocer book API
+# Scocer book API
 
 ## Description
 
