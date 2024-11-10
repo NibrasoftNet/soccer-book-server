@@ -12,6 +12,7 @@ export class UserDto extends EntityHelperDto {
   id: string;
 
   @AutoMap()
+  @Expose({ groups: ['ADMIN'] })
   email: string;
 
   @AutoMap()
@@ -20,9 +21,6 @@ export class UserDto extends EntityHelperDto {
   @AutoMap()
   @Expose()
   lastName?: string;
-
-  @AutoMap()
-  phone: string;
 
   @AutoMap(() => FileDto)
   @Expose()

@@ -1,6 +1,5 @@
 import {
   ClassSerializerInterceptor,
-  ImATeapotException,
   Logger,
   ValidationPipe,
   VersioningType,
@@ -24,14 +23,15 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
+import { RolesSerializerInterceptor } from './utils/interceptors/role.serializer.interceptor';
 
 const logger = new Logger('Soccer-main');
-const whitelist = [
+/*const whitelist = [
   'http://localhost:5000',
   'http://localhost:1001',
   'http://127.0.0.1:5000',
   'http://127.0.0.1:5001',
-];
+];*/
 
 async function bootstrap() {
   initializeTransactionalContext({ storageDriver: StorageDriver.AUTO });
@@ -40,7 +40,6 @@ async function bootstrap() {
     AppModule,
     new FastifyAdapter(),
     {
-      //cors: true,
       abortOnError: true,
     },
   );
@@ -48,7 +47,7 @@ async function bootstrap() {
     fallbackOnErrors: true, // fallbackOnErrors must be true
   });
   const configService = app.get(ConfigService<AllConfigType>);
-  app.enableCors({
+  /*  app.enableCors({
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
     origin: function (origin, callback) {
       if (!origin) {
@@ -66,7 +65,7 @@ async function bootstrap() {
         callback(new ImATeapotException('Not allowed by CORS'), false);
       }
     },
-  });
+  });*/
 
   app.enableShutdownHooks();
   app.setGlobalPrefix(
@@ -82,12 +81,13 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter(app.get(WinstonLoggerService)));
   app.useGlobalInterceptors(
     new ClassSerializerInterceptor(app.get(Reflector)),
+    new RolesSerializerInterceptor(app.get(Reflector)),
     new ResponseInterceptor(),
   );
 
   const options = new DocumentBuilder()
-    .setTitle('API')
-    .setDescription('API skaners docs')
+    .setTitle('Soccer booking API')
+    .setDescription('Swagger docs')
     .setVersion('1.0')
     .addBearerAuth()
     .build();

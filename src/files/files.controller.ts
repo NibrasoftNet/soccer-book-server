@@ -99,14 +99,14 @@ export class FilesController {
   /**
    * Update a file in storage and database
    * @returns {Promise<FileEntity>} updated file
+   * @param id
    * @param file {Express.Multer.File | Express.MulterS3.File} file to update
-   * @param url image url
    */
   @ApiOperation({
     summary: 'Update a file in storage and database',
     description: 'This endpoint update a file in storage and database.',
   })
-  @Put(':url')
+  @Put(':id')
   @HttpCode(HttpStatus.OK)
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -123,11 +123,11 @@ export class FilesController {
   @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(FileInterceptor('file'))
   async updateFile(
+    @Param('id') id: string,
     @UploadedFile() file: Express.Multer.File | Express.MulterS3.File,
-    @Param('url') url: string,
   ): Promise<FileEntity> {
     try {
-      return this.filesService.updateFile(file, url);
+      return this.filesService.updateFile(id, file);
     } catch (error) {
       throw new HttpResponseException(error);
     }

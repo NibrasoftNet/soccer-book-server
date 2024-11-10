@@ -7,7 +7,6 @@ import {
   HttpStatus,
   Post,
   Put,
-  Query,
   Request,
   UploadedFile,
   UseGuards,
@@ -97,11 +96,8 @@ export class AuthController {
   @Get('me')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
-  public async me(
-    @Request() request,
-    @Query('token') notificationToken?: string,
-  ): Promise<SessionResponseDto> {
-    return await this.service.me(request.user, notificationToken);
+  public async me(@Request() request): Promise<SessionResponseDto> {
+    return await this.service.me(request.user);
   }
 
   @ApiBearerAuth()

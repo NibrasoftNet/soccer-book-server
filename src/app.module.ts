@@ -31,7 +31,6 @@ import { IsNotUsedByOthers } from './utils/validators/is-not-used-by-others';
 import { GoogleGenerativeAIModule } from './utils/google-generative-ai/google-generative-ai.module';
 import { AwsS3Module } from './utils/aws-s3/aws-s3.module';
 import { OpenAiModule } from './utils/open-ai/open-ai.module';
-import { SharedModule } from './shared-module/shared-module.module';
 import { Module } from '@nestjs/common';
 import { TestimonialsModule } from './testimonials/testimonials.module';
 import { WinstonLoggerModule } from './logger/winston-logger.module';
@@ -40,6 +39,9 @@ import { NotificationModule } from './notification/notification.module';
 import { NotificationTask } from './utils/graphile-worker/notification-task';
 import { NotificationCronTask } from './utils/graphile-worker/notification-cronjob';
 import { OauthGoogleModule } from './oauth-google/oauth-google.module';
+import { TeamModule } from './team/team.module';
+import { SubscriptionToTeamModule } from './subscription-to-team/subscription-to-team.module';
+import { SharedModule } from './shared-module/shared.module';
 
 @Module({
   imports: [
@@ -145,6 +147,8 @@ import { OauthGoogleModule } from './oauth-google/oauth-google.module';
     WinstonLoggerModule,
     NotificationModule,
     OauthGoogleModule,
+    TeamModule,
+    SubscriptionToTeamModule,
   ],
 
   providers: [

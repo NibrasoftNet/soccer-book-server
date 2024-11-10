@@ -98,12 +98,12 @@ export class FilesService {
   /**
    * Update file in storage and database
    * @returns {Promise<FileEntity>} success update of the file
+   * @param id
    * @param file
-   * @param url
    */
   async updateFile(
+    id: string,
     file: Express.Multer.File | Express.MulterS3.File,
-    url: string,
   ): Promise<FileEntity> {
     if (!file) {
       throw new UnprocessableEntityException(
@@ -111,10 +111,8 @@ export class FilesService {
       );
     }
     // Delete old file
-    const fileToUpdate = await this.fileRepository.findOneOrFail({
-      where: {
-        path: url,
-      },
+    const fileToUpdate = await this.findOneOrFail({
+      id,
     });
     const fileKey = this.extractKeyFromUrl(fileToUpdate.path);
     this.storage === 'local'

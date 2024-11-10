@@ -6,10 +6,13 @@ import { randomStringGenerator } from '@nestjs/common/utils/random-string-genera
 import { S3Client } from '@aws-sdk/client-s3';
 import multerS3 from 'multer-s3';
 import { AllConfigType } from 'src/config/config.type';
+import { SharedService } from './shared.service';
+import { JwtModule } from '@nestjs/jwt';
 
 @Global()
 @Module({
   imports: [
+    JwtModule.register({}),
     MulterModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -91,6 +94,7 @@ import { AllConfigType } from 'src/config/config.type';
       },
     }),
   ],
-  exports: [MulterModule],
+  exports: [MulterModule, SharedService],
+  providers: [SharedService],
 })
 export class SharedModule {}

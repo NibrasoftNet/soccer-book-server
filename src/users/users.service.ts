@@ -82,7 +82,7 @@ export class UsersService {
   async update(
     id: string,
     updateUserDto: AuthUpdateDto,
-    files?: Express.Multer.File | Express.MulterS3.File,
+    file?: Express.Multer.File | Express.MulterS3.File,
   ): Promise<User> {
     const user = await this.usersRepository.findOneByOrFail({ id });
     const { address, ...filteredUserDto } = updateUserDto;
@@ -92,10 +92,10 @@ export class UsersService {
         address,
       );
     }
-    if (!!files) {
+    if (!!file) {
       user.photo = user?.photo?.id
-        ? await this.fileService.updateFile(files, user?.photo?.path)
-        : await this.fileService.uploadFile(files);
+        ? await this.fileService.updateFile(user?.photo?.id, file)
+        : await this.fileService.uploadFile(file);
     }
     Object.assign(user, filteredUserDto);
     return this.usersRepository.save(user);

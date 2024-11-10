@@ -8,6 +8,7 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -19,6 +20,8 @@ import EntityHelper from '../../utils/entities/entity-helper';
 import { Address } from '../../address/entities/address.entity';
 import { AutoMap } from 'automapper-classes';
 import { AuthProvidersEnum } from '@/enums/auth/auth-provider.enum';
+import { Team } from '../../team/entities/team.entity';
+import { SubscriptionToTeam } from '../../subscription-to-team/entities/subscription-to-team.entity';
 
 @Entity()
 export class User extends EntityHelper {
@@ -83,6 +86,23 @@ export class User extends EntityHelper {
   @AutoMap()
   @Column({ type: String, nullable: true })
   notificationsToken?: string | null;
+
+  @AutoMap(() => [Team])
+  @OneToMany(() => Team, (team) => team.creator, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  teams?: Team[];
+
+  @AutoMap(() => [SubscriptionToTeam])
+  @OneToMany(
+    () => SubscriptionToTeam,
+    (subscriptionToTeam) => subscriptionToTeam.member,
+    {
+      nullable: true,
+    },
+  )
+  joinedTeams: SubscriptionToTeam[];
 
   @AfterLoad()
   public loadPreviousPassword(): void {

@@ -18,6 +18,7 @@ import { CreateUserDto } from '@/domains/user/create-user.dto';
 import { UserDto } from '@/domains/user/user.dto';
 import { Status } from '../statuses/entities/status.entity';
 import { AuthService } from '../auth/auth.service';
+import { SharedService } from '../shared-module/shared.service';
 
 @Injectable()
 export class OauthService {
@@ -25,6 +26,7 @@ export class OauthService {
     private usersService: UsersService,
     private readonly authService: AuthService,
     private fileService: FilesService,
+    private sharedService: SharedService,
     @InjectMapper() private mapper: Mapper,
     private readonly i18n: I18nService,
   ) {}
@@ -91,7 +93,7 @@ export class OauthService {
       accessToken: jwtToken,
       refreshToken,
       tokenExpires,
-    } = await this.authService.getTokensData({
+    } = await this.sharedService.getTokensData({
       id: user.id,
       role: user.role,
     });
@@ -135,7 +137,7 @@ export class OauthService {
       accessToken: jwtToken,
       refreshToken,
       tokenExpires,
-    } = await this.authService.getTokensData({
+    } = await this.sharedService.getTokensData({
       id: user.id,
       role: user.role,
     });

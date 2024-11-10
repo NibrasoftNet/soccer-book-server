@@ -4,16 +4,12 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import ms from 'ms';
-import { JwtService } from '@nestjs/jwt';
 import { User } from '../users/entities/user.entity';
 import bcrypt from 'bcryptjs';
 import { plainToClass } from 'class-transformer';
 import { UsersService } from '../users/users.service';
 import { MailService } from '../mail/mail.service';
 import { NullableType } from '../utils/types/nullable.type';
-import { ConfigService } from '@nestjs/config';
-import { AllConfigType } from '../config/config.type';
 import { JwtRefreshPayloadType } from './strategies/types/jwt-refresh-payload.type';
 import { JwtPayloadType } from './strategies/types/jwt-payload.type';
 import { Mapper } from 'automapper-core';
@@ -40,15 +36,15 @@ import { ConfirmOtpEmailDto } from '@/domains/otp/confirm-otp-email.dto';
 import { AuthResetPasswordDto } from '@/domains/auth/auth-reset-password.dto';
 import { AuthUpdateDto } from '@/domains/auth/auth-update.dto';
 import { AuthNewPasswordDto } from '@/domains/auth/auth-new-password.dto';
+import { SharedService } from '../shared-module/shared.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private jwtService: JwtService,
     private usersService: UsersService,
     private mailService: MailService,
     private otpService: OtpService,
-    private configService: ConfigService<AllConfigType>,
+    private sharedService: SharedService,
     @InjectMapper() private mapper: Mapper,
     private readonly i18n: I18nService,
   ) {}
@@ -91,7 +87,7 @@ export class AuthService {
     }
 
     const { accessToken, refreshToken, tokenExpires } =
-      await this.getTokensData({
+      await this.sharedService.getTokensData({
         id: user.id,
         role: user.role,
       });
@@ -179,21 +175,12 @@ export class AuthService {
     await user.save();
   }
 
-  async me(
-    userJwtPayload: JwtPayloadType,
-    notificationToken?: string,
-  ): Promise<SessionResponseDto> {
+  async me(userJwtPayload: JwtPayloadType): Promise<SessionResponseDto> {
     const user = await this.usersService.findOneOrFail({
       id: userJwtPayload.id,
     });
-    if (notificationToken) {
-      await this.usersService.update(user.id, {
-        notificationsToken: notificationToken,
-      });
-    }
-
     const { accessToken, refreshToken, tokenExpires } =
-      await this.getTokensData({
+      await this.sharedService.getTokensData({
         id: user.id,
         role: user.role,
       });
@@ -248,7 +235,7 @@ export class AuthService {
     });
 
     const { accessToken, refreshToken, tokenExpires } =
-      await this.getTokensData({
+      await this.sharedService.getTokensData({
         id: user.id,
         role: user.role,
       });
@@ -300,46 +287,5 @@ export class AuthService {
         otp,
       },
     });
-  }
-
-  async getTokensData(data: { id: User['id']; role: User['role'] }) {
-    const tokenExpiresIn = this.configService.getOrThrow('auth.expires', {
-      infer: true,
-    });
-
-    const tokenExpires = Date.now() + ms(tokenExpiresIn);
-
-    const [accessToken, refreshToken] = await Promise.all([
-      await this.jwtService.signAsync(
-        {
-          id: data.id,
-          role: data.role,
-        },
-        {
-          secret: this.configService.getOrThrow('auth.secret', { infer: true }),
-          expiresIn: tokenExpiresIn,
-        },
-      ),
-      await this.jwtService.signAsync(
-        {
-          id: data.id,
-          role: data.role,
-        },
-        {
-          secret: this.configService.getOrThrow('auth.refreshSecret', {
-            infer: true,
-          }),
-          expiresIn: this.configService.getOrThrow('auth.refreshExpires', {
-            infer: true,
-          }),
-        },
-      ),
-    ]);
-
-    return {
-      accessToken,
-      refreshToken,
-      tokenExpires,
-    };
   }
 }

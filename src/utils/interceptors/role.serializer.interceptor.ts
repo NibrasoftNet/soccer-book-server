@@ -37,9 +37,9 @@ export class RolesSerializerInterceptor extends ClassSerializerInterceptor {
   private getSerializationGroups(roleId: number): string[] {
     // Define serialization groups for each role ID
     const roleGroupMap = {
-      1: ['ADMIN'], // For role ID 1 (Admin)
+      1: ['SUPERADMIN'], // For role ID 1 (Admin)
       2: ['USER'], // For role ID 2 (User)
-      3: ['SUPERADMIN'],
+      3: ['ADMIN'],
       // Add other roles as necessary
     };
     return roleGroupMap[roleId] || [];
