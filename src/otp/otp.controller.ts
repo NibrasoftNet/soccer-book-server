@@ -34,7 +34,7 @@ export class OtpController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async createOtp(@Body() createOtpDto: CreateOtpDto): Promise<number> {
+  async createOtp(@Body() createOtpDto: CreateOtpDto): Promise<string> {
     return await this.otpService.createOtp(createOtpDto);
   }
 

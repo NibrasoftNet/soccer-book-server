@@ -21,6 +21,7 @@ import { ResendVerifyOtpDto } from '@/domains/otp/verifyotp.dto';
 import { CreateOtpDto } from '@/domains/otp/create-otp.dto';
 import { OtpDto } from '@/domains/otp/otp.dto';
 import { ConfirmOtpEmailDto } from '@/domains/otp/confirm-otp-email.dto';
+import otpGenerator from 'otp-generator';
 
 @Injectable()
 export class OtpService {
@@ -87,7 +88,11 @@ export class OtpService {
       ? oldOtp
       : this.otpRepository.create(resendVerifyOtpDto as DeepPartial<Otp>);
     // Generate new OTP
-    const otpNumber = Math.floor(100000 + Math.random() * 900000);
+    const otpNumber = otpGenerator.generate(6, {
+      upperCaseAlphabets: false,
+      specialChars: false,
+      lowerCaseAlphabets: false,
+    });
 
     // Calculate expiration time
     const expireIn = this.getExpirationDate();
@@ -97,7 +102,7 @@ export class OtpService {
     await this.mailService.resendOtp({
       to: resendVerifyOtpDto.email,
       data: {
-        otp: otpNumber,
+        otp: Number(otpNumber),
       },
     });
     // Save resent Otp entity
@@ -108,7 +113,7 @@ export class OtpService {
     const expireIn = new Date();
     const expirationTimeInSeconds = this.configService.getOrThrow<number>(
       'OTP_EXPIRATION_TIME',
-      60,
+      180,
       { infer: true },
     );
     expireIn.setMilliseconds(
@@ -117,9 +122,13 @@ export class OtpService {
     return expireIn;
   }
 
-  async createOtp(createOtpDto: CreateOtpDto): Promise<number> {
+  async createOtp(createOtpDto: CreateOtpDto): Promise<string> {
     // Generate a random 6-digit OTP
-    const otpNumber = Math.floor(100000 + Math.random() * 900000);
+    const otpNumber = otpGenerator.generate(6, {
+      upperCaseAlphabets: false,
+      specialChars: false,
+      lowerCaseAlphabets: false,
+    });
 
     // Calculate expiration time
     const expireIn = this.getExpirationDate();
@@ -131,16 +140,16 @@ export class OtpService {
 
     if (existingOtp) {
       // Update existing OTP and expiry date
-      existingOtp.otp = otpNumber.toString();
+      existingOtp.otp = otpNumber;
       existingOtp.expireIn = expireIn.getTime();
 
       await this.otpRepository.save(existingOtp);
-      console.log(`Updated OTP for email ${createOtpDto.email}`);
+      console.log(`Updated OTP for email ${createOtpDto.email}`, otpNumber);
     } else {
       // Create new OTP entity if not found
       const otpData = new OtpDto(
         createOtpDto.email,
-        otpNumber.toString(),
+        otpNumber,
         expireIn.getTime(),
       );
       const otp = this.otpRepository.create(otpData);

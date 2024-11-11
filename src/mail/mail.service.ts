@@ -19,7 +19,7 @@ export class MailService {
     private readonly configService: ConfigService<AllConfigType>,
   ) {}
 
-  async userSignUp(mailData: MailData<{ otp: number }>): Promise<void> {
+  async userSignUp(mailData: MailData<{ otp: string }>): Promise<void> {
     const i18n = I18nContext.current();
     let verifyOtpTitle: MaybeType<string>;
     let text1: MaybeType<string>;
@@ -54,7 +54,7 @@ export class MailService {
     });
   }
 
-  async forgotPassword(mailData: MailData<{ otp: number }>): Promise<void> {
+  async forgotPassword(mailData: MailData<{ otp: string }>): Promise<void> {
     const i18n = I18nContext.current();
     let resetPasswordTitle: MaybeType<string>;
     let text1: MaybeType<string>;
