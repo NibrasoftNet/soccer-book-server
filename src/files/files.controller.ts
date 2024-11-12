@@ -57,9 +57,7 @@ export class FilesController {
     },
   })
   @UseInterceptors(FileFastifyInterceptor('file'))
-  async uploadFile(
-    @UploadedFile() file: Express.Multer.File | Express.MulterS3.File,
-  ) {
+  async uploadFile(@UploadedFile() file: MulterFile | Express.MulterS3.File) {
     return this.filesService.uploadFile(file);
   }
 

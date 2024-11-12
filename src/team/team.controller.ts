@@ -30,7 +30,6 @@ import { teamPaginationConfig } from './config/team-pagination-config';
 import { PaginatedDto } from '../utils/serialization/paginated.dto';
 import { InjectMapper, MapInterceptor } from 'automapper-nestjs';
 import { Mapper } from 'automapper-core';
-import { FilesInterceptor } from '@nestjs/platform-express';
 import { ParseFormdataPipe } from '../utils/pipes/parse-formdata.pipe';
 import { Public } from '../utils/validators/public.decorator';
 import { Utils } from '../utils/utils';
@@ -39,7 +38,7 @@ import { TeamDto } from '@/domains/team/team.dto';
 import { Team } from './entities/team.entity';
 import { RoleCodeEnum } from '@/enums/role/roles.enum';
 import { UpdateTeamDto } from '@/domains/team/update-team.dto';
-import { FileFastifyInterceptor } from 'fastify-file-interceptor';
+import { FileFastifyInterceptor, MulterFile } from 'fastify-file-interceptor';
 
 @ApiTags('Teams')
 @ApiBearerAuth()
@@ -181,14 +180,14 @@ export class TeamController {
   })
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @UseInterceptors(MapInterceptor(Team, TeamDto))
-  @UseInterceptors(FilesInterceptor('file'))
+  @UseInterceptors(FileFastifyInterceptor('file'))
   @Roles(RoleCodeEnum.SUPERADMIN, RoleCodeEnum.USER, RoleCodeEnum.ADMIN)
   @HttpCode(HttpStatus.OK)
   @Patch(':id')
   async update(
     @Param('id') id: string,
     @Body('data', ParseFormdataPipe) data,
-    @UploadedFiles() file?: Express.Multer.File | Express.MulterS3.File,
+    @UploadedFiles() file?: MulterFile | Express.MulterS3.File,
   ) {
     const updateTeamDto = new UpdateTeamDto(data);
     await Utils.validateDtoOrFail(updateTeamDto);

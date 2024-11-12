@@ -24,7 +24,6 @@ import { AuthGuard } from '@nestjs/passport';
 import { NullableType } from '../utils/types/nullable.type';
 import { InjectMapper, MapInterceptor } from 'automapper-nestjs';
 import { Mapper } from 'automapper-core';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { ParseFormdataPipe } from '../utils/pipes/parse-formdata.pipe';
 import { Utils } from '../utils/utils';
 import { AuthEmailLoginDto } from '@/domains/auth/auth-email-login.dto';
@@ -37,6 +36,7 @@ import { AuthAdminService } from './auth-admin.service';
 import { SessionAdminResponseDto } from '@/domains/session/session-admin-response.dto';
 import { UserAdmin } from '../users-admin/entities/user-admin.entity';
 import { UserAdminDto } from '@/domains/user-admin/user-admin.dto';
+import { FileFastifyInterceptor, MulterFile } from 'fastify-file-interceptor';
 
 @ApiTags('Auth-admin')
 @Controller({
@@ -108,12 +108,9 @@ export class AuthAdminController {
     schema: {
       type: 'object',
       properties: {
-        files: {
-          type: 'array',
-          items: {
-            type: 'string',
-            format: 'binary',
-          },
+        file: {
+          type: 'string',
+          format: 'binary',
         },
         data: {
           $ref: getSchemaPath(CreateUserDto),
@@ -126,18 +123,18 @@ export class AuthAdminController {
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(MapInterceptor(UserAdmin, UserAdminDto))
-  @UseInterceptors(FileInterceptor('files'))
+  @UseInterceptors(FileFastifyInterceptor('file'))
   public async update(
     @Request() request,
     @Body('data', ParseFormdataPipe) data,
-    @UploadedFile() files?: Express.Multer.File | Express.MulterS3.File,
+    @UploadedFile() file?: MulterFile | Express.MulterS3.File,
   ): Promise<NullableType<UserAdmin>> {
     const updateUserDto = new AuthUpdateDto(data);
     await Utils.validateDtoOrFail(updateUserDto);
     return await this.authAdminService.update(
       request.user,
       updateUserDto,
-      files,
+      file,
     );
   }
 

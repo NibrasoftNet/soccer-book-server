@@ -37,6 +37,7 @@ import { AuthResetPasswordDto } from '@/domains/auth/auth-reset-password.dto';
 import { AuthUpdateDto } from '@/domains/auth/auth-update.dto';
 import { AuthNewPasswordDto } from '@/domains/auth/auth-new-password.dto';
 import { SharedService } from '../shared-module/shared.service';
+import { MulterFile } from 'fastify-file-interceptor';
 
 @Injectable()
 export class AuthService {
@@ -195,12 +196,12 @@ export class AuthService {
   async update(
     userJwtPayload: JwtPayloadType,
     updateUserDto: AuthUpdateDto,
-    files?: Express.Multer.File | Express.MulterS3.File,
+    file?: MulterFile | Express.MulterS3.File,
   ): Promise<NullableType<User>> {
     return await this.usersService.update(
       userJwtPayload.id,
       updateUserDto,
-      files,
+      file,
     );
   }
 

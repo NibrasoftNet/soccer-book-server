@@ -26,7 +26,6 @@ import { CreateArenaDto } from '@/domains/arena/create-arena.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../roles/roles.guard';
 import { InjectMapper, MapInterceptor } from 'automapper-nestjs';
-import { FilesInterceptor } from '@nestjs/platform-express';
 import { Arena } from './entities/arena.entity';
 import { ArenaDto } from '@/domains/arena/arena.dto';
 import { Roles } from '../roles/roles.decorator';
@@ -38,6 +37,7 @@ import { NullableType } from '../utils/types/nullable.type';
 import { Paginate, PaginateQuery } from 'nestjs-paginate';
 import { PaginatedDto } from '../utils/serialization/paginated.dto';
 import { Mapper } from 'automapper-core';
+import { FilesFastifyInterceptor, MulterFile } from 'fastify-file-interceptor';
 
 @ApiTags('Arena')
 @ApiBearerAuth()
@@ -69,14 +69,14 @@ export class ArenaController {
   })
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @UseInterceptors(MapInterceptor(Arena, ArenaDto))
-  @UseInterceptors(FilesInterceptor('files'))
+  @UseInterceptors(FilesFastifyInterceptor('files', 10))
   @Roles(RoleCodeEnum.ADMIN)
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async create(
     @Request() request,
     @Body('data', ParseFormdataPipe) data,
-    @UploadedFiles() files?: Array<Express.Multer.File | Express.MulterS3.File>,
+    @UploadedFiles() files?: Array<MulterFile | Express.MulterS3.File>,
   ) {
     const createArenaDto = new CreateArenaDto(data);
     await Utils.validateDtoOrFail(createArenaDto);
@@ -125,14 +125,14 @@ export class ArenaController {
   })
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @UseInterceptors(MapInterceptor(Arena, ArenaDto))
-  @UseInterceptors(FilesInterceptor('files'))
+  @UseInterceptors(FilesFastifyInterceptor('files'))
   @Roles(RoleCodeEnum.ADMIN)
   @HttpCode(HttpStatus.OK)
   @Put(':id')
   async update(
     @Param('id') id: string,
     @Body('data', ParseFormdataPipe) data,
-    @UploadedFiles() files?: Array<Express.Multer.File | Express.MulterS3.File>,
+    @UploadedFiles() files?: Array<MulterFile | Express.MulterS3.File>,
   ): Promise<Arena> {
     const updateArenaDto = new UpdateArenaDto(data);
     await Utils.validateDtoOrFail(updateArenaDto);

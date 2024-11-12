@@ -36,7 +36,7 @@ import { RoleCodeEnum } from '@/enums/role/roles.enum';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../roles/roles.guard';
 import { UpdateArenaCategoryDto } from '@/domains/area-category/update-arena-category.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileFastifyInterceptor, MulterFile } from 'fastify-file-interceptor';
 
 @ApiTags('Arena-Category')
 @Controller({ version: '1', path: 'arena-categories' })
@@ -65,12 +65,12 @@ export class ArenaCategoryController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(RoleCodeEnum.SUPERADMIN)
   @UseInterceptors(MapInterceptor(ArenaCategory, ArenaCategoryDto))
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileFastifyInterceptor('file'))
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async create(
     @Body('data', ParseFormdataPipe) data,
-    @UploadedFile() file?: Express.Multer.File | Express.MulterS3.File,
+    @UploadedFile() file?: MulterFile | Express.MulterS3.File,
   ): Promise<ArenaCategory> {
     const createArenaCategoryDto = new CreateArenaCategoryDto(data);
     await Utils.validateDtoOrFail(createArenaCategoryDto);
@@ -125,7 +125,7 @@ export class ArenaCategoryController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(RoleCodeEnum.SUPERADMIN)
   @UseInterceptors(MapInterceptor(ArenaCategory, ArenaCategoryDto))
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileFastifyInterceptor('file'))
   @HttpCode(HttpStatus.OK)
   @Put(':id')
   async update(
