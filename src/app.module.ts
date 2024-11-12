@@ -42,6 +42,9 @@ import { OauthGoogleModule } from './oauth-google/oauth-google.module';
 import { TeamModule } from './team/team.module';
 import { SubscriptionToTeamModule } from './subscription-to-team/subscription-to-team.module';
 import { SharedModule } from './shared-module/shared.module';
+import { UsersAdminModule } from './users-admin/users-admin.module';
+import { ArenaModule } from './arena/arena.module';
+import { ArenaCategory } from './arena-category/entities/arena-category.entity';
 
 @Module({
   imports: [
@@ -112,7 +115,7 @@ import { SharedModule } from './shared-module/shared.module';
           },
         },
         defaults: {
-          from: '"no-reploy" <helpdesk@no-reploy.com>',
+          from: '"no-reply" <helpdesk@no-reploy.com>',
         },
         template: {
           dir: __dirname + '/mail/templates',
@@ -133,6 +136,7 @@ import { SharedModule } from './shared-module/shared.module';
       }),
     }),
     UsersModule,
+    UsersAdminModule,
     FilesModule,
     AuthModule,
     OtpModule,
@@ -149,6 +153,8 @@ import { SharedModule } from './shared-module/shared.module';
     OauthGoogleModule,
     TeamModule,
     SubscriptionToTeamModule,
+    ArenaModule,
+    ArenaCategory,
   ],
 
   providers: [

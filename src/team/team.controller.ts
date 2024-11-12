@@ -39,6 +39,7 @@ import { TeamDto } from '@/domains/team/team.dto';
 import { Team } from './entities/team.entity';
 import { RoleCodeEnum } from '@/enums/role/roles.enum';
 import { UpdateTeamDto } from '@/domains/team/update-team.dto';
+import { FileFastifyInterceptor } from 'fastify-file-interceptor';
 
 @ApiTags('Teams')
 @ApiBearerAuth()
@@ -67,7 +68,7 @@ export class TeamController {
   })
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @UseInterceptors(MapInterceptor(Team, TeamDto))
-  @UseInterceptors(FilesInterceptor('file'))
+  @UseInterceptors(FileFastifyInterceptor('file'))
   @Roles(RoleCodeEnum.SUPERADMIN, RoleCodeEnum.USER, RoleCodeEnum.ADMIN)
   @HttpCode(HttpStatus.CREATED)
   @Post()

@@ -136,15 +136,11 @@ export class FilesService {
   /**
    * Delete file from storage and database
    * @returns {Promise<DeleteResult>} success deletion of the file
-   * @param path
+   * @param id
    */
-  async deleteFile(path: string): Promise<DeleteResult> {
-    const fileToDelete = await this.fileRepository.findOneOrFail({
-      where: {
-        path,
-      },
-    });
-    const fileKey = this.extractKeyFromUrl(path);
+  async deleteFile(id: string): Promise<DeleteResult> {
+    const fileToDelete = await this.findOneOrFail({ id });
+    const fileKey = this.extractKeyFromUrl(fileToDelete.path);
     this.storage === 'local'
       ? this.deleteFileFromLocal(fileKey)
       : await this.awsS3Service.deleteFromS3Bucket(fileKey);

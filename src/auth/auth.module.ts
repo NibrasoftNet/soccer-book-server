@@ -12,25 +12,29 @@ import { IsNotExist } from '../utils/validators/is-not-exists.validator';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 import { FilesModule } from '../files/files.module';
 import { OtpModule } from 'src/otp/otp.module';
+import { AuthAdminService } from './auth-admin.service';
+import { UsersAdminModule } from '../users-admin/users-admin.module';
 
 @Module({
   imports: [
     UsersModule,
+    UsersAdminModule,
     PassportModule,
     MailModule,
     JwtModule.register({}),
     FilesModule,
     OtpModule,
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, AuthController],
   providers: [
     IsExist,
     IsNotExist,
     AuthService,
+    AuthAdminService,
     JwtStrategy,
     JwtRefreshStrategy,
     AnonymousStrategy,
   ],
-  exports: [AuthService],
+  exports: [AuthService, AuthAdminService],
 })
 export class AuthModule {}

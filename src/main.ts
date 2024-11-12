@@ -24,6 +24,7 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { RolesSerializerInterceptor } from './utils/interceptors/role.serializer.interceptor';
+import { contentParser } from 'fastify-file-interceptor';
 
 const logger = new Logger('Soccer-main');
 /*const whitelist = [
@@ -77,6 +78,7 @@ async function bootstrap() {
   app.enableVersioning({
     type: VersioningType.URI,
   });
+  await app.register(contentParser);
   app.useGlobalPipes(new ValidationPipe(validationOptions));
   app.useGlobalFilters(new HttpExceptionFilter(app.get(WinstonLoggerService)));
   app.useGlobalInterceptors(

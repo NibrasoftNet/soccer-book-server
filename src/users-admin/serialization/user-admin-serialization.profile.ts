@@ -8,12 +8,12 @@ import {
   MappingProfile,
   typeConverter,
 } from 'automapper-core';
-import { User } from '../entities/user.entity';
 import { AutomapperProfile, InjectMapper } from 'automapper-nestjs';
-import { UserDto } from '@/domains/user/user.dto';
+import { UserAdminDto } from '@/domains/user-admin/user-admin.dto';
+import { UserAdmin } from '../entities/user-admin.entity';
 
 @Injectable()
-export class UserSerializationProfile extends AutomapperProfile {
+export class UsersAdminSerializationProfile extends AutomapperProfile {
   constructor(@InjectMapper() mapper: Mapper) {
     super(mapper);
   }
@@ -22,15 +22,15 @@ export class UserSerializationProfile extends AutomapperProfile {
     return (mapper) => {
       createMap(
         mapper,
-        User,
-        UserDto,
+        UserAdmin,
+        UserAdminDto,
         forMember(
-          (dto: UserDto) => dto.status,
-          mapFrom((source: User) => source.status?.name),
+          (dto: UserAdminDto) => dto.status,
+          mapFrom((source: UserAdmin) => source.status?.name),
         ),
         forMember(
-          (dto: UserDto) => dto.role,
-          mapFrom((source: User) => source.role?.name),
+          (dto: UserAdminDto) => dto.role,
+          mapFrom((source: UserAdmin) => source.role?.name),
         ),
         typeConverter(Date, String, (date) => date.toDateString()),
       );

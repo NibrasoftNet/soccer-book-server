@@ -7,13 +7,12 @@ import {
   Param,
   Post,
   Put,
-  Response,
+  Res,
   UploadedFile,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -25,9 +24,17 @@ import { AuthGuard } from '@nestjs/passport';
 import { FilesService } from './files.service';
 import { DeleteResult } from 'typeorm';
 import { FileEntity } from './entities/file.entity';
-import { HttpResponseException } from '../utils/exceptions/http-response.exception';
+import {
+  FileFastifyInterceptor,
+  FilesFastifyInterceptor,
+  MulterFile,
+} from 'fastify-file-interceptor';
+import { createReadStream } from 'fs';
+import { join } from 'path';
+import * as mime from 'mime-types';
 
 @ApiTags('Files')
+@ApiBearerAuth()
 @Controller({
   path: 'files',
   version: '1',
@@ -49,15 +56,11 @@ export class FilesController {
       },
     },
   })
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileFastifyInterceptor('file'))
   async uploadFile(
     @UploadedFile() file: Express.Multer.File | Express.MulterS3.File,
   ) {
-    try {
-      return this.filesService.uploadFile(file);
-    } catch (error) {
-      throw new HttpResponseException(error);
-    }
+    return this.filesService.uploadFile(file);
   }
 
   @ApiConsumes('multipart/form-data')
@@ -65,7 +68,7 @@ export class FilesController {
     schema: {
       type: 'object',
       properties: {
-        file: {
+        files: {
           type: 'array',
           items: {
             type: 'string',
@@ -75,32 +78,35 @@ export class FilesController {
       },
     },
   })
-  @UseInterceptors(FilesInterceptor('file'))
+  @UseInterceptors(FilesFastifyInterceptor('files', 10))
   @Post('upload-multiple')
   async uploadMultipleFiles(
-    @UploadedFiles() files: Array<Express.Multer.File | Express.MulterS3.File>,
-  ) {
-    try {
-      return this.filesService.uploadMultipleFiles(files);
-    } catch (error) {
-      throw new HttpResponseException(error);
-    }
+    @UploadedFiles() files: Array<MulterFile | Express.MulterS3.File>,
+  ): Promise<FileEntity[]> {
+    return this.filesService.uploadMultipleFiles(files);
   }
 
   @Get(':path')
-  download(@Param('path') path, @Response() response) {
-    try {
-      return response.sendFile(path, { root: './uploads' });
-    } catch (error) {
-      throw new HttpResponseException(error);
-    }
+  displayFile(@Param('path') path, @Res() res) {
+    const filePath = join(process.cwd(), 'uploads', path);
+    const mimeType = mime.lookup(filePath) || 'application/octet-stream';
+    console.log('path', filePath);
+    // Set the Content-Disposition to inline to display in the browser
+    res.header('Content-Disposition', `inline; filename="${path}"`);
+
+    // Set the Content-Type based on the file extension
+    res.header('Content-Type', mimeType);
+
+    // Stream the file to the browser
+    const stream = createReadStream(filePath);
+    return res.send(stream);
   }
 
   /**
    * Update a file in storage and database
    * @returns {Promise<FileEntity>} updated file
    * @param id
-   * @param file {Express.Multer.File | Express.MulterS3.File} file to update
+   * @param file {MulterFile | Express.MulterS3.File} file to update
    */
   @ApiOperation({
     summary: 'Update a file in storage and database',
@@ -121,16 +127,12 @@ export class FilesController {
     },
   })
   @UseGuards(AuthGuard('jwt'))
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileFastifyInterceptor('file'))
   async updateFile(
     @Param('id') id: string,
-    @UploadedFile() file: Express.Multer.File | Express.MulterS3.File,
+    @UploadedFile() file: MulterFile | Express.MulterS3.File,
   ): Promise<FileEntity> {
-    try {
-      return this.filesService.updateFile(id, file);
-    } catch (error) {
-      throw new HttpResponseException(error);
-    }
+    return this.filesService.updateFile(id, file);
   }
 
   /**
@@ -146,10 +148,6 @@ export class FilesController {
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
   async deleteFile(@Param('id') id: string): Promise<DeleteResult> {
-    try {
-      return await this.filesService.deleteFile(id);
-    } catch (error) {
-      throw new HttpResponseException(error);
-    }
+    return await this.filesService.deleteFile(id);
   }
 }
