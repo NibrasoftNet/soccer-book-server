@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   UseGuards,
@@ -11,7 +10,8 @@ import {
   HttpCode,
   HttpStatus,
   UseInterceptors,
-  UploadedFiles,
+  UploadedFile,
+  Put,
 } from '@nestjs/common';
 import { TeamService } from './team.service';
 import {
@@ -39,6 +39,7 @@ import { Team } from './entities/team.entity';
 import { RoleCodeEnum } from '@/enums/role/roles.enum';
 import { UpdateTeamDto } from '@/domains/team/update-team.dto';
 import { FileFastifyInterceptor, MulterFile } from 'fastify-file-interceptor';
+import { IsCreatorPipe } from '../utils/pipes/is-creator.pipe';
 
 @ApiTags('Teams')
 @ApiBearerAuth()
@@ -74,7 +75,7 @@ export class TeamController {
   async create(
     @Request() request,
     @Body('data', ParseFormdataPipe) data,
-    @UploadedFiles() file?: Express.Multer.File | Express.MulterS3.File,
+    @UploadedFile() file?: MulterFile | Express.MulterS3.File,
   ) {
     const createTeamDto = new CreateTeamDto(data);
     await Utils.validateDtoOrFail(createTeamDto);
@@ -83,7 +84,7 @@ export class TeamController {
 
   @ApiPaginationQuery(teamPaginationConfig)
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(RoleCodeEnum.SUPERADMIN, RoleCodeEnum.USER, RoleCodeEnum.ADMIN)
+  @Roles(RoleCodeEnum.SUPERADMIN, RoleCodeEnum.ADMIN)
   @HttpCode(HttpStatus.OK)
   @Get('list/subscribed')
   async findAll(
@@ -183,11 +184,11 @@ export class TeamController {
   @UseInterceptors(FileFastifyInterceptor('file'))
   @Roles(RoleCodeEnum.SUPERADMIN, RoleCodeEnum.USER, RoleCodeEnum.ADMIN)
   @HttpCode(HttpStatus.OK)
-  @Patch(':id')
+  @Put(':id')
   async update(
-    @Param('id') id: string,
+    @Param('id', IsCreatorPipe('Team', 'id', 'creator')) id: string,
     @Body('data', ParseFormdataPipe) data,
-    @UploadedFiles() file?: MulterFile | Express.MulterS3.File,
+    @UploadedFile() file?: MulterFile | Express.MulterS3.File,
   ) {
     const updateTeamDto = new UpdateTeamDto(data);
     await Utils.validateDtoOrFail(updateTeamDto);

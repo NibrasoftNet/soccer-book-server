@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
+  DeepPartial,
+  EntityManager,
   FindOptionsRelations,
   FindOptionsWhere,
   Repository,
@@ -10,19 +12,12 @@ import { User } from './entities/user.entity';
 import { AddressService } from '../address/address.service';
 import { paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 import { usersPaginationConfig } from './configs/users-pagination.config';
-import { Status } from '../statuses/entities/status.entity';
-import {
-  runOnTransactionComplete,
-  runOnTransactionRollback,
-  Transactional,
-} from 'typeorm-transactional';
 import { FilesService } from '../files/files.service';
 import { WinstonLoggerService } from '../logger/winston-logger.service';
 import { NullableType } from '../utils/types/nullable.type';
 import { CreateUserDto } from '@/domains/user/create-user.dto';
-import { plainToClass } from 'class-transformer';
-import { StatusCodeEnum } from '@/enums/status/statuses.enum';
 import { AuthUpdateDto } from '@/domains/auth/auth-update.dto';
+import { MulterFile } from 'fastify-file-interceptor';
 
 @Injectable()
 export class UsersService {
@@ -33,27 +28,20 @@ export class UsersService {
     private fileService: FilesService,
     private readonly logger: WinstonLoggerService,
   ) {}
-  @Transactional()
-  async create(createProfileDto: CreateUserDto): Promise<User> {
-    runOnTransactionRollback(() =>
-      console.log(`Create User transaction rolled back`),
-    );
-    runOnTransactionComplete((error) => {
-      if (!!error) {
-        console.log(`Create User transaction failed`);
-      }
-      console.log(`Create User transaction completed`);
-    });
-    const user = this.usersRepository.create(createProfileDto);
-    user.address = await this.addressService.create(createProfileDto.address);
 
-    if (!createProfileDto.status) {
-      user.status = plainToClass(Status, {
-        id: StatusCodeEnum.INACTIVE,
-        code: StatusCodeEnum.INACTIVE,
-      });
-    }
-    return await this.usersRepository.save(user);
+  async create(createProfileDto: CreateUserDto): Promise<User> {
+    return await this.usersRepository.manager.transaction(
+      async (entityManager: EntityManager) => {
+        const user = entityManager.create(
+          User,
+          createProfileDto as DeepPartial<User>,
+        );
+        user.address = await this.addressService.create(
+          createProfileDto.address,
+        );
+        return await entityManager.save(user);
+      },
+    );
   }
 
   async findManyWithPagination(query: PaginateQuery): Promise<Paginated<User>> {
@@ -82,7 +70,7 @@ export class UsersService {
   async update(
     id: string,
     updateUserDto: AuthUpdateDto,
-    file?: Express.Multer.File | Express.MulterS3.File,
+    file?: MulterFile | Express.MulterS3.File,
   ): Promise<User> {
     const user = await this.usersRepository.findOneByOrFail({ id });
     const { address, ...filteredUserDto } = updateUserDto;

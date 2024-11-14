@@ -33,7 +33,7 @@ export class Arena extends EntityHelper {
   @ManyToOne(() => UserAdmin, (userAdmin) => userAdmin.arenas, {
     onDelete: 'CASCADE',
   })
-  userAdmin: UserAdmin;
+  creator: UserAdmin;
 
   @AutoMap(() => ArenaCategory)
   @ManyToOne(() => ArenaCategory, (category) => category.arenas, {

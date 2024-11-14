@@ -8,37 +8,38 @@ import { FilesService } from '../files/files.service';
 import { ArenaCategory } from './entities/arena-category.entity';
 import { CreateArenaCategoryDto } from '@/domains/area-category/create-arena-category.dto';
 import { UpdateArenaCategoryDto } from '@/domains/area-category/update-arena-category.dto';
+import { MulterFile } from 'fastify-file-interceptor';
 
 @Injectable()
 export class ArenaCategoryService {
   constructor(
     @InjectRepository(ArenaCategory)
-    private readonly categoryRepository: Repository<ArenaCategory>,
+    private readonly arenaCategoryRepository: Repository<ArenaCategory>,
     private readonly fileService: FilesService,
   ) {}
   async create(
     createCategoryDto: CreateArenaCategoryDto,
-    file?: Express.Multer.File | Express.MulterS3.File,
+    file?: MulterFile | Express.MulterS3.File,
   ): Promise<ArenaCategory> {
-    const arenaCategory = this.categoryRepository.create(
+    const arenaCategory = this.arenaCategoryRepository.create(
       createCategoryDto as Partial<ArenaCategory>,
     );
     if (!!file) {
       arenaCategory.image = await this.fileService.uploadFile(file);
     }
-    return await this.categoryRepository.save(arenaCategory);
+    return await this.arenaCategoryRepository.save(arenaCategory);
   }
 
   async findAll(query: PaginateQuery): Promise<Paginated<ArenaCategory>> {
     return await paginate(
       query,
-      this.categoryRepository,
+      this.arenaCategoryRepository,
       arenaCategoryPaginationConfig,
     );
   }
 
   async findAllCategories(): Promise<{ label: string; value: string }[]> {
-    return await this.categoryRepository
+    return await this.arenaCategoryRepository
       .createQueryBuilder('category')
       .select('DISTINCT category.name AS label, category.id AS value')
       .getRawMany();
@@ -48,7 +49,7 @@ export class ArenaCategoryService {
     field: FindOptionsWhere<ArenaCategory>,
     relations?: FindOptionsRelations<ArenaCategory>,
   ): Promise<NullableType<ArenaCategory>> {
-    return await this.categoryRepository.findOne({
+    return await this.arenaCategoryRepository.findOne({
       where: field,
       relations,
     });
@@ -58,7 +59,7 @@ export class ArenaCategoryService {
     field: FindOptionsWhere<ArenaCategory>,
     relations?: FindOptionsRelations<ArenaCategory>,
   ): Promise<ArenaCategory> {
-    return await this.categoryRepository.findOneOrFail({
+    return await this.arenaCategoryRepository.findOneOrFail({
       where: field,
       relations,
     });
@@ -67,7 +68,7 @@ export class ArenaCategoryService {
   async update(
     id: string,
     updateAreaCategoryDto: UpdateArenaCategoryDto,
-    file?: Express.Multer.File | Express.MulterS3.File,
+    file?: MulterFile | Express.MulterS3.File,
   ): Promise<ArenaCategory> {
     const areaCategory = await this.findOneOrFail({ id });
     Object.assign(areaCategory, updateAreaCategoryDto);
@@ -76,7 +77,7 @@ export class ArenaCategoryService {
         ? await this.fileService.updateFile(areaCategory.image?.id, file)
         : await this.fileService.uploadFile(file);
     }
-    return await this.categoryRepository.save(areaCategory);
+    return await this.arenaCategoryRepository.save(areaCategory);
   }
 
   async remove(id: string) {
@@ -84,6 +85,6 @@ export class ArenaCategoryService {
     if (category.image) {
       await this.fileService.deleteFile(category.image.path);
     }
-    return await this.categoryRepository.delete(id);
+    return await this.arenaCategoryRepository.delete(id);
   }
 }

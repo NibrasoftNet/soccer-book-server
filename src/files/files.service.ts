@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  PreconditionFailedException,
-  UnprocessableEntityException,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FileEntity } from './entities/file.entity';
@@ -17,6 +13,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { AwsS3Service } from '../utils/aws-s3/aws-s3.service';
 import { I18nContext, I18nService } from 'nestjs-i18n';
+import { MulterFile } from 'fastify-file-interceptor';
 
 @Injectable()
 export class FilesService {
@@ -44,11 +41,12 @@ export class FilesService {
   }
 
   async uploadFile(
-    file: Express.Multer.File | Express.MulterS3.File,
+    file: MulterFile | Express.MulterS3.File,
   ): Promise<FileEntity> {
     if (!file) {
-      throw new UnprocessableEntityException(
+      throw new HttpException(
         `{"file": "${this.i18n.t('file.failedUpload', { lang: I18nContext.current()?.lang })}"}`,
+        HttpStatus.PRECONDITION_FAILED,
       );
     }
     const path = {
@@ -67,11 +65,12 @@ export class FilesService {
   }
 
   async uploadMultipleFiles(
-    files: Array<Express.Multer.File | Express.MulterS3.File>,
+    files: Array<MulterFile | Express.MulterS3.File>,
   ): Promise<FileEntity[]> {
     if (!files) {
-      throw new UnprocessableEntityException(
+      throw new HttpException(
         `{"file": "${this.i18n.t('file.failedUpload', { lang: I18nContext.current()?.lang })}"}`,
+        HttpStatus.PRECONDITION_FAILED,
       );
     }
     return await this.dataSource.transaction(async (manager) => {
@@ -103,11 +102,12 @@ export class FilesService {
    */
   async updateFile(
     id: string,
-    file: Express.Multer.File | Express.MulterS3.File,
+    file: MulterFile | Express.MulterS3.File,
   ): Promise<FileEntity> {
     if (!file) {
-      throw new UnprocessableEntityException(
+      throw new HttpException(
         `{"file": "${this.i18n.t('file.failedUpload', { lang: I18nContext.current()?.lang })}"}`,
+        HttpStatus.PRECONDITION_FAILED,
       );
     }
     // Delete old file
@@ -167,8 +167,9 @@ export class FilesService {
     const filePath = path.join(process.cwd(), 'uploads', key);
     fs.unlink(filePath, (err) => {
       if (err) {
-        throw new PreconditionFailedException(
+        throw new HttpException(
           `{"file": "${this.i18n.t('file.failedDelete', { lang: I18nContext.current()?.lang })}"}`,
+          HttpStatus.EXPECTATION_FAILED,
         );
       }
     });
@@ -180,8 +181,9 @@ export class FilesService {
       where: { path: url },
     });
     if (!!existingFile) {
-      throw new PreconditionFailedException(
+      throw new HttpException(
         `{"file": "${this.i18n.t('file.fileExists', { lang: I18nContext.current()?.lang })}"}`,
+        HttpStatus.NOT_FOUND,
       );
     }
     const file = this.fileRepository.create({ path: url });

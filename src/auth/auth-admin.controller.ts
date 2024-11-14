@@ -96,8 +96,8 @@ export class AuthAdminController {
   @Post('logout')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
-  public async logout(@Request() request): Promise<void> {
-    await this.authAdminService.logout({
+  public async adminLogout(@Request() request): Promise<void> {
+    await this.authAdminService.adminLogout({
       id: request.user.id,
     });
   }

@@ -17,7 +17,7 @@ export class AuthEmailLoginDto {
   @Validate(IsExist, ['User', 'email', 'validation.emailNotExists'])
   email: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'H@mza12345' })
   @IsNotEmpty()
   @IsStrongPassword({
     minLength: 5,

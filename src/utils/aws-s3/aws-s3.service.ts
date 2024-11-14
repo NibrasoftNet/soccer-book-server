@@ -1,9 +1,4 @@
-import {
-  Inject,
-  Injectable,
-  PreconditionFailedException,
-  UnprocessableEntityException,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import {
   DeleteObjectCommand,
   GetObjectCommand,
@@ -16,7 +11,6 @@ import {
 } from '@aws-sdk/client-s3';
 import { Readable } from 'stream';
 import { I18nContext, I18nService } from 'nestjs-i18n';
-import { HttpResponseException } from '../exceptions/http-response.exception';
 
 @Injectable()
 export class AwsS3Service {
@@ -50,8 +44,9 @@ export class AwsS3Service {
     const response = await this.s3Client.send(command);
 
     if (!response.Body) {
-      throw new UnprocessableEntityException(
-        `{"file":"${this.i18n.t('common.image', { lang: I18nContext.current()?.lang })}"}`,
+      throw new HttpException(
+        `{"file":"${this.i18n.t('file.failedUpload', { lang: I18nContext.current()?.lang })}"}`,
+        HttpStatus.EXPECTATION_FAILED,
       );
     }
 
@@ -95,8 +90,9 @@ export class AwsS3Service {
         awsResponse['$metadata'].httpStatusCode === 200
       )
     ) {
-      throw new PreconditionFailedException(
+      throw new HttpException(
         `{"file": "${this.i18n.t('file.failedUpload', { lang: I18nContext.current()?.lang })}"}`,
+        HttpStatus.EXPECTATION_FAILED,
       );
     }
     return true;
@@ -126,8 +122,9 @@ export class AwsS3Service {
         awsResponse['$metadata'].httpStatusCode === 204
       )
     ) {
-      throw new PreconditionFailedException(
-        `{"file": "${this.i18n.t('file.failedUpload', { lang: I18nContext.current()?.lang })}"}`,
+      throw new HttpException(
+        `{"file":"${this.i18n.t('file.failedUpload', { lang: I18nContext.current()?.lang })}"}`,
+        HttpStatus.EXPECTATION_FAILED,
       );
     }
     return true;
@@ -150,7 +147,10 @@ export class AwsS3Service {
         // doesn't exist, permission policy WITHOUT s3:ListBucket
         return false;
       } else {
-        throw new HttpResponseException(error);
+        throw new HttpException(
+          `{"auth": "Fialed to check if file exists in s3 bucket"}`,
+          HttpStatus.BAD_REQUEST,
+        );
       }
     }
   }

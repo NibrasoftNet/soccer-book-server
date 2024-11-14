@@ -1,9 +1,4 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-  UnprocessableEntityException,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { User } from '../users/entities/user.entity';
 import bcrypt from 'bcryptjs';
 import { plainToClass } from 'class-transformer';
@@ -14,11 +9,6 @@ import { JwtRefreshPayloadType } from './strategies/types/jwt-refresh-payload.ty
 import { JwtPayloadType } from './strategies/types/jwt-payload.type';
 import { Mapper } from 'automapper-core';
 import { InjectMapper } from 'automapper-nestjs';
-import {
-  runOnTransactionComplete,
-  runOnTransactionRollback,
-  Transactional,
-} from 'typeorm-transactional';
 import { OtpService } from 'src/otp/otp.service';
 import { I18nContext, I18nService } from 'nestjs-i18n';
 import { Status } from '../statuses/entities/status.entity';
@@ -58,8 +48,9 @@ export class AuthService {
     });
 
     if (user.provider !== AuthProvidersEnum.EMAIL) {
-      throw new UnprocessableEntityException(
+      throw new HttpException(
         `{"email": "${this.i18n.t('auth.loggedWithSocial', { lang: I18nContext.current()?.lang })}:${user.provider}"}`,
+        HttpStatus.PRECONDITION_REQUIRED,
       );
     }
 
@@ -69,15 +60,17 @@ export class AuthService {
     );
 
     if (!isValidPassword) {
-      throw new UnprocessableEntityException(
+      throw new HttpException(
         `{"password": "${this.i18n.t('auth.invalidPassword', { lang: I18nContext.current()?.lang })}"}`,
+        HttpStatus.PRECONDITION_FAILED,
       );
     }
 
     if (user.status?.id === StatusCodeEnum.INACTIVE) {
       await this.sendConfirmEmail(user.email);
-      throw new ForbiddenException(
+      throw new HttpException(
         `{"email": "${this.i18n.t('auth.emailNotConfirmed', { lang: I18nContext.current()?.lang })}"}`,
+        HttpStatus.PRECONDITION_FAILED,
       );
     }
 
@@ -136,8 +129,9 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new NotFoundException(
+      throw new HttpException(
         `{"user": "${this.i18n.t('auth.userNotFound', { lang: I18nContext.current()?.lang })}"}`,
+        HttpStatus.NOT_FOUND,
       );
     }
 
@@ -154,8 +148,9 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnprocessableEntityException(
-        `{"email":${this.i18n.t('auth.emailNotExists', { lang: I18nContext.current()?.lang })}}`,
+      throw new HttpException(
+        `{"user": "${this.i18n.t('auth.userNotFound', { lang: I18nContext.current()?.lang })}"}`,
+        HttpStatus.NOT_FOUND,
       );
     }
     await this.sendForgetPasswordEmail(email);
@@ -167,8 +162,9 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new NotFoundException(
+      throw new HttpException(
         `{"user": "${this.i18n.t('auth.userNotFound', { lang: I18nContext.current()?.lang })}"}`,
+        HttpStatus.NOT_FOUND,
       );
     }
 
@@ -218,8 +214,9 @@ export class AuthService {
     );
 
     if (!isValidPassword) {
-      throw new UnprocessableEntityException(
+      throw new HttpException(
         `{"password": "${this.i18n.t('auth.invalidPassword', { lang: I18nContext.current()?.lang })}"}`,
+        HttpStatus.PRECONDITION_FAILED,
       );
     }
 
@@ -249,18 +246,7 @@ export class AuthService {
     });
   }
 
-  @Transactional()
   async softDelete(user: User): Promise<void> {
-    runOnTransactionRollback(() =>
-      console.log(`Account Deletion transaction rolled back`),
-    );
-    runOnTransactionComplete((error) => {
-      if (!!error) {
-        console.log(`Account Deletion transaction failed`);
-      }
-      console.log(`Account Deletion transaction completed`);
-    });
-
     await this.usersService.softDelete(user.id);
   }
 

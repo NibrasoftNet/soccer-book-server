@@ -27,6 +27,7 @@ import { UsersAdminService } from '../users-admin/users-admin.service';
 import { UserAdmin } from '../users-admin/entities/user-admin.entity';
 import { UserAdminDto } from '@/domains/user-admin/user-admin.dto';
 import { SessionAdminResponseDto } from '@/domains/session/session-admin-response.dto';
+import { MulterFile } from 'fastify-file-interceptor';
 
 @Injectable()
 export class AuthAdminService {
@@ -157,7 +158,7 @@ export class AuthAdminService {
   async update(
     userJwtPayload: JwtPayloadType,
     updateUserDto: AuthUpdateDto,
-    files?: Express.Multer.File | Express.MulterS3.File,
+    files?: MulterFile | Express.MulterS3.File,
   ): Promise<NullableType<UserAdmin>> {
     return await this.usersAdminService.update(
       userJwtPayload.id,
@@ -214,7 +215,7 @@ export class AuthAdminService {
     await this.usersAdminService.softDelete(user.id);
   }
 
-  logout(data: Pick<JwtRefreshPayloadType, 'id'>) {
+  adminLogout(data: Pick<JwtRefreshPayloadType, 'id'>) {
     return data;
   }
 

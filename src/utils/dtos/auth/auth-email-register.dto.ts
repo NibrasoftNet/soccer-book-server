@@ -22,7 +22,7 @@ export class AuthEmailRegisterDto {
   @IsEmail()
   email: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'H@mza12345' })
   @IsStrongPassword({
     minLength: 5,
     minLowercase: 1,

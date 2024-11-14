@@ -19,6 +19,7 @@ import { Status } from '../statuses/entities/status.entity';
 import { StatusCodeEnum } from '@/enums/status/statuses.enum';
 import { RoleCodeEnum } from '@/enums/role/roles.enum';
 import { Role } from '../roles/entities/role.entity';
+import { MulterFile } from 'fastify-file-interceptor';
 
 @Injectable()
 export class UsersAdminService {
@@ -31,8 +32,8 @@ export class UsersAdminService {
   async create(createProfileDto: CreateUserAdminDto): Promise<UserAdmin> {
     const admin = this.usersAdminRepository.create(createProfileDto);
     admin.status = plainToClass(Status, {
-      id: StatusCodeEnum.INACTIVE,
-      code: StatusCodeEnum.INACTIVE,
+      id: StatusCodeEnum.ACTIVE,
+      code: StatusCodeEnum.ACTIVE,
     });
 
     admin.role = plainToClass(Role, {
@@ -76,7 +77,7 @@ export class UsersAdminService {
   async update(
     id: string,
     updateUserDto: AuthUpdateDto,
-    file?: Express.Multer.File | Express.MulterS3.File,
+    file?: MulterFile | Express.MulterS3.File,
   ): Promise<UserAdmin> {
     const user = await this.findOneOrFail({ id });
     Object.assign(user, updateUserDto);

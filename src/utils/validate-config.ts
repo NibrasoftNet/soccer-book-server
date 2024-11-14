@@ -1,6 +1,7 @@
 import { plainToClass } from 'class-transformer';
 import { validateSync } from 'class-validator';
 import { ClassConstructor } from 'class-transformer/types/interfaces';
+import { HttpException, HttpStatus } from '@nestjs/common';
 
 function validateConfig<T extends object>(
   config: Record<string, unknown>,
@@ -14,7 +15,10 @@ function validateConfig<T extends object>(
   });
 
   if (errors.length > 0) {
-    throw new Error(errors.toString());
+    throw new HttpException(
+      `{"validation": "${errors.toString()}"}`,
+      HttpStatus.PRECONDITION_FAILED,
+    );
   }
   return validatedConfig;
 }

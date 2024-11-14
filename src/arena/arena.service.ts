@@ -14,11 +14,11 @@ import { FilesService } from '../files/files.service';
 import { CreateArenaDto } from '@/domains/arena/create-arena.dto';
 import { AddressService } from '../address/address.service';
 import { UpdateArenaDto } from '@/domains/arena/update-arena.dto';
-import { Team } from '../team/entities/team.entity';
 import { NullableType } from '../utils/types/nullable.type';
 import { ArenaCategoryService } from '../arena-category/arena-category.service';
 import { paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 import { arenaPaginationConfig } from './config/arena-pagination-config';
+import { MulterFile } from 'fastify-file-interceptor';
 
 @Injectable()
 export class ArenaService {
@@ -34,7 +34,7 @@ export class ArenaService {
   async create(
     userJwtPayload: JwtPayloadType,
     createArenaDto: CreateArenaDto,
-    files?: Array<Express.Multer.File | Express.MulterS3.File>,
+    files?: Array<MulterFile | Express.MulterS3.File>,
   ): Promise<Arena> {
     return await this.arenaRepository.manager.transaction(
       async (entityManager: EntityManager) => {
@@ -42,7 +42,7 @@ export class ArenaService {
           Arena,
           createArenaDto as DeepPartial<Arena>,
         );
-        arena.userAdmin = await this.usersAdminService.findOneOrFail({
+        arena.creator = await this.usersAdminService.findOneOrFail({
           id: userJwtPayload.id,
         });
         arena.category = await this.arenaCategoryService.findOneOrFail({
@@ -69,8 +69,8 @@ export class ArenaService {
   }
 
   async findOne(
-    field: FindOptionsWhere<Team>,
-    relations?: FindOptionsRelations<Team>,
+    field: FindOptionsWhere<Arena>,
+    relations?: FindOptionsRelations<Arena>,
   ): Promise<NullableType<Arena>> {
     return await this.arenaRepository.findOne({
       where: field,
@@ -79,8 +79,8 @@ export class ArenaService {
   }
 
   async findOneOrFail(
-    field: FindOptionsWhere<Team>,
-    relations?: FindOptionsRelations<Team>,
+    field: FindOptionsWhere<Arena>,
+    relations?: FindOptionsRelations<Arena>,
   ): Promise<Arena> {
     return await this.arenaRepository.findOneOrFail({
       where: field,
@@ -91,7 +91,7 @@ export class ArenaService {
   async update(
     id: string,
     updateArenaDto: UpdateArenaDto,
-    files?: Array<Express.Multer.File | Express.MulterS3.File>,
+    files?: Array<MulterFile | Express.MulterS3.File>,
   ): Promise<Arena> {
     return await this.arenaRepository.manager.transaction(
       async (entityManager: EntityManager) => {

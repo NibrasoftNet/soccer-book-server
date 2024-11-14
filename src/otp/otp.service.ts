@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
   DeepPartial,
   DeleteResult,
@@ -164,15 +160,18 @@ export class OtpService {
       where: { email: confirmOtpEmailDto.email },
     });
     if (!otpRecord) {
-      throw new NotFoundException(
+      throw new HttpException(
         `{"otp":"${this.i18n.t('auth.otpNotFound', { lang: I18nContext.current()?.lang })}"}`,
+
+        HttpStatus.NOT_FOUND,
       );
     }
 
     const currentTime = new Date().getTime();
     if (currentTime > otpRecord.expireIn) {
-      throw new BadRequestException(
+      throw new HttpException(
         `{"otp":"${this.i18n.t('auth.otpExpired', { lang: I18nContext.current()?.lang })}"}`,
+        HttpStatus.PRECONDITION_FAILED,
       );
     }
 
@@ -181,8 +180,9 @@ export class OtpService {
       otpRecord.otp,
     ); // Swap arguments
     if (!isOtpValid) {
-      throw new BadRequestException(
+      throw new HttpException(
         `{"otp":"${this.i18n.t('auth.invalidOtp', { lang: I18nContext.current()?.lang })}"}`,
+        HttpStatus.PRECONDITION_FAILED,
       );
     }
 

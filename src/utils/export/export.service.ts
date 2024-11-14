@@ -1,4 +1,4 @@
-import { Injectable, PreconditionFailedException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Worker } from 'worker_threads';
 import * as ExcelJS from 'exceljs';
 import path from 'path';
@@ -71,12 +71,13 @@ export class ExportService {
         filePath,
         `${new Date()
           .toISOString()
-          .replace(/[-T:.Z]/g, '')}-trashback-export.${fileType}`,
+          .replace(/[-T:.Z]/g, '')}-soccer-book-export.${fileType}`,
       );
       fs.writeFileSync(fileToExportPath, bufferWorkbook);
     } catch (error) {
-      throw new PreconditionFailedException(
+      throw new HttpException(
         `{"export": "No content to export ${error}"}`,
+        HttpStatus.EXPECTATION_FAILED,
       );
     }
   }

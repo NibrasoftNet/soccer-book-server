@@ -12,7 +12,7 @@ export class UpdateTeamDto {
   @IsString()
   bio?: string;
 
-  @ApiProperty({ example: 1 })
+  @ApiProperty({ example: true })
   @IsOptional()
   @IsBoolean()
   active?: boolean;

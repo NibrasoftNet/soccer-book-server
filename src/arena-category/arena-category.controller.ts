@@ -131,7 +131,7 @@ export class ArenaCategoryController {
   async update(
     @Param('id') id: string,
     @Body('data', ParseFormdataPipe) data,
-    @UploadedFile() file?: Express.Multer.File | Express.MulterS3.File,
+    @UploadedFile() file?: MulterFile | Express.MulterS3.File,
   ): Promise<ArenaCategory> {
     const updateAreaCategoryDto = new UpdateArenaCategoryDto(data);
     await Utils.validateDtoOrFail(updateAreaCategoryDto);

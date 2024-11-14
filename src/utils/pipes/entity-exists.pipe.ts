@@ -1,4 +1,9 @@
-import { Injectable, PipeTransform, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  PipeTransform,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
 export const IsExistsPipe = (entityName: string, entityKey: string) => {
@@ -16,8 +21,9 @@ export const IsExistsPipe = (entityName: string, entityKey: string) => {
           });
 
         if (!repository) {
-          throw new BadRequestException(
-            `${entityName} with ${entityKey} ${entityItem} not found`,
+          throw new HttpException(
+            `{"auth": "${`${entityName} with ${entityKey} ${entityItem} not found`}"}`,
+            HttpStatus.PRECONDITION_REQUIRED,
           );
         }
         return entityItem;

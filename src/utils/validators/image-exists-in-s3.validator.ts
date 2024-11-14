@@ -2,8 +2,7 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { Injectable } from '@nestjs/common';
-import { HttpResponseException } from '../exceptions/http-response.exception';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { AwsS3Service } from '../aws-s3/aws-s3.service';
 
 @Injectable()
@@ -15,8 +14,10 @@ export class ImageExistsInS3Validator implements ValidatorConstraintInterface {
     try {
       return await this.awsS3Service.checkIfFileExistsInS3(imageUrl);
     } catch (error) {
-      error.status = 422;
-      throw new HttpResponseException(error);
+      throw new HttpException(
+        `{"s3": "Fail to check if file exists in s3"}`,
+        HttpStatus.PRECONDITION_FAILED,
+      );
     }
   }
 

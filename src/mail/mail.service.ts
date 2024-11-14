@@ -1,11 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { I18nContext } from 'nestjs-i18n';
 import { MailData } from './interfaces/mail-data.interface';
 import { AllConfigType } from 'src/config/config.type';
 import { MaybeType } from '../utils/types/maybe.type';
 import path from 'path';
-import { HttpResponseException } from '../utils/exceptions/http-response.exception';
 import nodemailer from 'nodemailer';
 import fs from 'node:fs/promises';
 import Handlebars from 'handlebars';
@@ -124,7 +123,10 @@ export class MailService {
       await this.mailerService.sendMail(sendingExportEmailOptions);
     } catch (error) {
       this.logger.error('Failed to send email', error.stack);
-      throw new HttpResponseException(error);
+      throw new HttpException(
+        `{"email":"email sending failed"}`,
+        HttpStatus.EXPECTATION_FAILED,
+      );
     }
   }
   async sendDummyMail() {

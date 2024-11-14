@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { MulterFile } from 'fastify-file-interceptor';
 
 @Injectable()
 export class GoogleGenerativeAIService {
@@ -6,10 +7,9 @@ export class GoogleGenerativeAIService {
 
   async generateContent(
     parts: { text: string }[],
-    file: Express.Multer.File,
+    file: MulterFile,
   ): Promise<any> {
     const base64Data = file.buffer.toString('base64');
-    console.log('fgsfdsdf', file.mimetype);
     const image = {
       inlineData: {
         data: base64Data,

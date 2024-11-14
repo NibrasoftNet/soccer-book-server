@@ -1,10 +1,9 @@
-// src/auth/guards/admin-only.guard.ts
 import {
   Injectable,
   CanActivate,
   ExecutionContext,
-  UnauthorizedException,
-  ForbiddenException,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { AuthService } from '../../auth/auth.service';
 import { I18nContext, I18nService } from 'nestjs-i18n';
@@ -21,8 +20,9 @@ export class AdminOnlyGuard implements CanActivate {
     const userJwtPayload = request.user; // Assuming you store user details in the request after authentication
 
     if (!userJwtPayload) {
-      throw new UnauthorizedException(
+      throw new HttpException(
         `{"email":${this.i18n.t('auth.emailNotExists', { lang: I18nContext.current()?.lang })}}`,
+        HttpStatus.PRECONDITION_REQUIRED,
       );
     }
 
@@ -30,11 +30,13 @@ export class AdminOnlyGuard implements CanActivate {
     const user = await this.authService.me(userJwtPayload);
 
     // Check if the user has the required role (assuming roleId 1 means admin)
-    if (user?.user.role === 'admin') {
+    if (user?.user.role === 'ADMIN') {
       return true;
     }
-    throw new ForbiddenException(
+    throw new HttpException(
       `{"email": "${this.i18n.t('auth.emailNotConfirmed', { lang: I18nContext.current()?.lang })}"}`,
+
+      HttpStatus.METHOD_NOT_ALLOWED,
     );
   }
 }

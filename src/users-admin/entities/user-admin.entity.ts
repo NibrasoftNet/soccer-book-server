@@ -77,7 +77,7 @@ export class UserAdmin extends EntityHelper {
   subscriptionExpiryDate: Date;
 
   @AutoMap(() => [Arena])
-  @OneToMany(() => Arena, (arena) => arena.userAdmin, {
+  @OneToMany(() => Arena, (arena) => arena.creator, {
     cascade: true,
   })
   arenas: Arena[];

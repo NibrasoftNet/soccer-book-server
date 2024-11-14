@@ -2,7 +2,8 @@ import {
   PipeTransform,
   Injectable,
   ArgumentMetadata,
-  BadRequestException,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 
 @Injectable()
@@ -12,7 +13,10 @@ export class ParseDatePipe implements PipeTransform<string, Date | undefined> {
     if (value) {
       const parsedDate = new Date(value);
       if (isNaN(parsedDate.getTime())) {
-        throw new BadRequestException(`{"email":'email Not Exists'}`);
+        throw new HttpException(
+          `{"date": "data format invalid"}`,
+          HttpStatus.PRECONDITION_FAILED,
+        );
       }
       return parsedDate;
     }

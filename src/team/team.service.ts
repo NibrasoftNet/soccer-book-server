@@ -16,6 +16,7 @@ import { NullableType } from '../utils/types/nullable.type';
 import { CreateTeamDto } from '@/domains/team/create-team.dto';
 import { FilesService } from '../files/files.service';
 import { UpdateTeamDto } from '@/domains/team/update-team.dto';
+import { MulterFile } from 'fastify-file-interceptor';
 
 @Injectable()
 export class TeamService {
@@ -28,7 +29,7 @@ export class TeamService {
   async create(
     userJwtPayload: JwtPayloadType,
     createTeamDto: CreateTeamDto,
-    file?: Express.Multer.File | Express.MulterS3.File,
+    file?: MulterFile | Express.MulterS3.File,
   ): Promise<Team> {
     return await this.teamRepository.manager.transaction(
       async (entityManager: EntityManager) => {
@@ -110,8 +111,8 @@ export class TeamService {
   async update(
     id: string,
     updateTeamDto: UpdateTeamDto,
-    file?: Express.Multer.File | Express.MulterS3.File,
-  ) {
+    file?: MulterFile | Express.MulterS3.File,
+  ): Promise<Team> {
     return await this.teamRepository.manager.transaction(
       async (entityManager: EntityManager) => {
         // Find the team within the transaction

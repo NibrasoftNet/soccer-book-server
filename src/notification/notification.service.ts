@@ -1,4 +1,4 @@
-import { Injectable, PreconditionFailedException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   Brackets,
@@ -73,10 +73,11 @@ export class NotificationService {
     );
 
     if (!notification.users.length) {
-      throw new PreconditionFailedException(
+      throw new HttpException(
         `{"users": "${this.i18n.t('auth.userNotFound', {
           lang: I18nContext.current()?.lang,
         })}}`,
+        HttpStatus.PRECONDITION_FAILED,
       );
     }
 
@@ -116,7 +117,7 @@ export class NotificationService {
 
     const currentDayOfWeek = new Date().getUTCDay(); // 0 (Sunday) to 6 (Saturday)
 
-    const notifications = await this.notificationsRepository.query(
+    return await this.notificationsRepository.query(
       `SELECT *
        FROM notification,
             unnest(notification.scheduled_notification) AS scheduled_date
@@ -124,7 +125,6 @@ export class NotificationService {
          AND notification.active = true`,
       [currentDayOfWeek],
     );
-    return notifications;
   }
 
   async findAllMyNotifications(
@@ -297,7 +297,10 @@ export class NotificationService {
       tokens = await this.usersService.findAllUsersToken();
     } else {
       this.logger.error('Error handling notifications:', notification);
-      throw new Error('Wrong Notification configuration');
+      throw new HttpException(
+        `{"notification": "Wrong Notification configuration"}`,
+        HttpStatus.PRECONDITION_FAILED,
+      );
     }
 
     if (tokens.length < 1) {
@@ -305,7 +308,7 @@ export class NotificationService {
       throw new Error('No notification receiver found');
     }
 
-    const message = new NotificationMessageDto({
+    return new NotificationMessageDto({
       notification: {
         title: notification.title,
         body: notification.message || 'default message',
@@ -317,6 +320,5 @@ export class NotificationService {
       },
       tokens: tokens,
     });
-    return message;
   }
 }
