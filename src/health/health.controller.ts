@@ -10,7 +10,7 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Health')
-@Controller('health')
+@Controller({ path: 'health', version: '1' })
 export class HealthController {
   constructor(
     private health: HealthCheckService,

@@ -15,5 +15,6 @@
   "userNotExists": "User not found",
   "rewardNotExists": "Reward not found",
   "clientPackageNotExists": "Client package not found",
-  "taskNotExists": "Task not found"
+  "taskNotExists": "Task not found",
+  "unique": "must be unique"
 }

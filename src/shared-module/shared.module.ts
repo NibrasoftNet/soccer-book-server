@@ -8,6 +8,7 @@ import multerS3 from 'multer-s3';
 import { AllConfigType } from 'src/config/config.type';
 import { SharedService } from './shared.service';
 import { JwtModule } from '@nestjs/jwt';
+import { IsUniqueOrAppend } from '../utils/validators/is-unique-or-append';
 
 @Global()
 @Module({
@@ -95,6 +96,6 @@ import { JwtModule } from '@nestjs/jwt';
     }),
   ],
   exports: [MulterModule, SharedService],
-  providers: [SharedService],
+  providers: [SharedService, IsUniqueOrAppend],
 })
 export class SharedModule {}

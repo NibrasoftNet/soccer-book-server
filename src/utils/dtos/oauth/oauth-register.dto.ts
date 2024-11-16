@@ -29,12 +29,7 @@ export class OauthRegisterDto {
   @ApiProperty({ description: 'The first name of the user', required: false })
   @IsOptional()
   @IsString()
-  firstName?: string;
-
-  @ApiProperty({ description: 'The last name of the user', required: false })
-  @IsOptional()
-  @IsString()
-  lastName?: string;
+  userName?: string;
 
   @ApiProperty({ description: 'Address', required: false })
   @IsNotEmpty()
@@ -56,8 +51,7 @@ export class OauthRegisterDto {
     id,
     email,
     photo,
-    firstName,
-    lastName,
+    userName,
     address,
     notificationToken,
     provider,
@@ -65,8 +59,7 @@ export class OauthRegisterDto {
     id: string;
     email: string;
     photo: string | null;
-    firstName?: string;
-    lastName?: string;
+    userName?: string;
     address: CreateAddressDto;
     notificationToken?: string;
     provider: AuthProvidersEnum;
@@ -74,8 +67,7 @@ export class OauthRegisterDto {
     this.id = id;
     this.email = email;
     this.photo = photo;
-    this.firstName = firstName;
-    this.lastName = lastName;
+    this.userName = userName;
     this.address = address;
     this.notificationToken = notificationToken;
     this.provider = provider;

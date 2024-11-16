@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   UseGuards,
@@ -11,6 +10,7 @@ import {
   Request,
   HttpCode,
   HttpStatus,
+  Put,
 } from '@nestjs/common';
 import { TestimonialsService } from './testimonials.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -27,6 +27,7 @@ import { TestimonialDto } from '@/domains/testimonial/testimonial.dto';
 import { RoleCodeEnum } from '@/enums/role/roles.enum';
 import { CreateTestimonialDto } from '@/domains/testimonial/create-testimonial.dto';
 import { UpdateTestimonialDto } from '@/domains/testimonial/update-testimonial.dto';
+import { IsCreatorPipe } from '../utils/pipes/is-creator.pipe';
 
 @ApiTags('Testimonials')
 @ApiBearerAuth()
@@ -45,7 +46,7 @@ export class TestimonialsController {
   async create(
     @Request() request,
     @Body() createTestimonialDto: CreateTestimonialDto,
-  ) {
+  ): Promise<Testimonial> {
     return await this.testimonialsService.create(
       request.user,
       createTestimonialDto,
@@ -81,9 +82,9 @@ export class TestimonialsController {
   @Roles(RoleCodeEnum.USER, RoleCodeEnum.ADMIN, RoleCodeEnum.SUPERADMIN)
   @UseInterceptors(MapInterceptor(Testimonial, TestimonialDto))
   @HttpCode(HttpStatus.OK)
-  @Patch(':id')
+  @Put(':id')
   async update(
-    @Param('id') id: string,
+    @Param('id', IsCreatorPipe('Testimonial', 'id', 'creator')) id: string,
     @Body() updateTestimonialDto: UpdateTestimonialDto,
   ) {
     return this.testimonialsService.update(id, updateTestimonialDto);

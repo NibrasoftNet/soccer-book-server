@@ -61,7 +61,9 @@ export class TeamService {
     const queryBuilder = this.teamRepository
       .createQueryBuilder('team')
       .leftJoinAndSelect('team.creator', 'creator')
-      .where('creator.id = :id', { id: userJwtPayload.id });
+      .leftJoinAndSelect('team.members', 'members')
+      .where('creator.id = :id', { id: userJwtPayload.id })
+      .orWhere('members.id = :id', { id: userJwtPayload.id });
 
     return await paginate(query, queryBuilder, teamPaginationConfig);
   }

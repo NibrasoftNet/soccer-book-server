@@ -34,10 +34,12 @@ import { UpdateArenaDto } from '@/domains/arena/update-arena.dto';
 import { ParseFormdataPipe } from '../utils/pipes/parse-formdata.pipe';
 import { Utils } from '../utils/utils';
 import { NullableType } from '../utils/types/nullable.type';
-import { Paginate, PaginateQuery } from 'nestjs-paginate';
+import { ApiPaginationQuery, Paginate, PaginateQuery } from 'nestjs-paginate';
 import { PaginatedDto } from '../utils/serialization/paginated.dto';
 import { Mapper } from 'automapper-core';
 import { FilesFastifyInterceptor, MulterFile } from 'fastify-file-interceptor';
+import { arenaPaginationConfig } from './config/arena-pagination-config';
+import { IsCreatorPipe } from '../utils/pipes/is-creator.pipe';
 
 @ApiTags('Arena')
 @ApiBearerAuth()
@@ -83,6 +85,8 @@ export class ArenaController {
     return await this.arenaService.create(request.user, createArenaDto, files);
   }
 
+  @ApiPaginationQuery(arenaPaginationConfig)
+  @Roles(RoleCodeEnum.ADMIN, RoleCodeEnum.USER)
   @HttpCode(HttpStatus.OK)
   @Get()
   async findAll(
@@ -97,6 +101,7 @@ export class ArenaController {
     );
   }
 
+  @Roles(RoleCodeEnum.ADMIN, RoleCodeEnum.USER)
   @UseInterceptors(MapInterceptor(Arena, ArenaDto))
   @HttpCode(HttpStatus.OK)
   @Get(':id')
@@ -130,7 +135,7 @@ export class ArenaController {
   @HttpCode(HttpStatus.OK)
   @Put(':id')
   async update(
-    @Param('id') id: string,
+    @Param('id', IsCreatorPipe('Arena', 'id', 'creator')) id: string,
     @Body('data', ParseFormdataPipe) data,
     @UploadedFiles() files?: Array<MulterFile | Express.MulterS3.File>,
   ): Promise<Arena> {
@@ -144,7 +149,7 @@ export class ArenaController {
   @Roles(RoleCodeEnum.ADMIN)
   @HttpCode(HttpStatus.OK)
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', IsCreatorPipe('Arena', 'id', 'creator')) id: string) {
     return this.arenaService.remove(id);
   }
 }

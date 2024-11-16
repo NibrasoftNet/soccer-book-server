@@ -14,6 +14,7 @@ import { Transform, Type } from 'class-transformer';
 import { IsNotExist } from 'src/utils/validators/is-not-exists.validator';
 import { lowerCaseTransformer } from '../../transformers/lower-case.transformer';
 import { CreateAddressDto } from '@/domains/address/create-address.dto';
+import { IsUniqueOrAppend } from '../../validators/is-unique-or-append';
 
 export class AuthEmailRegisterDto {
   @ApiProperty({ example: 'test1@example.com' })
@@ -38,16 +39,12 @@ export class AuthEmailRegisterDto {
   @IsString()
   @MaxLength(16)
   @MinLength(2)
-  @Transform(({ value }) => value.charAt(0).toUpperCase() + value.slice(1))
-  firstName: string;
-
-  @ApiProperty({ example: 'Doe' })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(16)
-  @MinLength(3)
-  @Transform(({ value }) => value.charAt(0).toUpperCase() + value.slice(1))
-  lastName: string;
+  @Validate(IsUniqueOrAppend, [
+    'User',
+    'userName',
+    'validation.userNameAlreadyExists',
+  ])
+  userName: string;
 
   @ApiProperty()
   @IsOptional()

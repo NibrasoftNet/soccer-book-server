@@ -71,8 +71,7 @@ export class OauthService {
       } as StatusesDto,
       address: oauthRegisterDto.address,
       photo: profilePhoto,
-      firstName: oauthRegisterDto.firstName,
-      lastName: oauthRegisterDto.lastName,
+      userName: oauthRegisterDto.userName ?? 'anonymous',
       provider: oauthRegisterDto.provider,
       socialId: oauthRegisterDto.id,
     });

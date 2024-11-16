@@ -7,6 +7,7 @@ import {
   JoinColumn,
   ManyToMany,
   JoinTable,
+  OneToMany,
 } from 'typeorm';
 import { AutoMap } from 'automapper-classes';
 import EntityHelper from '../../utils/entities/entity-helper';
@@ -14,6 +15,7 @@ import { UserAdmin } from '../../users-admin/entities/user-admin.entity';
 import { Address } from '../../address/entities/address.entity';
 import { FileEntity } from '../../files/entities/file.entity';
 import { ArenaCategory } from '../../arena-category/entities/arena-category.entity';
+import { Reservation } from '../../reservation/entities/reservation.entity';
 
 @Entity()
 export class Arena extends EntityHelper {
@@ -70,10 +72,17 @@ export class Arena extends EntityHelper {
   width: number;
 
   @AutoMap()
-  @Column({ type: 'time', nullable: true, default: '10:00:00' })
+  @Column({ type: 'time', nullable: true, default: '10:00' })
   openTime: string;
 
   @AutoMap()
-  @Column({ type: 'time', nullable: true, default: '23:59:59' })
+  @Column({ type: 'time', nullable: true, default: '23:59' })
   closeTime: string;
+
+  @AutoMap(() => [Reservation])
+  @OneToMany(() => Reservation, (reservation) => reservation.arena, {
+    nullable: true,
+    eager: true,
+  })
+  reservations: Reservation[];
 }

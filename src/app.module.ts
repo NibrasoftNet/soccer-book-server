@@ -45,6 +45,7 @@ import { SharedModule } from './shared-module/shared.module';
 import { UsersAdminModule } from './users-admin/users-admin.module';
 import { ArenaModule } from './arena/arena.module';
 import { ArenaCategory } from './arena-category/entities/arena-category.entity';
+import { ReservationModule } from './reservation/reservation.module';
 
 @Module({
   imports: [
@@ -155,6 +156,7 @@ import { ArenaCategory } from './arena-category/entities/arena-category.entity';
     SubscriptionToTeamModule,
     ArenaModule,
     ArenaCategory,
+    ReservationModule,
   ],
 
   providers: [

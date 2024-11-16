@@ -16,11 +16,7 @@ export class UserDto extends EntityHelperDto {
   email: string;
 
   @AutoMap()
-  firstName?: string;
-
-  @AutoMap()
-  @Expose()
-  lastName?: string;
+  userName: string;
 
   @AutoMap(() => FileDto)
   @Expose()

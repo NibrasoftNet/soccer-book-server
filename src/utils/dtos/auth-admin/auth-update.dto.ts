@@ -6,11 +6,7 @@ import { CreateAddressDto } from '@/domains/address/create-address.dto';
 export class AuthUpdateDto {
   @ApiProperty({ example: 'John' })
   @IsOptional()
-  firstName?: string | null;
-
-  @ApiProperty({ example: 'Doe' })
-  @IsOptional()
-  lastName?: string | null;
+  userName?: string | null;
 
   @ApiProperty()
   @IsOptional()
@@ -39,24 +35,21 @@ export class AuthUpdateDto {
   notificationsToken?: string | null;
 
   constructor({
-    firstName,
-    lastName,
+    userName,
     address,
     phone,
     email,
     password,
     notificationsToken,
   }: {
-    firstName?: string;
-    lastName?: string;
+    userName?: string;
     address?: CreateAddressDto;
     phone?: string;
     email?: string;
     password?: string;
     notificationsToken?: string;
   }) {
-    this.firstName = firstName;
-    this.lastName = lastName;
+    this.userName = userName;
     this.address = address;
     this.phone = phone;
     this.email = email;

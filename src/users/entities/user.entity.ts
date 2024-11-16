@@ -22,6 +22,7 @@ import { AutoMap } from 'automapper-classes';
 import { AuthProvidersEnum } from '@/enums/auth/auth-provider.enum';
 import { Team } from '../../team/entities/team.entity';
 import { SubscriptionToTeam } from '../../subscription-to-team/entities/subscription-to-team.entity';
+import { Reservation } from '../../reservation/entities/reservation.entity';
 
 @Entity()
 export class User extends EntityHelper {
@@ -48,12 +49,8 @@ export class User extends EntityHelper {
   socialId?: string | null;
 
   @AutoMap(() => String)
-  @Column({ type: String, nullable: false })
-  firstName: string;
-
-  @AutoMap(() => String)
-  @Column({ type: String, nullable: false })
-  lastName: string;
+  @Column({ type: String, unique: true, nullable: false })
+  userName: string;
 
   @AutoMap(() => FileEntity)
   @ManyToOne(() => FileEntity, {
@@ -90,7 +87,6 @@ export class User extends EntityHelper {
   @AutoMap(() => [Team])
   @OneToMany(() => Team, (team) => team.creator, {
     nullable: true,
-    onDelete: 'SET NULL',
   })
   teams?: Team[];
 
@@ -103,6 +99,12 @@ export class User extends EntityHelper {
     },
   )
   joinedTeams: SubscriptionToTeam[];
+
+  @AutoMap(() => [Reservation])
+  @OneToMany(() => Reservation, (reservation) => reservation.user, {
+    nullable: true,
+  })
+  reservations: Reservation[];
 
   @AfterLoad()
   public loadPreviousPassword(): void {

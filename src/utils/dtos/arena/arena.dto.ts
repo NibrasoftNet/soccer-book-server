@@ -4,6 +4,7 @@ import { ArenaCategoryDto } from '@/domains/area-category/arena-category.dto';
 import { AddressDto } from '@/domains/address/address.dto';
 import { FileDto } from '@/domains/files/file.dto';
 import { UserAdminDto } from '@/domains/user-admin/user-admin.dto';
+import { ReservationDto } from '@/domains/reservation/reservation.dto';
 
 export class ArenaDto extends EntityHelperDto {
   @AutoMap()
@@ -41,4 +42,7 @@ export class ArenaDto extends EntityHelperDto {
 
   @AutoMap()
   closeTime: string;
+
+  @AutoMap(() => [ReservationDto])
+  reservations: ReservationDto[];
 }

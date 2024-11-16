@@ -22,5 +22,5 @@ export class Testimonial extends EntityHelper {
     eager: true,
     nullable: false,
   })
-  user: User;
+  creator: User;
 }

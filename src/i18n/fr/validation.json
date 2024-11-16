@@ -16,5 +16,6 @@
   "userNotExists": "Utilisateur introuvable",
   "rewardNotExists": "Recompense introuvable",
   "clientPackageNotExists": "Pack client introuvable",
-  "taskNotExists": "Tâche introuvable"
+  "taskNotExists": "Tâche introuvable",
+  "unique": "doit etre unique"
 }

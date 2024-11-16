@@ -22,8 +22,7 @@ export const usersPaginationConfig: PaginateConfig<User> = {
   loadEagerRelations: true,
   filterableColumns: {
     email: [FilterOperator.EQ, FilterSuffix.NOT, FilterOperator.ILIKE],
-    firstName: [FilterOperator.EQ, FilterSuffix.NOT, FilterOperator.ILIKE],
-    lastName: [FilterOperator.EQ, FilterSuffix.NOT, FilterOperator.ILIKE],
+    userName: [FilterOperator.EQ, FilterSuffix.NOT, FilterOperator.ILIKE],
     phone: [FilterOperator.EQ, FilterSuffix.NOT, FilterOperator.ILIKE],
     createdAt: [
       FilterOperator.EQ,

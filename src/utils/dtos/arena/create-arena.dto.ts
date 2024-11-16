@@ -47,16 +47,16 @@ export class CreateArenaDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  @Matches(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/, {
-    message: 'openTime must be in the format HH:MM:SS',
+  @Matches(/^([01]\d|2[0-3]):([0-5]\d)$/, {
+    message: 'openTime must be in the format HH:mm',
   })
   openTime: string;
 
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  @Matches(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/, {
-    message: 'closeTime must be in the format HH:MM:SS',
+  @Matches(/^([01]\d|2[0-3]):([0-5]\d)$/, {
+    message: 'openTime must be in the format HH:mm',
   })
   closeTime: string;
 

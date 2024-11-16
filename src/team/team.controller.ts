@@ -31,7 +31,6 @@ import { PaginatedDto } from '../utils/serialization/paginated.dto';
 import { InjectMapper, MapInterceptor } from 'automapper-nestjs';
 import { Mapper } from 'automapper-core';
 import { ParseFormdataPipe } from '../utils/pipes/parse-formdata.pipe';
-import { Public } from '../utils/validators/public.decorator';
 import { Utils } from '../utils/utils';
 import { CreateTeamDto } from '@/domains/team/create-team.dto';
 import { TeamDto } from '@/domains/team/team.dto';
@@ -86,19 +85,8 @@ export class TeamController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(RoleCodeEnum.SUPERADMIN, RoleCodeEnum.ADMIN)
   @HttpCode(HttpStatus.OK)
-  @Get('list/subscribed')
+  @Get()
   async findAll(
-    @Paginate() query: PaginateQuery,
-  ): Promise<PaginatedDto<Team, TeamDto>> {
-    const teams = await this.teamService.findAll(query);
-    return new PaginatedDto<Team, TeamDto>(this.mapper, teams, Team, TeamDto);
-  }
-
-  @ApiPaginationQuery(teamPaginationConfig)
-  @Get('list/unsubscribed')
-  @Public()
-  @HttpCode(HttpStatus.OK)
-  async findAllUnsubscribed(
     @Paginate() query: PaginateQuery,
   ): Promise<PaginatedDto<Team, TeamDto>> {
     const teams = await this.teamService.findAll(query);
@@ -115,36 +103,6 @@ export class TeamController {
     @Paginate() query: PaginateQuery,
   ): Promise<PaginatedDto<Team, TeamDto>> {
     const teams = await this.teamService.findAllMe(request.user, query);
-    return new PaginatedDto<Team, TeamDto>(this.mapper, teams, Team, TeamDto);
-  }
-
-  @ApiPaginationQuery(teamPaginationConfig)
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(RoleCodeEnum.SUPERADMIN, RoleCodeEnum.USER, RoleCodeEnum.ADMIN)
-  @Get('list/others')
-  @HttpCode(HttpStatus.OK)
-  async findAllOthers(
-    @Request() request,
-    @Paginate() query: PaginateQuery,
-  ): Promise<PaginatedDto<Team, TeamDto>> {
-    const teams = await this.teamService.findAllOthers(request.user, query);
-    return new PaginatedDto<Team, TeamDto>(this.mapper, teams, Team, TeamDto);
-  }
-
-  @ApiPaginationQuery(teamPaginationConfig)
-  @Roles(RoleCodeEnum.SUPERADMIN, RoleCodeEnum.USER, RoleCodeEnum.ADMIN)
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @HttpCode(HttpStatus.OK)
-  @Get('list-requested/_me')
-  @HttpCode(HttpStatus.OK)
-  async findAllRequestMe(
-    @Request() request,
-    @Paginate() query: PaginateQuery,
-  ): Promise<PaginatedDto<Team, TeamDto>> {
-    const teams = await this.teamService.findAllRequestedMe(
-      request.user,
-      query,
-    );
     return new PaginatedDto<Team, TeamDto>(this.mapper, teams, Team, TeamDto);
   }
 

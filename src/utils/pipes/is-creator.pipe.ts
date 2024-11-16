@@ -31,7 +31,6 @@ export const IsCreatorPipe = (
 
       // Access the user ID from the request
       const userId = this.request.user.id;
-      console.log('userId', this.request);
       // Get the repository dynamically based on the entity name
       const repository: Repository<any> =
         this.dataSource.getRepository(entityName);

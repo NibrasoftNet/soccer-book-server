@@ -28,7 +28,7 @@ export class TestimonialsService {
     const testimonial = this.testimonialRepository.create(
       createTestimonialDto as DeepPartial<Testimonial>,
     );
-    testimonial.user = await this.usersService.findOneOrFail({
+    testimonial.creator = await this.usersService.findOneOrFail({
       id: userJwtPayload.id,
     });
     return this.testimonialRepository.save(testimonial);

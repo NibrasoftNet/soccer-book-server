@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 import { ArenaCategoryService } from './arena-category.service';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiConsumes,
   ApiExtraModels,
@@ -39,6 +40,7 @@ import { UpdateArenaCategoryDto } from '@/domains/area-category/update-arena-cat
 import { FileFastifyInterceptor, MulterFile } from 'fastify-file-interceptor';
 
 @ApiTags('Arena-Category')
+@ApiBearerAuth()
 @Controller({ version: '1', path: 'arena-categories' })
 export class ArenaCategoryController {
   constructor(
@@ -142,8 +144,10 @@ export class ArenaCategoryController {
     );
   }
 
-  @Delete(':id')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(RoleCodeEnum.SUPERADMIN)
   @HttpCode(HttpStatus.OK)
+  @Delete(':id')
   async remove(@Param('id') id: string) {
     return await this.arenaCategoryService.remove(id);
   }

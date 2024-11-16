@@ -50,8 +50,8 @@ export class CreateUserDto {
 
   @ApiProperty({ example: 'John' })
   @IsString()
-  @IsOptional()
-  firstName?: string;
+  @IsNotEmpty()
+  userName: string;
 
   @ApiProperty({ example: 'Doe' })
   @IsOptional()
@@ -84,8 +84,7 @@ export class CreateUserDto {
     status,
     address,
     photo,
-    firstName,
-    lastName,
+    userName,
     password,
     provider,
     socialId,
@@ -95,8 +94,7 @@ export class CreateUserDto {
     status: StatusesDto;
     address: CreateAddressDto;
     photo?: FileDto | null;
-    firstName?: string;
-    lastName?: string;
+    userName: string;
     password?: string;
     provider?: string;
     socialId?: string | null;
@@ -106,8 +104,7 @@ export class CreateUserDto {
     this.status = status;
     this.address = address;
     this.photo = photo;
-    this.firstName = firstName;
-    this.lastName = lastName;
+    this.userName = userName;
     this.password = password;
     this.provider = provider;
     this.socialId = socialId;
