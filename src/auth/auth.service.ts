@@ -49,7 +49,12 @@ export class AuthService {
 
     if (user.provider !== AuthProvidersEnum.EMAIL) {
       throw new HttpException(
-        `{"email": "${this.i18n.t('auth.loggedWithSocial', { lang: I18nContext.current()?.lang })}:${user.provider}"}`,
+        {
+          status: HttpStatus.PRECONDITION_FAILED,
+          errors: {
+            email: `${this.i18n.t('auth.loggedWithSocial', { lang: I18nContext.current()?.lang })}:${user.provider}`,
+          },
+        },
         HttpStatus.PRECONDITION_REQUIRED,
       );
     }
@@ -61,7 +66,14 @@ export class AuthService {
 
     if (!isValidPassword) {
       throw new HttpException(
-        `{"password": "${this.i18n.t('auth.invalidPassword', { lang: I18nContext.current()?.lang })}"}`,
+        {
+          status: HttpStatus.PRECONDITION_FAILED,
+          errors: {
+            password: this.i18n.t('auth.invalidPassword', {
+              lang: I18nContext.current()?.lang,
+            }),
+          },
+        },
         HttpStatus.PRECONDITION_FAILED,
       );
     }

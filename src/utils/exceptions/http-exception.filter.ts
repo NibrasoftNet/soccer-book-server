@@ -3,57 +3,104 @@ import {
   Catch,
   ArgumentsHost,
   HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { WinstonLoggerService } from '../../logger/winston-logger.service';
+import { EntityNotFoundError } from 'typeorm';
 
-@Catch(HttpException)
+@Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
   constructor(private readonly loggerService: WinstonLoggerService) {}
 
-  catch(exception: HttpException, host: ArgumentsHost) {
-    this.errorHandler(exception, host);
+  catch(exception: any, host: ArgumentsHost) {
+    switch (exception.constructor) {
+      case EntityNotFoundError:
+        this.handleEntityNotFoundError(exception, host);
+        break;
+      case HttpException:
+        this.handleHttpException(exception, host);
+        break;
+      default:
+        this.handleUnknownException(exception, host);
+        break;
+    }
   }
 
-  errorHandler(exception: HttpException, host: ArgumentsHost) {
+  handleHttpException(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<FastifyReply>();
     const request = ctx.getRequest<FastifyRequest>();
-    const status =
-      exception && typeof exception.getStatus === 'function'
-        ? exception.getStatus()
-        : 500;
+    const status = exception.getStatus();
 
-    let errorMessage: string;
-    if (exception && typeof exception.getStatus === 'function') {
-      if (typeof exception.getResponse() === 'string') {
-        errorMessage =
-          exception.getStatus() !== 500
-            ? (exception.getResponse() as string)
-            : JSON.stringify({ httpEntityException: exception.getResponse() });
-      } else {
-        const responseObj = exception.getResponse() as Record<string, any>;
-        errorMessage = responseObj['errors']
-          ? JSON.stringify(responseObj['errors'])
-          : responseObj['message'];
-      }
-    } else {
-      errorMessage = exception.message;
-    }
-
-    this.loggerService.error(request.url, {
-      description: request.url,
-      class: HttpException.name,
-      function: 'exception',
-      exception,
-    });
+    this.logError(request, 'HttpException', exception);
 
     void response.status(status).send({
       status: false,
       statusCode: status,
       path: request.url,
-      message: errorMessage,
+      message: exception.getResponse(),
       stack: exception.stack,
+    });
+  }
+
+  private handleEntityNotFoundError(
+    exception: EntityNotFoundError,
+    host: ArgumentsHost,
+  ) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse<FastifyReply>();
+    const request = ctx.getRequest<FastifyRequest>();
+    const status = HttpStatus.PRECONDITION_FAILED; // EntityNotFoundError is treated as 404
+
+    this.logError(request, 'EntityNotFoundError', exception);
+
+    void response.status(status).send({
+      status: false,
+      statusCode: status,
+      path: request.url,
+      message: {
+        status: HttpStatus.PRECONDITION_FAILED,
+        errors: {
+          entity: exception.message,
+        },
+      },
+      stack: exception.stack,
+    });
+  }
+
+  private handleUnknownException(exception: unknown, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse<FastifyReply>();
+    const request = ctx.getRequest<FastifyRequest>();
+    const status = HttpStatus.INTERNAL_SERVER_ERROR; // Default to 500 for unknown exceptions
+
+    this.logError(request, 'UnknownException', exception);
+
+    void response.status(status).send({
+      status: false,
+      statusCode: status,
+      path: request.url,
+      message: {
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        errors: {
+          message: exception instanceof Error ? exception.message : 'Unknown',
+        },
+      },
+      stack: exception instanceof Error ? exception.stack : null,
+    });
+  }
+
+  private logError(
+    request: FastifyRequest,
+    exceptionType: string,
+    exception: unknown,
+  ) {
+    this.loggerService.error(request.url, {
+      description: request.url,
+      class: exceptionType,
+      function: 'exception',
+      exception,
     });
   }
 }

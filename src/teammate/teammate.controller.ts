@@ -27,7 +27,6 @@ import { ApiPaginationQuery, Paginate, PaginateQuery } from 'nestjs-paginate';
 import { PaginatedDto } from '../utils/serialization/paginated.dto';
 import { teammatePaginationConfig } from './config/teammate-pagination-config';
 import { UpdateTeammateDto } from '@/domains/teammate/update-teammate.dto';
-import { IsCreatorPipe } from '../utils/pipes/is-creator.pipe';
 import { NullableType } from '../utils/types/nullable.type';
 
 @ApiTags('Teamamte')
@@ -97,17 +96,19 @@ export class TeammateController {
     return this.teammateService.findOne({ id });
   }
 
+  // IsCreatorPipe('Teammate', 'id', 'creator')
   @Roles(RoleCodeEnum.USER)
   @UseInterceptors(MapInterceptor(Teammate, TeammateDto))
   @HttpCode(HttpStatus.OK)
   @Put(':id')
   async update(
-    @Param('id', IsCreatorPipe('Teammate', 'id', 'creator')) id: string,
+    @Param('id') id: string,
     @Body() updateTeammateDto: UpdateTeammateDto,
   ): Promise<Teammate> {
     return this.teammateService.update(id, updateTeammateDto);
   }
 
+  @Roles(RoleCodeEnum.ADMIN, RoleCodeEnum.USER)
   @HttpCode(HttpStatus.OK)
   @Delete(':id')
   async remove(@Param('id') id: string) {
