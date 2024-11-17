@@ -19,6 +19,8 @@ import { ArenaCategoryService } from '../arena-category/arena-category.service';
 import { paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 import { arenaPaginationConfig } from './config/arena-pagination-config';
 import { MulterFile } from 'fastify-file-interceptor';
+import { WinstonLoggerService } from '../logger/winston-logger.service';
+import { ProximityQueryDto } from '@/domains/arena/proximity-query.dto';
 
 @Injectable()
 export class ArenaService {
@@ -29,6 +31,7 @@ export class ArenaService {
     private readonly usersAdminService: UsersAdminService,
     private readonly addressService: AddressService,
     private readonly arenaCategoryService: ArenaCategoryService,
+    private readonly logger: WinstonLoggerService,
   ) {}
 
   async create(
@@ -66,6 +69,31 @@ export class ArenaService {
       this.arenaRepository,
       arenaPaginationConfig,
     );
+  }
+
+  async findAllWithDistance(
+    proximityQueryDto: ProximityQueryDto,
+  ): Promise<Arena[]> {
+    const stopWatching = this.logger.watch('arena-findAllWithDistance', {
+      description: `find All arenas With Distance`,
+      class: ArenaService.name,
+      function: 'findAllWithDistance',
+    });
+    const arenas = await this.arenaRepository
+      .createQueryBuilder('arena')
+      .leftJoinAndSelect('arena.address', 'address')
+      .where(
+        'ST_DWithin(ST_SetSRID(ST_MakePoint( :userLatitude, :userLongitude),4326)::geography, ST_SetSRID(ST_MakePoint(address.latitude, address.longitude),4326)::geography, :distance)',
+      )
+      .setParameters({
+        userLongitude: proximityQueryDto.longitude,
+        userLatitude: proximityQueryDto.latitude,
+        distance: proximityQueryDto.distance,
+      })
+      .getMany();
+
+    stopWatching();
+    return arenas;
   }
 
   async findOne(

@@ -1,12 +1,10 @@
-import { IsNotEmpty, IsString, Matches } from 'class-validator';
+import { IsDateString, IsNotEmpty, IsString, Matches } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsTimestamp } from '../../validators/is-timestamp.validator';
-import { TimestampPrecision } from '@/enums/general/timestamp.enum';
 
 export class CreateReservationDto {
   @ApiProperty()
   @IsNotEmpty()
-  @IsTimestamp(TimestampPrecision.SECONDS)
+  @IsDateString()
   day: Date;
 
   @ApiProperty()

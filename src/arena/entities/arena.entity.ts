@@ -64,11 +64,11 @@ export class Arena extends EntityHelper {
   active: boolean;
 
   @AutoMap()
-  @Column({ type: 'decimal', precision: 1, nullable: false, default: 1 })
+  @Column({ type: 'decimal', precision: 3, nullable: false, default: 1 })
   length: number;
 
   @AutoMap()
-  @Column({ type: 'decimal', precision: 1, nullable: false, default: 1 })
+  @Column({ type: 'decimal', precision: 3, nullable: false, default: 1 })
   width: number;
 
   @AutoMap()

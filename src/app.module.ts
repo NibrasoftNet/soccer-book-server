@@ -46,6 +46,7 @@ import { UsersAdminModule } from './users-admin/users-admin.module';
 import { ArenaModule } from './arena/arena.module';
 import { ArenaCategory } from './arena-category/entities/arena-category.entity';
 import { ReservationModule } from './reservation/reservation.module';
+import { TeammateModule } from './teammate/teammate.module';
 
 @Module({
   imports: [
@@ -157,6 +158,7 @@ import { ReservationModule } from './reservation/reservation.module';
     ArenaModule,
     ArenaCategory,
     ReservationModule,
+    TeammateModule,
   ],
 
   providers: [

@@ -10,7 +10,7 @@ import {
   Repository,
 } from 'typeorm';
 import { UsersService } from '../users/users.service';
-import { paginate, PaginateQuery } from 'nestjs-paginate';
+import { paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 import { teamPaginationConfig } from './config/team-pagination-config';
 import { NullableType } from '../utils/types/nullable.type';
 import { CreateTeamDto } from '@/domains/team/create-team.dto';
@@ -53,8 +53,12 @@ export class TeamService {
     );
   }
 
-  async findAll(query: PaginateQuery) {
-    return await paginate(query, this.teamRepository, teamPaginationConfig);
+  async findAll(query: PaginateQuery): Promise<Paginated<Team>> {
+    return await paginate<Team>(
+      query,
+      this.teamRepository,
+      teamPaginationConfig,
+    );
   }
 
   async findAllMe(userJwtPayload: JwtPayloadType, query: PaginateQuery) {
@@ -65,7 +69,7 @@ export class TeamService {
       .where('creator.id = :id', { id: userJwtPayload.id })
       .orWhere('members.id = :id', { id: userJwtPayload.id });
 
-    return await paginate(query, queryBuilder, teamPaginationConfig);
+    return await paginate<Team>(query, queryBuilder, teamPaginationConfig);
   }
 
   async findAllOthers(userJwtPayload: JwtPayloadType, query: PaginateQuery) {

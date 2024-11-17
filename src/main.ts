@@ -25,6 +25,7 @@ import {
 } from '@nestjs/platform-fastify';
 import { RolesSerializerInterceptor } from './utils/interceptors/role.serializer.interceptor';
 import { contentParser } from 'fastify-file-interceptor';
+// import authPlugin from '@fastify/auth';
 
 const logger = new Logger('Soccer-main');
 /*const whitelist = [
@@ -86,7 +87,49 @@ async function bootstrap() {
     new RolesSerializerInterceptor(app.get(Reflector)),
     new ResponseInterceptor(),
   );
+  /*
+  const fastifyInstance = app.getHttpAdapter().getInstance();
 
+  // Register @fastify/auth plugin
+  await fastifyInstance.register(authPlugin);
+
+  // Define custom authentication function
+  const customAuth = async (req, reply) => {
+    const authHeader = await req.headers['authorization'];
+
+    if (!authHeader) {
+      reply
+        .code(401)
+        .header('WWW-Authenticate', 'Basic realm="Swagger API"')
+        .send({ message: 'Unauthorized' });
+      return;
+    }
+
+    const [type, credentials] = authHeader.split(' ');
+
+    if (type !== 'Basic') {
+      reply
+        .code(401)
+        .header('WWW-Authenticate', 'Basic realm="Swagger API"')
+        .send({ message: 'Unauthorized' });
+      return;
+    }
+
+    const decoded = Buffer.from(credentials, 'base64').toString('utf-8');
+    const [username, password] = decoded.split(':');
+
+    if (username !== 'admin' || password !== 'password123') {
+      reply
+        .code(401)
+        .header('WWW-Authenticate', 'Basic realm="Swagger API"')
+        .send({ message: 'Unauthorized' });
+      return;
+    }
+  };
+
+  // Protect Swagger route with custom auth
+  fastifyInstance.addHook('onRequest', fastifyInstance.auth([customAuth]));
+*/
   const options = new DocumentBuilder()
     .setTitle('Soccer booking API')
     .setDescription('Swagger docs')

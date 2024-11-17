@@ -4,6 +4,7 @@ import {
   Post,
   Body,
   Param,
+  Query,
   Delete,
   UseGuards,
   UseInterceptors,
@@ -40,6 +41,7 @@ import { Mapper } from 'automapper-core';
 import { FilesFastifyInterceptor, MulterFile } from 'fastify-file-interceptor';
 import { arenaPaginationConfig } from './config/arena-pagination-config';
 import { IsCreatorPipe } from '../utils/pipes/is-creator.pipe';
+import { ProximityQueryDto } from '@/domains/arena/proximity-query.dto';
 
 @ApiTags('Arena')
 @ApiBearerAuth()
@@ -99,6 +101,16 @@ export class ArenaController {
       Arena,
       ArenaDto,
     );
+  }
+
+  @UseInterceptors(MapInterceptor(Arena, ArenaDto, { isArray: true }))
+  @Roles(RoleCodeEnum.ADMIN, RoleCodeEnum.USER)
+  @HttpCode(HttpStatus.OK)
+  @Get('list-with-distance')
+  async findAllWithDistance(
+    @Query() proximityQueryDto: ProximityQueryDto,
+  ): Promise<Arena[]> {
+    return await this.arenaService.findAllWithDistance(proximityQueryDto);
   }
 
   @Roles(RoleCodeEnum.ADMIN, RoleCodeEnum.USER)
