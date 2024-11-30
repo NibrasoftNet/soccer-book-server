@@ -74,9 +74,14 @@ export class NotificationService {
 
     if (!notification.users.length) {
       throw new HttpException(
-        `{"users": "${this.i18n.t('auth.userNotFound', {
-          lang: I18nContext.current()?.lang,
-        })}}`,
+        {
+          status: HttpStatus.PRECONDITION_FAILED,
+          errors: {
+            users: this.i18n.t('auth.userNotFound', {
+              lang: I18nContext.current()?.lang,
+            }),
+          },
+        },
         HttpStatus.PRECONDITION_FAILED,
       );
     }
@@ -298,14 +303,27 @@ export class NotificationService {
     } else {
       this.logger.error('Error handling notifications:', notification);
       throw new HttpException(
-        `{"notification": "Wrong Notification configuration"}`,
-        HttpStatus.PRECONDITION_FAILED,
+        {
+          status: HttpStatus.BAD_REQUEST,
+          errors: {
+            notification: 'Wrong Notification configuration',
+          },
+        },
+        HttpStatus.BAD_REQUEST,
       );
     }
 
     if (tokens.length < 1) {
       this.logger.debug('No notification receiver found');
-      throw new Error('No notification receiver found');
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          errors: {
+            notification: 'No notification receiver found',
+          },
+        },
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     return new NotificationMessageDto({

@@ -22,8 +22,13 @@ export const IsExistsPipe = (entityName: string, entityKey: string) => {
 
         if (!repository) {
           throw new HttpException(
-            `{"auth": "${`${entityName} with ${entityKey} ${entityItem} not found`}"}`,
-            HttpStatus.PRECONDITION_REQUIRED,
+            {
+              status: HttpStatus.PRECONDITION_FAILED,
+              errors: {
+                auth: `${entityName} with ${entityKey} ${entityItem} not found`,
+              },
+            },
+            HttpStatus.PRECONDITION_FAILED,
           );
         }
         return entityItem;

@@ -161,16 +161,29 @@ export class OtpService {
     });
     if (!otpRecord) {
       throw new HttpException(
-        `{"otp":"${this.i18n.t('auth.otpNotFound', { lang: I18nContext.current()?.lang })}"}`,
-
-        HttpStatus.NOT_FOUND,
+        {
+          status: HttpStatus.PRECONDITION_FAILED,
+          errors: {
+            otp: this.i18n.t('auth.otpNotFound', {
+              lang: I18nContext.current()?.lang,
+            }),
+          },
+        },
+        HttpStatus.PRECONDITION_FAILED,
       );
     }
 
     const currentTime = new Date().getTime();
     if (currentTime > otpRecord.expireIn) {
       throw new HttpException(
-        `{"otp":"${this.i18n.t('auth.otpExpired', { lang: I18nContext.current()?.lang })}"}`,
+        {
+          status: HttpStatus.PRECONDITION_FAILED,
+          errors: {
+            otp: this.i18n.t('auth.otpExpired', {
+              lang: I18nContext.current()?.lang,
+            }),
+          },
+        },
         HttpStatus.PRECONDITION_FAILED,
       );
     }
@@ -181,7 +194,14 @@ export class OtpService {
     ); // Swap arguments
     if (!isOtpValid) {
       throw new HttpException(
-        `{"otp":"${this.i18n.t('auth.invalidOtp', { lang: I18nContext.current()?.lang })}"}`,
+        {
+          status: HttpStatus.PRECONDITION_FAILED,
+          errors: {
+            otp: this.i18n.t('auth.invalidOtp', {
+              lang: I18nContext.current()?.lang,
+            }),
+          },
+        },
         HttpStatus.PRECONDITION_FAILED,
       );
     }

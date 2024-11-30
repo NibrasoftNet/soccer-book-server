@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsHexColor, IsNotEmpty, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateArenaCategoryDto {
@@ -7,7 +7,13 @@ export class CreateArenaCategoryDto {
   @IsString()
   name: string;
 
-  constructor({ name }: { name: string }) {
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsHexColor()
+  hexColor: string;
+
+  constructor({ name, hexColor }: { name: string; hexColor: string }) {
     this.name = name;
+    this.hexColor = hexColor;
   }
 }

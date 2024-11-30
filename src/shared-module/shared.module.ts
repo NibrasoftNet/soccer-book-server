@@ -1,5 +1,4 @@
 import { Global, HttpException, HttpStatus, Module } from '@nestjs/common';
-import { MulterModule } from '@nestjs/platform-express';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { diskStorage } from 'multer';
 import { randomStringGenerator } from '@nestjs/common/utils/random-string-generator.util';
@@ -9,12 +8,13 @@ import { AllConfigType } from 'src/config/config.type';
 import { SharedService } from './shared.service';
 import { JwtModule } from '@nestjs/jwt';
 import { IsUniqueOrAppend } from '../utils/validators/is-unique-or-append';
+import { FastifyMulterModule } from 'fastify-file-interceptor';
 
 @Global()
 @Module({
   imports: [
     JwtModule.register({}),
-    MulterModule.registerAsync({
+    FastifyMulterModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService<AllConfigType>) => {
@@ -78,7 +78,6 @@ import { IsUniqueOrAppend } from '../utils/validators/is-unique-or-append';
                   },
                   HttpStatus.UNPROCESSABLE_ENTITY,
                 ),
-                false,
               );
             }
 
@@ -95,7 +94,7 @@ import { IsUniqueOrAppend } from '../utils/validators/is-unique-or-append';
       },
     }),
   ],
-  exports: [MulterModule, SharedService],
+  exports: [FastifyMulterModule, SharedService],
   providers: [SharedService, IsUniqueOrAppend],
 })
 export class SharedModule {}

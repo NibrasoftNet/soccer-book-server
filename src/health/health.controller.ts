@@ -8,6 +8,8 @@ import {
   TypeOrmHealthIndicator,
 } from '@nestjs/terminus';
 import { ApiTags } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
+import { AllConfigType } from '../config/config.type';
 
 @ApiTags('Health')
 @Controller({ path: 'health', version: '1' })
@@ -18,6 +20,7 @@ export class HealthController {
     private database: TypeOrmHealthIndicator,
     private memory: MemoryHealthIndicator,
     private disk: DiskHealthIndicator,
+    private configService: ConfigService<AllConfigType>,
   ) {}
 
   @Get()
@@ -34,5 +37,10 @@ export class HealthController {
           path: '/',
         }),
     ]);
+  }
+
+  @Get('info')
+  appInfo() {
+    return { name: this.configService.get('app.name', { infer: true }) };
   }
 }

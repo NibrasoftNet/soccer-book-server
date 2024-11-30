@@ -3,7 +3,7 @@ import {
   ValidatorConstraintInterface,
 } from 'class-validator';
 import { ValidationArguments } from 'class-validator/types/validation/ValidationArguments';
-import { HttpResponseException } from '../exceptions/http-response.exception';
+import { HttpException, HttpStatus } from '@nestjs/common';
 
 @ValidatorConstraint({ name: 'EndLaterThanStartDateValidator', async: true })
 export class EndLaterThanStartDateValidator
@@ -14,8 +14,15 @@ export class EndLaterThanStartDateValidator
       const startDateAttribute = args.constraints[0];
       return date > args.object[startDateAttribute];
     } catch (error) {
-      error.status = 422;
-      throw new HttpResponseException(error);
+      throw new HttpException(
+        {
+          status: HttpStatus.PRECONDITION_FAILED,
+          errors: {
+            validation: error,
+          },
+        },
+        HttpStatus.PRECONDITION_FAILED,
+      );
     }
   }
 

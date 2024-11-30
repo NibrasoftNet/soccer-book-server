@@ -1,5 +1,5 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { JwtRefreshPayloadType } from './types/jwt-refresh-payload.type';
@@ -26,8 +26,16 @@ export class JwtRefreshStrategy extends PassportStrategy(
     payload: JwtRefreshPayloadType,
   ): OrNeverType<JwtRefreshPayloadType> {
     if (!payload.id) {
-      throw new UnauthorizedException(
-        `{"email":${this.i18n.t('auth.emailNotExists', { lang: I18nContext.current()?.lang })}}`,
+      throw new HttpException(
+        {
+          status: HttpStatus.UNAUTHORIZED,
+          errors: {
+            auth: this.i18n.t('auth.emailNotExists', {
+              lang: I18nContext.current()?.lang,
+            }),
+          },
+        },
+        HttpStatus.UNAUTHORIZED,
       );
     }
 

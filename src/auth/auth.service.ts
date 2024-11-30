@@ -81,7 +81,14 @@ export class AuthService {
     if (user.status?.id === StatusCodeEnum.INACTIVE) {
       await this.sendConfirmEmail(user.email);
       throw new HttpException(
-        `{"email": "${this.i18n.t('auth.emailNotConfirmed', { lang: I18nContext.current()?.lang })}"}`,
+        {
+          status: HttpStatus.PRECONDITION_FAILED,
+          errors: {
+            email: this.i18n.t('auth.emailNotConfirmed', {
+              lang: I18nContext.current()?.lang,
+            }),
+          },
+        },
         HttpStatus.PRECONDITION_FAILED,
       );
     }
@@ -141,8 +148,15 @@ export class AuthService {
 
     if (!user) {
       throw new HttpException(
-        `{"user": "${this.i18n.t('auth.userNotFound', { lang: I18nContext.current()?.lang })}"}`,
-        HttpStatus.NOT_FOUND,
+        {
+          status: HttpStatus.PRECONDITION_FAILED,
+          errors: {
+            user: this.i18n.t('auth.userNotFound', {
+              lang: I18nContext.current()?.lang,
+            }),
+          },
+        },
+        HttpStatus.PRECONDITION_FAILED,
       );
     }
 
@@ -160,8 +174,15 @@ export class AuthService {
 
     if (!user) {
       throw new HttpException(
-        `{"user": "${this.i18n.t('auth.userNotFound', { lang: I18nContext.current()?.lang })}"}`,
-        HttpStatus.NOT_FOUND,
+        {
+          status: HttpStatus.PRECONDITION_FAILED,
+          errors: {
+            user: this.i18n.t('auth.userNotFound', {
+              lang: I18nContext.current()?.lang,
+            }),
+          },
+        },
+        HttpStatus.PRECONDITION_FAILED,
       );
     }
     await this.sendForgetPasswordEmail(email);
@@ -174,8 +195,15 @@ export class AuthService {
 
     if (!user) {
       throw new HttpException(
-        `{"user": "${this.i18n.t('auth.userNotFound', { lang: I18nContext.current()?.lang })}"}`,
-        HttpStatus.NOT_FOUND,
+        {
+          status: HttpStatus.PRECONDITION_FAILED,
+          errors: {
+            user: this.i18n.t('auth.userNotFound', {
+              lang: I18nContext.current()?.lang,
+            }),
+          },
+        },
+        HttpStatus.PRECONDITION_FAILED,
       );
     }
 
@@ -226,8 +254,15 @@ export class AuthService {
 
     if (!isValidPassword) {
       throw new HttpException(
-        `{"password": "${this.i18n.t('auth.invalidPassword', { lang: I18nContext.current()?.lang })}"}`,
-        HttpStatus.PRECONDITION_FAILED,
+        {
+          status: HttpStatus.UNAUTHORIZED,
+          errors: {
+            password: this.i18n.t('auth.invalidPassword', {
+              lang: I18nContext.current()?.lang,
+            }),
+          },
+        },
+        HttpStatus.UNAUTHORIZED,
       );
     }
 

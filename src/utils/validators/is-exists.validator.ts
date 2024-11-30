@@ -5,8 +5,7 @@ import {
 import { DataSource } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { ValidationArguments } from 'class-validator/types/validation/ValidationArguments';
-import { Injectable } from '@nestjs/common';
-import { HttpResponseException } from '../exceptions/http-response.exception';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { I18nContext, I18nService } from 'nestjs-i18n';
 
 @Injectable()
@@ -31,8 +30,15 @@ export class IsExist implements ValidatorConstraintInterface {
         });
       return Boolean(entity);
     } catch (error) {
-      error.status = 422;
-      throw new HttpResponseException(error);
+      throw new HttpException(
+        {
+          status: HttpStatus.PRECONDITION_FAILED,
+          errors: {
+            validation: error,
+          },
+        },
+        HttpStatus.PRECONDITION_FAILED,
+      );
     }
   }
   defaultMessage(validationArguments: ValidationArguments): string {

@@ -9,6 +9,9 @@ export class ArenaCategoryDto {
   @AutoMap()
   name: string;
 
+  @AutoMap()
+  hexColor: string;
+
   @AutoMap(() => FileDto)
   image: FileDto;
 

@@ -4,10 +4,10 @@ import { Transform } from 'class-transformer';
 import { lowerCaseTransformer } from '../../transformers/lower-case.transformer';
 import { IsExist } from '../../validators/is-exists.validator';
 
-export class AuthForgotPasswordDto {
+export class AuthAdminForgotPasswordDto {
   @ApiProperty()
   @Transform(lowerCaseTransformer)
   @IsEmail()
-  @Validate(IsExist, ['User', 'email', 'validation.emailNotExists'])
+  @Validate(IsExist, ['UserAdmin', 'email', 'validation.emailNotExists'])
   email: string;
 }

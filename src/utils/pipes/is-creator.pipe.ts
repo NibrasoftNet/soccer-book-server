@@ -1,7 +1,6 @@
 import {
   Injectable,
   PipeTransform,
-  BadRequestException,
   Inject,
   HttpException,
   HttpStatus,
@@ -26,7 +25,15 @@ export const IsCreatorPipe = (
 
     async transform(value: string): Promise<any> {
       if (!value) {
-        throw new BadRequestException(`${entityKey} is missing`);
+        throw new HttpException(
+          {
+            status: HttpStatus.BAD_REQUEST,
+            errors: {
+              password: `${entityKey} is missing`,
+            },
+          },
+          HttpStatus.BAD_REQUEST,
+        );
       }
 
       // Access the user ID from the request
@@ -43,7 +50,12 @@ export const IsCreatorPipe = (
 
       if (!entity) {
         throw new HttpException(
-          `{"auth": "${`${entityName} with ${entityKey} ${value} not found`}"}`,
+          {
+            status: HttpStatus.BAD_REQUEST,
+            errors: {
+              auth: `${entityName} with ${entityKey} ${value} not found`,
+            },
+          },
           HttpStatus.BAD_REQUEST,
         );
       }
@@ -52,10 +64,15 @@ export const IsCreatorPipe = (
       const relatedEntity = (entity as any)[relation];
       if (!relatedEntity || relatedEntity.id !== userId) {
         throw new HttpException(
-          `{"auth": "${this.i18n.t('auth.userNotAllowed', {
-            lang: I18nContext.current()?.lang,
-          })}"}`,
-          HttpStatus.METHOD_NOT_ALLOWED,
+          {
+            status: HttpStatus.FORBIDDEN,
+            errors: {
+              auth: this.i18n.t('auth.userNotAllowed', {
+                lang: I18nContext.current()?.lang,
+              }),
+            },
+          },
+          HttpStatus.FORBIDDEN,
         );
       }
 

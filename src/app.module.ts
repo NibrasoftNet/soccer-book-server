@@ -17,8 +17,6 @@ import { classes } from 'automapper-classes';
 import { EntityHelperProfile } from './utils/serialization/entity-helper.profile';
 import { OauthModule } from './oauth/oauth.module';
 import googleConfig from './oauth-google/config/google.config';
-import googleGenerativeAIConfig from './utils/google-generative-ai/google-generative-ai.config';
-import openAiConfig from './utils/open-ai/open-ai.config';
 import databaseConfig from './database/config/database.config';
 import authConfig from './auth/config/auth.config';
 import appConfig from './config/app.config';
@@ -28,9 +26,7 @@ import path from 'path';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HealthModule } from './health/health.module';
 import { IsNotUsedByOthers } from './utils/validators/is-not-used-by-others';
-import { GoogleGenerativeAIModule } from './utils/google-generative-ai/google-generative-ai.module';
 import { AwsS3Module } from './utils/aws-s3/aws-s3.module';
-import { OpenAiModule } from './utils/open-ai/open-ai.module';
 import { Module } from '@nestjs/common';
 import { TestimonialsModule } from './testimonials/testimonials.module';
 import { WinstonLoggerModule } from './logger/winston-logger.module';
@@ -47,6 +43,8 @@ import { ArenaModule } from './arena/arena.module';
 import { ArenaCategory } from './arena-category/entities/arena-category.entity';
 import { ReservationModule } from './reservation/reservation.module';
 import { TeammateModule } from './teammate/teammate.module';
+import { TournamentModule } from './tournament/tournament.module';
+import { TournamentParticipationModule } from './tournament-participation/tournament-participation.module';
 
 @Module({
   imports: [
@@ -59,8 +57,6 @@ import { TeammateModule } from './teammate/teammate.module';
         mailConfig,
         fileConfig,
         googleConfig,
-        googleGenerativeAIConfig,
-        openAiConfig,
       ],
       envFilePath: ['.env'],
     }),
@@ -145,8 +141,6 @@ import { TeammateModule } from './teammate/teammate.module';
     MailModule,
     OauthModule,
     HealthModule,
-    GoogleGenerativeAIModule,
-    OpenAiModule,
     AwsS3Module,
     SharedModule,
     TestimonialsModule,
@@ -159,6 +153,8 @@ import { TeammateModule } from './teammate/teammate.module';
     ArenaCategory,
     ReservationModule,
     TeammateModule,
+    TournamentModule,
+    TournamentParticipationModule,
   ],
 
   providers: [

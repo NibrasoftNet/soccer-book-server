@@ -1,4 +1,4 @@
-import { HttpException, ValidationError } from '@nestjs/common';
+import { HttpException, HttpStatus, ValidationError } from '@nestjs/common';
 import { validateOrReject } from 'class-validator';
 import { ObjectLiteral, Repository } from 'typeorm';
 import crypto from 'crypto';
@@ -23,7 +23,15 @@ export class Utils {
     /* eslint-enable */
     await validateOrReject(dto).catch((validationErrors: ValidationError[]) => {
       const errors = Utils.generateErrors(validationErrors);
-      throw new HttpException(Object.values(errors).join('. ').trim(), 422);
+      throw new HttpException(
+        {
+          status: HttpStatus.PRECONDITION_FAILED,
+          errors: {
+            validation: Object.values(errors).join('. ').trim(),
+          },
+        },
+        HttpStatus.PRECONDITION_FAILED,
+      );
     });
     return dto;
   }

@@ -1,4 +1,4 @@
-name: NestJS API CI
+name: Arena Booking Server CI
 
 on:
   push:
@@ -11,6 +11,53 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Check out the code
       - uses: actions/checkout@v4
-      - name: Run e2e tests
-        run: docker compose -f docker-compose.ci.yaml --env-file env-example -p ci up --build --exit-code-from api
+
+      # Step 2: Set up Docker
+      - name: Check Docker version
+        run: |
+          docker --version
+          docker compose version
+      # Step 3: Pull environment variables
+      - name: Set up environment variables
+        run: |
+          cp env.example .env
+      # Step 4: Start Docker Compose services
+      - name: Start services
+        run: |
+          docker compose -f docker-compose.ci.yaml --env-file .env up -d --build
+      # Step 5: Wait for arena-booking-nestjs-server service to become healthy
+      - name: Wait for arena-booking-nestjs-server service
+        run: |
+          # Wait for arena-booking-nestjs-server to be healthy
+          for i in {1..10}; do
+            STATUS=$(docker inspect -f '{{.State.Health.Status}}' arena-booking-nestjs-server 2>/dev/null || echo "unavailable")
+            echo "arena-booking-nestjs-server status: $STATUS"
+            if [ "$STATUS" == "healthy" ]; then
+              echo "arena-booking-server is healthy and ready."
+              break
+            elif [ "$i" -eq 10 ]; then
+              echo "arena-booking-server failed to become healthy in time."
+              docker compose -f docker-compose.ci.yaml logs backend
+            fi
+            echo "Waiting for arena-booking-server to become healthy..."
+            sleep 5
+          done
+      # Step 6: Run database migrations
+      - name: Run migrations
+        run: |
+          docker compose -f docker-compose.ci.yaml exec backend node ./node_modules/typeorm/cli.js --dataSource=dist/database/data-source.js schema:drop
+          docker compose -f docker-compose.ci.yaml exec backend node ./node_modules/typeorm/cli.js --dataSource=dist/database/data-source.js migration:generate ./dist/database/migrations/CreateTables --outputJs      
+          docker compose -f docker-compose.ci.yaml exec backend node ./node_modules/typeorm/cli.js --dataSource=dist/database/data-source.js migration:run
+      # Step 7: Run SEED data
+      - name: Run SEED data
+        run: |
+          docker compose -f docker-compose.ci.yaml exec backend node dist/database/seeds/run-seed-prod.js role
+          docker compose -f docker-compose.ci.yaml exec backend node dist/database/seeds/run-seed-prod.js status
+          docker compose -f docker-compose.ci.yaml exec backend node dist/database/seeds/run-seed-prod.js user
+
+      # Step 8: Stop and clean up Docker Compose services
+      - name: Stop services
+        run: |
+          docker compose -f docker-compose.ci.yaml down

@@ -5,7 +5,7 @@ import {
 } from 'class-validator';
 import { DataSource } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { customAlphabet } from 'nanoid';
 import { I18nContext, I18nService } from 'nestjs-i18n';
 
@@ -61,7 +61,15 @@ export class IsUniqueOrAppend implements ValidatorConstraintInterface {
 
       return false; // Value is not unique
     } catch (error) {
-      throw new Error(`Validation failed: ${error.message}`);
+      throw new HttpException(
+        {
+          status: HttpStatus.PRECONDITION_FAILED,
+          errors: {
+            validation: error,
+          },
+        },
+        HttpStatus.PRECONDITION_FAILED,
+      );
     }
   }
 

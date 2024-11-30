@@ -10,11 +10,11 @@ import { Transform } from 'class-transformer';
 import { IsExist } from 'src/utils/validators/is-exists.validator';
 import { lowerCaseTransformer } from '../../transformers/lower-case.transformer';
 
-export class AuthEmailLoginDto {
+export class AuthAdminEmailLoginDto {
   @ApiProperty({ example: 'test1@example.com' })
   @Transform(lowerCaseTransformer)
   @IsNotEmpty()
-  @Validate(IsExist, ['User', 'email', 'validation.emailNotExists'])
+  @Validate(IsExist, ['UserAdmin', 'email', 'validation.emailNotExists'])
   email: string;
 
   @ApiProperty()

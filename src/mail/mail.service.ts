@@ -124,7 +124,12 @@ export class MailService {
     } catch (error) {
       this.logger.error('Failed to send email', error.stack);
       throw new HttpException(
-        `{"email":"email sending failed"}`,
+        {
+          status: HttpStatus.EXPECTATION_FAILED,
+          errors: {
+            email: `email sending failed" ${error}`,
+          },
+        },
         HttpStatus.EXPECTATION_FAILED,
       );
     }

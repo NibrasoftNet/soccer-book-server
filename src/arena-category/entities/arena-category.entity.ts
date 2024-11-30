@@ -21,6 +21,10 @@ export class ArenaCategory extends EntityHelper {
   @Column()
   name: string;
 
+  @AutoMap()
+  @Column({ type: 'varchar', length: 7, default: '#5bb450' })
+  hexColor: string;
+
   @AutoMap(() => FileEntity)
   @OneToOne(() => FileEntity, (file) => file.id, {
     eager: true,

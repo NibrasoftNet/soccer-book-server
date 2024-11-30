@@ -148,8 +148,13 @@ export class AwsS3Service {
         return false;
       } else {
         throw new HttpException(
-          `{"auth": "Fialed to check if file exists in s3 bucket"}`,
-          HttpStatus.BAD_REQUEST,
+          {
+            status: HttpStatus.PRECONDITION_FAILED,
+            errors: {
+              s3: `Failed to check if file exists in s3 bucket`,
+            },
+          },
+          HttpStatus.PRECONDITION_FAILED,
         );
       }
     }

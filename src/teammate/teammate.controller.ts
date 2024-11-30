@@ -29,7 +29,7 @@ import { teammatePaginationConfig } from './config/teammate-pagination-config';
 import { UpdateTeammateDto } from '@/domains/teammate/update-teammate.dto';
 import { NullableType } from '../utils/types/nullable.type';
 
-@ApiTags('Teamamte')
+@ApiTags('Teammate')
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'), RolesGuard)
 @Controller({ version: '1', path: 'teammates' })

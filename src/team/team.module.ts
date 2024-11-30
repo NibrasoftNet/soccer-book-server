@@ -11,5 +11,6 @@ import { FilesModule } from '../files/files.module';
   imports: [TypeOrmModule.forFeature([Team]), UsersModule, FilesModule],
   controllers: [TeamController],
   providers: [TeamService, TeamSerializationProfile],
+  exports: [TeamService],
 })
 export class TeamModule {}

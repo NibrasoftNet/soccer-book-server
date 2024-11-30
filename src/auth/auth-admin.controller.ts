@@ -26,8 +26,6 @@ import { InjectMapper, MapInterceptor } from 'automapper-nestjs';
 import { Mapper } from 'automapper-core';
 import { ParseFormdataPipe } from '../utils/pipes/parse-formdata.pipe';
 import { Utils } from '../utils/utils';
-import { AuthEmailLoginDto } from '@/domains/auth/auth-email-login.dto';
-import { AuthForgotPasswordDto } from '@/domains/auth/auth-forgot-password.dto';
 import { AuthResetPasswordDto } from '@/domains/auth/auth-reset-password.dto';
 import { AuthUpdateDto } from '@/domains/auth/auth-update.dto';
 import { CreateUserDto } from '@/domains/user/create-user.dto';
@@ -37,6 +35,8 @@ import { SessionAdminResponseDto } from '@/domains/session/session-admin-respons
 import { UserAdmin } from '../users-admin/entities/user-admin.entity';
 import { UserAdminDto } from '@/domains/user-admin/user-admin.dto';
 import { FileFastifyInterceptor, MulterFile } from 'fastify-file-interceptor';
+import { AuthAdminEmailLoginDto } from '@/domains/auth-admin/auth-admin-email-login.dto';
+import { AuthAdminForgotPasswordDto } from '@/domains/auth-admin/auth-admin-forgot-password.dto';
 
 @ApiTags('Auth-admin')
 @Controller({
@@ -53,7 +53,7 @@ export class AuthAdminController {
   @Post('email-login')
   @HttpCode(HttpStatus.OK)
   public async login(
-    @Body() loginDto: AuthEmailLoginDto,
+    @Body() loginDto: AuthAdminEmailLoginDto,
   ): Promise<SessionAdminResponseDto> {
     return await this.authAdminService.validateLogin(loginDto);
   }
@@ -61,7 +61,7 @@ export class AuthAdminController {
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   async forgotPassword(
-    @Body() forgotPasswordDto: AuthForgotPasswordDto,
+    @Body() forgotPasswordDto: AuthAdminForgotPasswordDto,
   ): Promise<void> {
     return await this.authAdminService.forgotPassword(forgotPasswordDto.email);
   }

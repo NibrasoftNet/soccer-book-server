@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
 import { Mapper } from 'automapper-core';
@@ -83,8 +83,16 @@ export class OauthService {
       : await this.usersService.create(newUser);
 
     if (!user) {
-      throw new NotFoundException(
-        `{"user": "${this.i18n.t('auth.userNotFound', { lang: I18nContext.current()?.lang })}"}`,
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          errors: {
+            user: this.i18n.t('auth.userNotFound', {
+              lang: I18nContext.current()?.lang,
+            }),
+          },
+        },
+        HttpStatus.NOT_FOUND,
       );
     }
 

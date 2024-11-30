@@ -4,9 +4,8 @@ import {
 } from 'class-validator';
 import { DataSource } from 'typeorm';
 import { ValidationArguments } from 'class-validator/types/validation/ValidationArguments';
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { HttpResponseException } from '../exceptions/http-response.exception';
 import { I18nContext, I18nService } from 'nestjs-i18n';
 
 type ValidationEntity = {
@@ -36,8 +35,15 @@ export class IsNotUsedByOthers implements ValidatorConstraintInterface {
 
       return !entity;
     } catch (error) {
-      error.status = 422;
-      throw new HttpResponseException(error);
+      throw new HttpException(
+        {
+          status: HttpStatus.PRECONDITION_FAILED,
+          errors: {
+            validation: error,
+          },
+        },
+        HttpStatus.PRECONDITION_FAILED,
+      );
     }
   }
 

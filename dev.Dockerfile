@@ -1,18 +1,40 @@
-FROM node:20-alpine AS builder
+# Stage 1: Build the NestJS application
+FROM node:20.10.0-alpine AS builder
 
-WORKDIR /usr/src/app
+# Set working directory inside the container
+WORKDIR /app
 
-COPY package*.json ./
+# Copy package.json and package-lock.json
+COPY package.json ./
+COPY package-lock.json ./
 
-# Install npm dependencies
-RUN npm install
+RUN npm install -g npm@10.8.3
 
-# Copy the rest of the application code
+# Install dependencies (including devDependencies for the build)
+RUN npm install --legacy-peer-deps
+
+# Copy the rest of the application code to the container
 COPY . .
 
-# Run migrations, then run the app
-CMD npm run migration:generate -- src/database/migrations/migration \
-    && npm run migration:run \
-    && npm run seed:run \
-    && npm run start:dev
+RUN npm i -g @nestjs/cli
 
+# Build the NestJS project (compiles TypeScript to JavaScript)
+RUN npm run build
+
+# Stage 2: Create production-ready image
+FROM node:20.10.0-alpine AS production
+
+# Set NODE_ENV to production
+ENV NODE_ENV=production
+
+COPY package.json ./
+COPY package-lock.json ./
+
+# Copy the build output and other required files from the builder stage
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+# COPY --from=builder /app/.env ./.env
+
+ENV NEW_RELIC_CONFIG_FILENAME dist/newrelic.js
+
+CMD ["node", "-r", "newrelic", "dist/main.js"]

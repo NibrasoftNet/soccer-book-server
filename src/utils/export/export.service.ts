@@ -76,7 +76,12 @@ export class ExportService {
       fs.writeFileSync(fileToExportPath, bufferWorkbook);
     } catch (error) {
       throw new HttpException(
-        `{"export": "No content to export ${error}"}`,
+        {
+          status: HttpStatus.EXPECTATION_FAILED,
+          errors: {
+            export: `No content to export ${error}`,
+          },
+        },
         HttpStatus.EXPECTATION_FAILED,
       );
     }

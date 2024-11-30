@@ -10,6 +10,7 @@ import { User } from '../../users/entities/user.entity';
 import { AutoMap } from 'automapper-classes';
 import { FileEntity } from '../../files/entities/file.entity';
 import { SubscriptionToTeam } from '../../subscription-to-team/entities/subscription-to-team.entity';
+import { TournamentParticipation } from '../../tournament-participation/entities/tournament-participation.entity';
 
 @Entity()
 export class Team extends EntityHelper {
@@ -53,4 +54,11 @@ export class Team extends EntityHelper {
     },
   )
   members: SubscriptionToTeam[];
+
+  @AutoMap(() => [TournamentParticipation])
+  @OneToMany(
+    () => TournamentParticipation,
+    (participation) => participation.team,
+  )
+  participations: TournamentParticipation[];
 }

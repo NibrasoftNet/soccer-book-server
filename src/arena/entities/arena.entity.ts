@@ -16,6 +16,7 @@ import { Address } from '../../address/entities/address.entity';
 import { FileEntity } from '../../files/entities/file.entity';
 import { ArenaCategory } from '../../arena-category/entities/arena-category.entity';
 import { Reservation } from '../../reservation/entities/reservation.entity';
+import { Tournament } from '../../tournament/entities/tournament.entity';
 
 @Entity()
 export class Arena extends EntityHelper {
@@ -85,4 +86,7 @@ export class Arena extends EntityHelper {
     eager: true,
   })
   reservations: Reservation[];
+
+  @OneToMany(() => Tournament, (tournament) => tournament.arena)
+  tournaments: Tournament[];
 }

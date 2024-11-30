@@ -1,4 +1,4 @@
-import { Injectable, UnprocessableEntityException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   FindOptionsRelations,
@@ -33,8 +33,16 @@ export class SubscriptionToTeamService {
       member: { id: userId },
     });
     if (existSubscriptionToTeam) {
-      throw new UnprocessableEntityException(
-        `{"team": "${this.i18n.t('team.alreadySubscribed', { lang: I18nContext.current()?.lang })}"}`,
+      throw new HttpException(
+        {
+          status: HttpStatus.PRECONDITION_FAILED,
+          errors: {
+            team: this.i18n.t('team.alreadySubscribed', {
+              lang: I18nContext.current()?.lang,
+            }),
+          },
+        },
+        HttpStatus.PRECONDITION_FAILED,
       );
     }
     const subscriptionToTeam = this.subscriptionToTeamRepository.create();

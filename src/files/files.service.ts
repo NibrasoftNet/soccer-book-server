@@ -45,7 +45,14 @@ export class FilesService {
   ): Promise<FileEntity> {
     if (!file) {
       throw new HttpException(
-        `{"file": "${this.i18n.t('file.failedUpload', { lang: I18nContext.current()?.lang })}"}`,
+        {
+          status: HttpStatus.PRECONDITION_FAILED,
+          errors: {
+            file: this.i18n.t('file.failedUpload', {
+              lang: I18nContext.current()?.lang,
+            }),
+          },
+        },
         HttpStatus.PRECONDITION_FAILED,
       );
     }
@@ -69,7 +76,14 @@ export class FilesService {
   ): Promise<FileEntity[]> {
     if (!files) {
       throw new HttpException(
-        `{"file": "${this.i18n.t('file.failedUpload', { lang: I18nContext.current()?.lang })}"}`,
+        {
+          status: HttpStatus.PRECONDITION_FAILED,
+          errors: {
+            file: this.i18n.t('file.failedUpload', {
+              lang: I18nContext.current()?.lang,
+            }),
+          },
+        },
         HttpStatus.PRECONDITION_FAILED,
       );
     }
@@ -106,7 +120,14 @@ export class FilesService {
   ): Promise<FileEntity> {
     if (!file) {
       throw new HttpException(
-        `{"file": "${this.i18n.t('file.failedUpload', { lang: I18nContext.current()?.lang })}"}`,
+        {
+          status: HttpStatus.PRECONDITION_FAILED,
+          errors: {
+            file: this.i18n.t('file.failedUpload', {
+              lang: I18nContext.current()?.lang,
+            }),
+          },
+        },
         HttpStatus.PRECONDITION_FAILED,
       );
     }
@@ -168,7 +189,14 @@ export class FilesService {
     fs.unlink(filePath, (err) => {
       if (err) {
         throw new HttpException(
-          `{"file": "${this.i18n.t('file.failedDelete', { lang: I18nContext.current()?.lang })}"}`,
+          {
+            status: HttpStatus.EXPECTATION_FAILED,
+            errors: {
+              file: this.i18n.t('file.failedDelete', {
+                lang: I18nContext.current()?.lang,
+              }),
+            },
+          },
           HttpStatus.EXPECTATION_FAILED,
         );
       }
@@ -182,8 +210,15 @@ export class FilesService {
     });
     if (!!existingFile) {
       throw new HttpException(
-        `{"file": "${this.i18n.t('file.fileExists', { lang: I18nContext.current()?.lang })}"}`,
-        HttpStatus.NOT_FOUND,
+        {
+          status: HttpStatus.PRECONDITION_FAILED,
+          errors: {
+            file: this.i18n.t('file.fileExists', {
+              lang: I18nContext.current()?.lang,
+            }),
+          },
+        },
+        HttpStatus.PRECONDITION_FAILED,
       );
     }
     const file = this.fileRepository.create({ path: url });

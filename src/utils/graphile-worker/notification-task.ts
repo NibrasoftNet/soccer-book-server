@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as firebaseAdmin from 'firebase-admin';
 import { Task, TaskHandler } from 'nestjs-graphile-worker';
@@ -30,7 +30,15 @@ class FirebaseSingleton {
           }),
         });
       } catch (error) {
-        throw new Error(`Firebase initialization failed: ${error.message}`);
+        throw new HttpException(
+          {
+            status: HttpStatus.FAILED_DEPENDENCY,
+            errors: {
+              firebase: `Firebase initialization failed: ${error.message}`,
+            },
+          },
+          HttpStatus.FAILED_DEPENDENCY,
+        );
       }
     }
     return FirebaseSingleton.instance;
@@ -73,8 +81,14 @@ export class NotificationTask {
           function: 'workerNotification',
           failureCount: response.failureCount,
         });
-        throw new Error(
-          `Failed to send ${response.failureCount} notifications.`,
+        throw new HttpException(
+          {
+            status: HttpStatus.FAILED_DEPENDENCY,
+            errors: {
+              firebase: `Failed to send ${response.failureCount} notifications.`,
+            },
+          },
+          HttpStatus.FAILED_DEPENDENCY,
         );
       } else {
         this.logger.info(`Notifications-were-sent-successfully`, {
@@ -91,7 +105,15 @@ export class NotificationTask {
         function: 'workerNotification',
         error: error.message,
       });
-      throw error;
+      throw new HttpException(
+        {
+          status: HttpStatus.FAILED_DEPENDENCY,
+          errors: {
+            firebase: `Failed to send notifications.`,
+          },
+        },
+        HttpStatus.FAILED_DEPENDENCY,
+      );
     }
   }
 }

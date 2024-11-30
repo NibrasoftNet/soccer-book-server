@@ -40,8 +40,13 @@ export class IsNotExist implements ValidatorConstraintInterface {
       return !entity;
     } catch (error) {
       throw new HttpException(
-        `{"isNotExist": "Operation failed"}`,
-        HttpStatus.EXPECTATION_FAILED,
+        {
+          status: HttpStatus.PRECONDITION_FAILED,
+          errors: {
+            isNotExists: error,
+          },
+        },
+        HttpStatus.PRECONDITION_FAILED,
       );
     }
   }

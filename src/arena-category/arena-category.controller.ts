@@ -65,7 +65,7 @@ export class ArenaCategoryController {
     },
   })
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(RoleCodeEnum.SUPERADMIN)
+  @Roles(RoleCodeEnum.SUPERADMIN, RoleCodeEnum.ADMIN)
   @UseInterceptors(MapInterceptor(ArenaCategory, ArenaCategoryDto))
   @UseInterceptors(FileFastifyInterceptor('file'))
   @HttpCode(HttpStatus.CREATED)

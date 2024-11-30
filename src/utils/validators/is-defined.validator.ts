@@ -1,10 +1,16 @@
 import { isDefined } from 'class-validator';
-import { PreconditionFailedException } from '@nestjs/common';
+import { HttpException, HttpStatus } from '@nestjs/common';
 
 export const isDefinedValidator = (value: any) => {
   if (!isDefined(value)) {
-    throw new PreconditionFailedException(
-      '{"validation": "Undefined or Null input data"}',
+    throw new HttpException(
+      {
+        status: HttpStatus.PRECONDITION_FAILED,
+        errors: {
+          validation: 'Undefined or Null input data',
+        },
+      },
+      HttpStatus.PRECONDITION_FAILED,
     );
   }
 };

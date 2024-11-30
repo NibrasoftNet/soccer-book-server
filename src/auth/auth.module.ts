@@ -14,6 +14,7 @@ import { FilesModule } from '../files/files.module';
 import { OtpModule } from 'src/otp/otp.module';
 import { AuthAdminService } from './auth-admin.service';
 import { UsersAdminModule } from '../users-admin/users-admin.module';
+import { AuthAdminController } from './auth-admin.controller';
 
 @Module({
   imports: [
@@ -25,7 +26,7 @@ import { UsersAdminModule } from '../users-admin/users-admin.module';
     FilesModule,
     OtpModule,
   ],
-  controllers: [AuthController, AuthController],
+  controllers: [AuthController, AuthAdminController],
   providers: [
     IsExist,
     IsNotExist,

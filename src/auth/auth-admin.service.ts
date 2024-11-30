@@ -1,9 +1,4 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-  UnprocessableEntityException,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import bcrypt from 'bcryptjs';
 import { plainToClass } from 'class-transformer';
 import { MailService } from '../mail/mail.service';
@@ -15,7 +10,6 @@ import { InjectMapper } from 'automapper-nestjs';
 import { OtpService } from 'src/otp/otp.service';
 import { I18nContext, I18nService } from 'nestjs-i18n';
 import { Status } from '../statuses/entities/status.entity';
-import { AuthEmailLoginDto } from '@/domains/auth/auth-email-login.dto';
 import { AuthProvidersEnum } from '@/enums/auth/auth-provider.enum';
 import { StatusCodeEnum } from '@/enums/status/statuses.enum';
 import { ConfirmOtpEmailDto } from '@/domains/otp/confirm-otp-email.dto';
@@ -28,6 +22,7 @@ import { UserAdmin } from '../users-admin/entities/user-admin.entity';
 import { UserAdminDto } from '@/domains/user-admin/user-admin.dto';
 import { SessionAdminResponseDto } from '@/domains/session/session-admin-response.dto';
 import { MulterFile } from 'fastify-file-interceptor';
+import { AuthAdminEmailLoginDto } from '@/domains/auth-admin/auth-admin-email-login.dto';
 
 @Injectable()
 export class AuthAdminService {
@@ -41,15 +36,21 @@ export class AuthAdminService {
   ) {}
 
   async validateLogin(
-    loginDto: AuthEmailLoginDto,
+    loginDto: AuthAdminEmailLoginDto,
   ): Promise<SessionAdminResponseDto> {
     const user = await this.usersAdminService.findOneOrFail({
       email: loginDto.email,
     });
 
     if (user.provider !== AuthProvidersEnum.EMAIL) {
-      throw new UnprocessableEntityException(
-        `{"email": "${this.i18n.t('auth.loggedWithSocial', { lang: I18nContext.current()?.lang })}:${user.provider}"}`,
+      throw new HttpException(
+        {
+          status: HttpStatus.PRECONDITION_FAILED,
+          errors: {
+            email: `${this.i18n.t('auth.loggedWithSocial', { lang: I18nContext.current()?.lang })}:${user.provider}`,
+          },
+        },
+        HttpStatus.PRECONDITION_FAILED,
       );
     }
 
@@ -59,15 +60,31 @@ export class AuthAdminService {
     );
 
     if (!isValidPassword) {
-      throw new UnprocessableEntityException(
-        `{"password": "${this.i18n.t('auth.invalidPassword', { lang: I18nContext.current()?.lang })}"}`,
+      throw new HttpException(
+        {
+          status: HttpStatus.FORBIDDEN,
+          errors: {
+            password: this.i18n.t('auth.invalidPassword', {
+              lang: I18nContext.current()?.lang,
+            }),
+          },
+        },
+        HttpStatus.FORBIDDEN,
       );
     }
 
     if (user.status?.id === StatusCodeEnum.INACTIVE) {
       await this.sendConfirmEmail(user.email);
-      throw new ForbiddenException(
-        `{"email": "${this.i18n.t('auth.emailNotConfirmed', { lang: I18nContext.current()?.lang })}"}`,
+      throw new HttpException(
+        {
+          status: HttpStatus.PRECONDITION_FAILED,
+          errors: {
+            email: this.i18n.t('auth.emailNotConfirmed', {
+              lang: I18nContext.current()?.lang,
+            }),
+          },
+        },
+        HttpStatus.PRECONDITION_FAILED,
       );
     }
 
@@ -98,8 +115,16 @@ export class AuthAdminService {
     });
 
     if (!user) {
-      throw new NotFoundException(
-        `{"user": "${this.i18n.t('auth.userNotFound', { lang: I18nContext.current()?.lang })}"}`,
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          errors: {
+            user: this.i18n.t('auth.userNotFound', {
+              lang: I18nContext.current()?.lang,
+            }),
+          },
+        },
+        HttpStatus.NOT_FOUND,
       );
     }
 
@@ -116,8 +141,16 @@ export class AuthAdminService {
     });
 
     if (!user) {
-      throw new UnprocessableEntityException(
-        `{"email":${this.i18n.t('auth.emailNotExists', { lang: I18nContext.current()?.lang })}}`,
+      throw new HttpException(
+        {
+          status: HttpStatus.PRECONDITION_FAILED,
+          errors: {
+            email: this.i18n.t('auth.emailNotExists', {
+              lang: I18nContext.current()?.lang,
+            }),
+          },
+        },
+        HttpStatus.PRECONDITION_FAILED,
       );
     }
     await this.sendForgetPasswordEmail(email);
@@ -129,8 +162,16 @@ export class AuthAdminService {
     });
 
     if (!user) {
-      throw new NotFoundException(
-        `{"user": "${this.i18n.t('auth.userNotFound', { lang: I18nContext.current()?.lang })}"}`,
+      throw new HttpException(
+        {
+          status: HttpStatus.PRECONDITION_FAILED,
+          errors: {
+            email: this.i18n.t('auth.emailNotExists', {
+              lang: I18nContext.current()?.lang,
+            }),
+          },
+        },
+        HttpStatus.PRECONDITION_FAILED,
       );
     }
 
@@ -180,8 +221,16 @@ export class AuthAdminService {
     );
 
     if (!isValidPassword) {
-      throw new UnprocessableEntityException(
-        `{"password": "${this.i18n.t('auth.invalidPassword', { lang: I18nContext.current()?.lang })}"}`,
+      throw new HttpException(
+        {
+          status: HttpStatus.FORBIDDEN,
+          errors: {
+            password: this.i18n.t('auth.invalidPassword', {
+              lang: I18nContext.current()?.lang,
+            }),
+          },
+        },
+        HttpStatus.FORBIDDEN,
       );
     }
 
