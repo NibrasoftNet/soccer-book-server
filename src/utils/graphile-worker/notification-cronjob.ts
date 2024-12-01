@@ -1,15 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import * as firebaseAdmin from 'firebase-admin';
 import { Task, TaskHandler } from 'nestjs-graphile-worker';
 import { NotificationService } from '../../notification/notification.service';
-
 import { WinstonLoggerService } from '../../logger/winston-logger.service';
 
 @Injectable()
 @Task('notification-cron')
 export class NotificationCronTask {
-  private readonly messaging: firebaseAdmin.messaging.Messaging;
-
   constructor(
     private readonly logger: WinstonLoggerService,
     private readonly notificationService: NotificationService,

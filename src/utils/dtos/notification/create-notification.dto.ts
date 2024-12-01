@@ -10,9 +10,13 @@ import {
   MaxLength,
   ValidateIf,
 } from 'class-validator';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { UserDto } from '@/domains/user/user.dto';
 import { NotificationTypeOfSendingEnum } from '@/enums/notification/notification-type-of-sending.enum';
+import {
+  CompareDate,
+  DateComparisonMethod,
+} from '../../validators/compare-date.validator';
 
 export class CreateNotificationDto {
   @ApiProperty()
@@ -39,18 +43,23 @@ export class CreateNotificationDto {
   @IsNotEmpty()
   typeOfSending: NotificationTypeOfSendingEnum;
 
-  @ApiProperty({ description: 'The selected users ID', type: Number })
+  @ApiProperty({ description: 'The selected users ID', type: [UserDto] })
+  @ValidateIf((dto) => dto.forAllUsers === false)
   @IsNotEmpty()
   @IsArray()
   users: UserDto[];
 
-  @ApiProperty()
+  @ApiProperty({
+    description: 'Start date of the tournament',
+    example: '2024-12-01T10:00:00.000Z',
+  })
   @ValidateIf(
     (dto) => dto.typeOfSending === NotificationTypeOfSendingEnum.PUNCTUAL,
   )
   @IsNotEmpty()
-  @Transform(({ value }) => value && new Date(value))
   @IsDate()
+  @Type(() => Date)
+  @CompareDate(new Date(), DateComparisonMethod.GREATER)
   punctualSendDate?: Date;
 
   @ApiProperty({
@@ -63,9 +72,9 @@ export class CreateNotificationDto {
   @IsNotEmpty()
   @Transform(({ value }) => value && value.map((date) => new Date(date)))
   @IsDate({ each: true })
-  scheduledNotification?: Date[];
+  scheduledNotification?: Date[] | null;
 
-  constructor({
+  /*  constructor({
     title,
     message,
     forAllUsers,
@@ -89,5 +98,5 @@ export class CreateNotificationDto {
     this.users = users;
     this.punctualSendDate = punctualSendDate;
     this.scheduledNotification = scheduledNotification;
-  }
+  }*/
 }

@@ -5,11 +5,20 @@ import { NotificationSerializationProfile } from './serialization/notification-s
 import { UsersModule } from '../users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Notification } from './entities/notification.entity';
+import { NotificationRecipient } from './entities/notification-recipient.entity';
+import { NotificationRecipientSerializationProfile } from './serialization/notification-recipient-serialization.profile';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Notification]), UsersModule],
+  imports: [
+    TypeOrmModule.forFeature([Notification, NotificationRecipient]),
+    UsersModule,
+  ],
   controllers: [NotificationController],
-  providers: [NotificationService, NotificationSerializationProfile],
+  providers: [
+    NotificationService,
+    NotificationSerializationProfile,
+    NotificationRecipientSerializationProfile,
+  ],
   exports: [NotificationService],
 })
 export class NotificationModule {}

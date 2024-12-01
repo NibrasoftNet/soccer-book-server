@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   DeepPartial,
@@ -42,6 +42,10 @@ export class UsersService {
         return await entityManager.save(user);
       },
     );
+  }
+
+  async findAll(): Promise<User[]> {
+    return await this.usersRepository.find();
   }
 
   async findManyWithPagination(query: PaginateQuery): Promise<Paginated<User>> {
@@ -109,37 +113,26 @@ export class UsersService {
     return null;
   }
 
-  async findAllUsersToken(userIds?: number[]): Promise<string[]> {
-    const query = this.usersRepository
+  async findAllUsersToken(): Promise<string[]> {
+    const result = await this.usersRepository
       .createQueryBuilder('user')
-      .select('user.notificationToken')
-      .where('user.notificationToken IS NOT NULL'); // To avoid selecting null values
+      .select('array_agg(user.notificationsToken)', 'tokens') // Aggregate tokens into an array
+      .where('user.notificationsToken IS NOT NULL')
+      .getRawOne();
 
-    // If userIds are provided, filter by user IDs
-    if (userIds && userIds.length > 0) {
-      query.andWhere('user.id IN (:...userIds)', { userIds });
+    if (!result.tokens || !result.tokens.length) {
+      this.logger.debug('No notification receiver found');
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          errors: {
+            notification: 'No notification receiver found',
+          },
+        },
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
-    const result = await query.getMany();
-
-    // Extract the notification tokens as an array of strings
-    return result.map((user) => user.notificationsToken) as string[];
-  }
-
-  async findAllUsersByIds(userIds: number[]): Promise<Array<User>> {
-    const stopWatching = this.logger.watch('users-findAllUsersByIds', {
-      description: `Find All Users By Ids`,
-      class: UsersService.name,
-      function: 'findAllUsersToken',
-    });
-
-    const queryBuilder = this.usersRepository
-      .createQueryBuilder('user')
-      .leftJoinAndSelect('user.role', 'role')
-      .leftJoinAndSelect('user.status', 'status')
-      .orWhereInIds(userIds);
-    const users = await queryBuilder.getMany();
-    stopWatching();
-    return users;
+    return result.tokens as string[];
   }
 }

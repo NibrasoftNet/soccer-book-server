@@ -1,21 +1,20 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
-  Brackets,
   DeepPartial,
   DeleteResult,
+  EntityManager,
   FindOptionsRelations,
   FindOptionsWhere,
   Repository,
 } from 'typeorm';
 import { Notification } from './entities/notification.entity';
 import { paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
-import { notificationsPaginationConfig } from './configs/notifications-pagination.config';
+import { notificationsPaginationConfig } from './config/notifications-pagination.config';
 import { NullableType } from '../utils/types/nullable.type';
 import { UsersService } from '../users/users.service';
 import { JwtPayloadType } from '../auth/strategies/types/jwt-payload.type';
 import { WinstonLoggerService } from 'src/logger/winston-logger.service';
-import { I18nContext, I18nService } from 'nestjs-i18n';
 import {
   GraphileWorkerListener,
   OnWorkerEvent,
@@ -24,9 +23,12 @@ import {
 import { WorkerEventMap } from 'graphile-worker';
 import { NotificationJobPayload } from './interfaces/notification-job-payload';
 import { NotificationTypeOfSendingEnum } from '@/enums/notification/notification-type-of-sending.enum';
-import { CreateNotificationDto } from '@/domains/notification/dto/create-notification.dto';
-import { NotificationMessageDto } from '@/domains/notification/dto/notification-message.dto';
-import { UpdateNotificationDto } from '@/domains/notification/dto/update-notification.dto';
+import { CreateNotificationDto } from '@/domains/notification/create-notification.dto';
+import { NotificationMessageDto } from '@/domains/notification/notification-message.dto';
+import { UpdateNotificationDto } from '@/domains/notification/update-notification.dto';
+import { NotificationRecipient } from './entities/notification-recipient.entity';
+import { User } from '../users/entities/user.entity';
+import { notificationsRecipientPaginationConfig } from './config/notifications-recipient-pagination.config';
 
 @Injectable()
 @GraphileWorkerListener()
@@ -34,9 +36,10 @@ export class NotificationService {
   constructor(
     @InjectRepository(Notification)
     private notificationsRepository: Repository<Notification>,
+    @InjectRepository(NotificationRecipient)
+    private notificationRecipientRepository: Repository<NotificationRecipient>,
     private readonly usersService: UsersService,
     private readonly logger: WinstonLoggerService,
-    private readonly i18n: I18nService,
     private readonly graphileWorker: WorkerService,
   ) {}
 
@@ -48,9 +51,7 @@ export class NotificationService {
     });
     const payload = job.payload as NotificationJobPayload;
     if (job?.task_identifier === 'notification') {
-      await this.update(payload.notificationId, {
-        isNotificationSent: true,
-      });
+      await this.createNotificationRecipient(payload.notificationId);
     }
   }
 
@@ -72,30 +73,50 @@ export class NotificationService {
       createNotificationDto as DeepPartial<Notification>,
     );
 
-    if (!notification.users.length) {
-      throw new HttpException(
-        {
-          status: HttpStatus.PRECONDITION_FAILED,
-          errors: {
-            users: this.i18n.t('auth.userNotFound', {
-              lang: I18nContext.current()?.lang,
-            }),
-          },
-        },
-        HttpStatus.PRECONDITION_FAILED,
-      );
-    }
-
     const savedNotification =
       await this.notificationsRepository.save(notification);
 
     if (
-      savedNotification.typeOfSending !==
-      NotificationTypeOfSendingEnum.PROGRAMMED
+      savedNotification.typeOfSending ===
+      NotificationTypeOfSendingEnum.IMMEDIATELY
     ) {
-      await this.sendPushNotifications(savedNotification.id);
+      await this.sendImmediateNotification(savedNotification);
+    }
+    if (
+      savedNotification.typeOfSending === NotificationTypeOfSendingEnum.PUNCTUAL
+    ) {
+      await this.sendPunctualNotification(savedNotification);
     }
     return savedNotification;
+  }
+
+  async sendImmediateNotification(notification: Notification) {
+    const message = await this.createNotificationMessage(notification);
+    await this.graphileWorker.addJob(
+      'notification',
+      {
+        message: message,
+        notificationId: notification.id,
+      },
+      {
+        maxAttempts: 1,
+      },
+    );
+  }
+
+  async sendPunctualNotification(notification: Notification) {
+    const message = await this.createNotificationMessage(notification);
+    await this.graphileWorker.addJob(
+      'notification',
+      {
+        message: message,
+        notificationId: notification.id,
+      },
+      {
+        maxAttempts: 1,
+        runAt: new Date(notification.punctualSendDate as Date),
+      },
+    );
   }
 
   async findAllPaginated(
@@ -121,7 +142,6 @@ export class NotificationService {
     });
 
     const currentDayOfWeek = new Date().getUTCDay(); // 0 (Sunday) to 6 (Saturday)
-
     return await this.notificationsRepository.query(
       `SELECT *
        FROM notification,
@@ -135,7 +155,7 @@ export class NotificationService {
   async findAllMyNotifications(
     user: JwtPayloadType,
     query: PaginateQuery,
-  ): Promise<Paginated<Notification>> {
+  ): Promise<Paginated<NotificationRecipient>> {
     const stopWatching = this.logger.watch(
       'notification-findAllMyNotifications',
       {
@@ -145,31 +165,14 @@ export class NotificationService {
       },
     );
 
-    const queryBuilder = this.notificationsRepository
-      .createQueryBuilder('notification')
-      .leftJoinAndSelect('notification.users', 'user')
-      .where('notification.isNotificationSent = :isNotificationSent', {
-        isNotificationSent: true,
-      })
-      .andWhere(
-        new Brackets((qb) => {
-          qb.where('notification.forAllUsers = :forAll', {
-            forAll: true,
-          }).orWhere(
-            new Brackets((subQb) => {
-              subQb
-                .where('notification.forAllUsers = :forAllFalse', {
-                  forAllFalse: false,
-                })
-                .andWhere('user.id = :userId', { userId: user.id });
-            }),
-          );
-        }),
-      );
+    const queryBuilder = this.notificationRecipientRepository
+      .createQueryBuilder('notification-recipient')
+      .leftJoinAndSelect('notification-recipient.user', 'user')
+      .where('user.id = :userId', { userId: user.id });
     const notifications = await paginate(
       query,
       queryBuilder,
-      notificationsPaginationConfig,
+      notificationsRecipientPaginationConfig,
     );
     stopWatching();
     return notifications;
@@ -229,46 +232,6 @@ export class NotificationService {
     return await this.notificationsRepository.delete(id);
   }
 
-  async sendPushNotifications(notificationId: string): Promise<void> {
-    this.logger.info(`send-Push-Notification`, {
-      description: `send Push Notifications`,
-      class: NotificationService.name,
-      function: 'sendPushNotifications',
-    });
-    const notification = await this.findOneOrFail(
-      { id: notificationId },
-      { users: true },
-    );
-    const message = await this.createNotificationMessage(notification);
-    if (
-      notification.typeOfSending === NotificationTypeOfSendingEnum.PUNCTUAL &&
-      notification.punctualSendDate
-    ) {
-      await this.graphileWorker.addJob(
-        'notification',
-        {
-          message: message,
-          notificationId: notificationId,
-        },
-        {
-          maxAttempts: 1,
-          runAt: new Date(notification.punctualSendDate),
-        },
-      );
-    } else {
-      await this.graphileWorker.addJob(
-        'notification',
-        {
-          message: message,
-          notificationId: notificationId,
-        },
-        {
-          maxAttempts: 1,
-        },
-      );
-    }
-  }
-
   async sendProgrammedNotifications(notificationId: string, sendAt: Date) {
     const notification = await this.findOneOrFail(
       { id: notificationId },
@@ -289,42 +252,42 @@ export class NotificationService {
     );
   }
 
+  async createNotificationRecipient(notificationId: string) {
+    const notification = await this.findOneOrFail(
+      { id: notificationId },
+      { users: true },
+    );
+    const users = (await this.handleNotificationRecipients(
+      notification,
+    )) as User[];
+    return await this.notificationRecipientRepository.manager.transaction(
+      async (entityManager: EntityManager) => {
+        const notificationRecipients = users.map((user) => {
+          const notificationRecipient = new NotificationRecipient();
+          notificationRecipient.notification = notification;
+          notificationRecipient.user = user;
+          return notificationRecipient;
+        });
+        await entityManager
+          .createQueryBuilder()
+          .insert()
+          .into(NotificationRecipient)
+          .values(notificationRecipients)
+          .execute();
+        // Update isNotificationSent in the Notification entity
+        notification.isNotificationSent = true;
+        await entityManager.save(Notification, notification);
+      },
+    );
+  }
+
   async createNotificationMessage(
     notification: Notification,
   ): Promise<NotificationMessageDto> {
-    let tokens: string[] = [];
-
-    if (!notification.forAllUsers) {
-      tokens = notification.users.map(
-        (item) => item.notificationsToken,
-      ) as string[];
-    } else if (notification.forAllUsers) {
-      tokens = await this.usersService.findAllUsersToken();
-    } else {
-      this.logger.error('Error handling notifications:', notification);
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          errors: {
-            notification: 'Wrong Notification configuration',
-          },
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    if (tokens.length < 1) {
-      this.logger.debug('No notification receiver found');
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          errors: {
-            notification: 'No notification receiver found',
-          },
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    const tokens = (await this.handleNotificationRecipients(
+      notification,
+      true,
+    )) as string[];
 
     return new NotificationMessageDto({
       notification: {
@@ -338,5 +301,21 @@ export class NotificationService {
       },
       tokens: tokens,
     });
+  }
+
+  async handleNotificationRecipients(
+    notification: Notification,
+    onlyTokens: boolean = false,
+  ): Promise<string[] | User[]> {
+    if (!notification.forAllUsers) {
+      return onlyTokens
+        ? (notification.users.map(
+            (item) => item.notificationsToken,
+          ) as string[])
+        : (notification.users.map((item) => item) as User[]);
+    }
+    return onlyTokens
+      ? await this.usersService.findAllUsersToken()
+      : await this.usersService.findAll();
   }
 }

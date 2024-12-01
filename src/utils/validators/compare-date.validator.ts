@@ -27,10 +27,26 @@ export class CompareDateConstraint implements ValidatorConstraintInterface {
         ? relatedPropertyOrDate
         : (args.object as any)[relatedPropertyOrDate];
 
-    if (!value || !dayjs(value).isValid()) return false;
     if (!relatedValue || !dayjs(relatedValue).isValid()) return false;
 
-    // Use dayjs for comparison
+    // Handle arrays
+    if (Array.isArray(value)) {
+      return value.every((item) =>
+        this.compareDates(item, relatedValue, method),
+      );
+    }
+
+    // Handle single values
+    return this.compareDates(value, relatedValue, method);
+  }
+
+  private compareDates(
+    value: any,
+    relatedValue: any,
+    method: DateComparisonMethod,
+  ): boolean {
+    if (!value || !dayjs(value).isValid()) return false;
+
     const currentDate = dayjs(value);
     const compareDate = dayjs(relatedValue);
 
@@ -54,10 +70,10 @@ export class CompareDateConstraint implements ValidatorConstraintInterface {
     const isDate = relatedPropertyOrDate instanceof Date;
     const reference = isDate
       ? relatedPropertyOrDate.toISOString()
-      : relatedPropertyOrDate;
+      : `the value of ${relatedPropertyOrDate}`;
 
-    return `The value must be ${method} than ${
-      isDate ? 'the date ' + reference : `the value of ${relatedPropertyOrDate}`
+    return `Each date must be ${method} than ${
+      isDate ? `the date ${reference}` : reference
     }`;
   }
 }

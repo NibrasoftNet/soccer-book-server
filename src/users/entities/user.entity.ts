@@ -23,6 +23,7 @@ import { AuthProvidersEnum } from '@/enums/auth/auth-provider.enum';
 import { Team } from '../../team/entities/team.entity';
 import { SubscriptionToTeam } from '../../subscription-to-team/entities/subscription-to-team.entity';
 import { Reservation } from '../../reservation/entities/reservation.entity';
+import { NotificationRecipient } from '../../notification/entities/notification-recipient.entity';
 
 @Entity()
 export class User extends EntityHelper {
@@ -83,6 +84,12 @@ export class User extends EntityHelper {
   @AutoMap()
   @Column({ type: String, nullable: true })
   notificationsToken?: string | null;
+
+  @AutoMap(() => [NotificationRecipient])
+  @OneToMany(() => NotificationRecipient, (notification) => notification.user, {
+    nullable: true,
+  })
+  notifications?: NotificationRecipient[];
 
   @AutoMap(() => [Team])
   @OneToMany(() => Team, (team) => team.creator, {

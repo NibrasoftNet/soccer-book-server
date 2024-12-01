@@ -15,7 +15,7 @@ import {
 } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { ApiPaginationQuery, Paginate, PaginateQuery } from 'nestjs-paginate';
-import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../roles/roles.guard';
 import { Roles } from '../roles/roles.decorator';
@@ -23,11 +23,14 @@ import { InjectMapper, MapInterceptor } from 'automapper-nestjs';
 import { Notification } from './entities/notification.entity';
 import { PaginatedDto } from '../utils/serialization/paginated.dto';
 import { Mapper } from 'automapper-core';
-import { notificationsPaginationConfig } from './configs/notifications-pagination.config';
+import { notificationsPaginationConfig } from './config/notifications-pagination.config';
 import { RoleCodeEnum } from '@/enums/role/roles.enum';
-import { CreateNotificationDto } from '@/domains/notification/dto/create-notification.dto';
-import { NotificationDto } from '@/domains/notification/dto/notification.dto';
-import { UpdateNotificationDto } from '@/domains/notification/dto/update-notification.dto';
+import { CreateNotificationDto } from '@/domains/notification/create-notification.dto';
+import { NotificationDto } from '@/domains/notification/notification.dto';
+import { UpdateNotificationDto } from '@/domains/notification/update-notification.dto';
+import { notificationsRecipientPaginationConfig } from './config/notifications-recipient-pagination.config';
+import { NotificationRecipient } from './entities/notification-recipient.entity';
+import { NotificationRecipientDto } from '@/domains/notification/notification-recipient.dto';
 
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -73,23 +76,20 @@ export class NotificationController {
   @Roles(RoleCodeEnum.ADMIN, RoleCodeEnum.USER, RoleCodeEnum.SUPERADMIN)
   @Get('all/_me')
   @HttpCode(HttpStatus.OK)
-  @UseInterceptors(
-    MapInterceptor(Notification, NotificationDto, { isArray: true }),
-  )
-  @ApiPaginationQuery(notificationsPaginationConfig)
+  @ApiPaginationQuery(notificationsRecipientPaginationConfig)
   async findAllMyNotifications(
     @Request() request: any,
     @Paginate() query: PaginateQuery,
-  ): Promise<PaginatedDto<Notification, NotificationDto>> {
+  ): Promise<PaginatedDto<NotificationRecipient, NotificationRecipientDto>> {
     const notifications = await this.notificationService.findAllMyNotifications(
       request.user,
       query,
     );
-    return new PaginatedDto<Notification, NotificationDto>(
+    return new PaginatedDto<NotificationRecipient, NotificationRecipientDto>(
       this.mapper,
       notifications,
-      Notification,
-      NotificationDto,
+      NotificationRecipient,
+      NotificationRecipientDto,
     );
   }
 
@@ -99,14 +99,6 @@ export class NotificationController {
   @HttpCode(HttpStatus.OK)
   async findOne(@Param('id') id: string) {
     return await this.notificationService.findOne({ id }, { users: true });
-  }
-
-  @Roles(RoleCodeEnum.ADMIN, RoleCodeEnum.USER, RoleCodeEnum.SUPERADMIN)
-  @ApiQuery({ name: 'userId', required: false })
-  @Get('send/:id')
-  @HttpCode(HttpStatus.OK)
-  async sendNotification(@Param('id') id: string) {
-    return await this.notificationService.sendPushNotifications(id);
   }
 
   @Roles(RoleCodeEnum.ADMIN, RoleCodeEnum.USER, RoleCodeEnum.SUPERADMIN)
