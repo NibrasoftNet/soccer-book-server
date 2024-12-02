@@ -45,6 +45,7 @@ import { ReservationModule } from './reservation/reservation.module';
 import { TeammateModule } from './teammate/teammate.module';
 import { TournamentModule } from './tournament/tournament.module';
 import { TournamentParticipationModule } from './tournament-participation/tournament-participation.module';
+import { FirebaseModule } from './utils/firabase-fcm/firebase.module';
 
 @Module({
   imports: [
@@ -142,6 +143,7 @@ import { TournamentParticipationModule } from './tournament-participation/tourna
     OauthModule,
     HealthModule,
     AwsS3Module,
+    FirebaseModule,
     SharedModule,
     TestimonialsModule,
     WinstonLoggerModule,

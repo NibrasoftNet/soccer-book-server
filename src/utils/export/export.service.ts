@@ -1,36 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { Worker } from 'worker_threads';
 import * as ExcelJS from 'exceljs';
 import path from 'path';
 import fs from 'fs';
-import { ExportDto } from './dto/create-export.dto';
 import { ExportFileType } from './enums/export.enum';
-import { workerThreadFilePath } from '../worker/config';
 
 @Injectable()
 export class ExportService {
-  async workerExport(exportDto: ExportDto): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const worker = new Worker(workerThreadFilePath, {
-        workerData: {
-          filePath: exportDto.file_path,
-          fileType: exportDto.file_type,
-          data: exportDto.data,
-        },
-      });
-      worker.on('message', (message) => {
-        resolve(message);
-      });
-      worker.on('error', (err) => {
-        console.error('Worker threw an error:', err);
-        reject(err);
-      });
-      worker.on('exit', (code) => {
-        console.log('Worker did exit with code:', code);
-      });
-    });
-  }
-
   async exportToCsvExcel(
     filePath: string,
     fileType: ExportFileType,
