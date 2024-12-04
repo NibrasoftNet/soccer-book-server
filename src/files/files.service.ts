@@ -56,11 +56,13 @@ export class FilesService {
         HttpStatus.PRECONDITION_FAILED,
       );
     }
+
     const path = {
       local: `${this.configService.get('app.backendDomain', { infer: true })}/${this.configService.get('app.apiPrefix', { infer: true })}/v1/files/${
         file.filename
       }`,
       s3: (file as Express.MulterS3.File).location,
+      cloudinary: (file as MulterFile).path,
     };
     return this.fileRepository.save(
       this.fileRepository.create({
@@ -95,6 +97,7 @@ export class FilesService {
               file.filename
             }`,
             s3: (file as Express.MulterS3.File).location,
+            cloudinary: (file as MulterFile).path,
           };
           return await manager.save(
             this.fileRepository.create({

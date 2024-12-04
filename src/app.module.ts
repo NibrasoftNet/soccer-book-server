@@ -22,6 +22,7 @@ import authConfig from './auth/config/auth.config';
 import appConfig from './config/app.config';
 import mailConfig from './mail/config/mail.config';
 import fileConfig from './files/config/file.config';
+import cloudinaryConfig from './utils/cloudinary/config/cloudinary.config';
 import path from 'path';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HealthModule } from './health/health.module';
@@ -46,6 +47,7 @@ import { TeammateModule } from './teammate/teammate.module';
 import { TournamentModule } from './tournament/tournament.module';
 import { TournamentParticipationModule } from './tournament-participation/tournament-participation.module';
 import { FirebaseModule } from './utils/firabase-fcm/firebase.module';
+import { CloudinaryModule } from './utils/cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -58,6 +60,7 @@ import { FirebaseModule } from './utils/firabase-fcm/firebase.module';
         mailConfig,
         fileConfig,
         googleConfig,
+        cloudinaryConfig,
       ],
       envFilePath: ['.env'],
     }),
@@ -145,6 +148,7 @@ import { FirebaseModule } from './utils/firabase-fcm/firebase.module';
     AwsS3Module,
     FirebaseModule,
     SharedModule,
+    CloudinaryModule,
     TestimonialsModule,
     WinstonLoggerModule,
     NotificationModule,

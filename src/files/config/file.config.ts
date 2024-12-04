@@ -6,6 +6,7 @@ import validateConfig from '../../utils/validate-config';
 enum FileDriver {
   LOCAL = 'local',
   S3 = 's3',
+  CLOUDIANRY = 'cloudinary',
 }
 
 class EnvironmentVariablesValidator {

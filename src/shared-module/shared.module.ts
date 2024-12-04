@@ -8,7 +8,9 @@ import { AllConfigType } from 'src/config/config.type';
 import { SharedService } from './shared.service';
 import { JwtModule } from '@nestjs/jwt';
 import { IsUniqueOrAppend } from '../utils/validators/is-unique-or-append';
-import { FastifyMulterModule } from 'fastify-file-interceptor';
+import { FastifyMulterModule, MulterFile } from 'fastify-file-interceptor';
+import { CloudinaryService } from '../utils/cloudinary/cloudinary.service';
+import { FastifyRequest } from 'fastify';
 
 @Global()
 @Module({
@@ -16,8 +18,11 @@ import { FastifyMulterModule } from 'fastify-file-interceptor';
     JwtModule.register({}),
     FastifyMulterModule.registerAsync({
       imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService<AllConfigType>) => {
+      inject: [ConfigService, CloudinaryService],
+      useFactory: (
+        configService: ConfigService<AllConfigType>,
+        cloudinaryService: CloudinaryService,
+      ) => {
         const storages = {
           local: () =>
             diskStorage({
@@ -64,6 +69,34 @@ import { FastifyMulterModule } from 'fastify-file-interceptor';
               },
             });
           },
+          cloudinary: () => {
+            const uploadResult = (
+              request: Request | FastifyRequest,
+              file: MulterFile | Express.Multer.File | Express.MulterS3.File,
+              callback: (
+                error: Error | null,
+                info?: { path: string; filename: string },
+              ) => void,
+            ) => {
+              // Use cloudinaryService's uploadFile method to upload the file
+              cloudinaryService
+                .uploadFile(file)
+                .then((result) => {
+                  // Call the callback with the file's path and filename
+                  callback(null, {
+                    path: result.secure_url,
+                    filename: result.public_id,
+                  });
+                })
+                .catch((error) => {
+                  // Call the callback with an error if upload fails
+                  callback(error);
+                });
+            };
+            return {
+              _handleFile: uploadResult,
+            };
+          },
         };
         return {
           fileFilter: (request, file, callback) => {
@@ -80,7 +113,6 @@ import { FastifyMulterModule } from 'fastify-file-interceptor';
                 ),
               );
             }
-
             callback(null, true);
           },
           storage:
