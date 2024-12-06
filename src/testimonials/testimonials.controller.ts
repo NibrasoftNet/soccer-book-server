@@ -28,6 +28,7 @@ import { RoleCodeEnum } from '@/enums/role/roles.enum';
 import { CreateTestimonialDto } from '@/domains/testimonial/create-testimonial.dto';
 import { UpdateTestimonialDto } from '@/domains/testimonial/update-testimonial.dto';
 import { IsCreatorPipe } from '../utils/pipes/is-creator.pipe';
+import { NullableType } from '../utils/types/nullable.type';
 
 @ApiTags('Testimonials')
 @ApiBearerAuth()
@@ -74,7 +75,7 @@ export class TestimonialsController {
   @UseInterceptors(MapInterceptor(Testimonial, TestimonialDto))
   @HttpCode(HttpStatus.OK)
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string): Promise<NullableType<Testimonial>> {
     return await this.testimonialsService.findOne({ id });
   }
 
@@ -86,7 +87,7 @@ export class TestimonialsController {
   async update(
     @Param('id', IsCreatorPipe('Testimonial', 'id', 'creator')) id: string,
     @Body() updateTestimonialDto: UpdateTestimonialDto,
-  ) {
+  ): Promise<Testimonial> {
     return this.testimonialsService.update(id, updateTestimonialDto);
   }
 

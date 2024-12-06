@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Testimonial } from '../testimonials/entities/testimonial.entity';
 import {
   DeepPartial,
   DeleteResult,
@@ -32,7 +31,7 @@ export class ArenaTestimonialsService {
     createArenaTestimonialDto: CreateArenaTestimonialDto,
   ): Promise<ArenaTestimonial> {
     const testimonial = this.arenaTestimonialRepository.create(
-      createArenaTestimonialDto as DeepPartial<Testimonial>,
+      createArenaTestimonialDto as DeepPartial<ArenaTestimonial>,
     );
     testimonial.creator = await this.usersService.findOneOrFail({
       id: userJwtPayload.id,

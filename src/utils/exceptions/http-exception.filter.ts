@@ -14,17 +14,27 @@ export class HttpExceptionFilter implements ExceptionFilter {
   constructor(private readonly loggerService: WinstonLoggerService) {}
 
   catch(exception: any, host: ArgumentsHost) {
-    switch (exception.constructor) {
-      case EntityNotFoundError:
-        this.handleEntityNotFoundError(exception, host);
-        break;
-      case HttpException:
-        this.handleHttpException(exception, host);
-        break;
-      default:
-        this.handleUnknownException(exception, host);
-        break;
+    this.handleException(exception, host);
+  }
+
+  exceptionHandlers: Record<
+    string,
+    (exception: any, host: ArgumentsHost) => void
+  > = {
+    EntityNotFoundError: (exception, host) =>
+      this.handleEntityNotFoundError(exception, host),
+    HttpException: (exception, host) =>
+      this.handleHttpException(exception, host),
+  };
+
+  handleException(exception: any, host: any): void {
+    const handler = this.exceptionHandlers[exception.constructor.name];
+    if (!handler) {
+      this.handleUnknownException(exception, host);
+      return;
     }
+
+    handler(exception, host);
   }
 
   handleHttpException(exception: HttpException, host: ArgumentsHost) {
