@@ -2,12 +2,7 @@ import { registerAs } from '@nestjs/config';
 import { FileConfig } from 'src/files/config/file-config.type';
 import { IsEnum, IsOptional, IsString, ValidateIf } from 'class-validator';
 import validateConfig from '../../utils/validate-config';
-
-enum FileDriver {
-  LOCAL = 'local',
-  S3 = 's3',
-  CLOUDIANRY = 'cloudinary',
-}
+import { FileDriver } from '@/enums/file/file-driver.enum';
 
 class EnvironmentVariablesValidator {
   @IsEnum(FileDriver)

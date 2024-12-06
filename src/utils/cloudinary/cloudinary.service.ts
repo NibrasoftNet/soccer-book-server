@@ -1,10 +1,14 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { UploadApiOptions, UploadApiResponse } from 'cloudinary';
 import { MulterFile } from 'fastify-file-interceptor';
+import { I18nContext, I18nService } from 'nestjs-i18n';
 
 @Injectable()
 export class CloudinaryService {
-  constructor(@Inject('CLOUDINARY') private readonly cloudinary: any) {}
+  constructor(
+    @Inject('CLOUDINARY') private readonly cloudinary: any,
+    private readonly i18n: I18nService,
+  ) {}
 
   async uploadFile(
     file: MulterFile | Express.MulterS3.File,
@@ -54,15 +58,60 @@ export class CloudinaryService {
     }
   }
 
-  // Optional method to delete a file from Cloudinary
-  async deleteFile(publicId: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.cloudinary.uploader.destroy(publicId, (error) => {
-        if (error) {
-          return reject(error);
-        }
-        resolve(); // Resolve on successful deletion
+  async deleteFile(imageUrl: string): Promise<boolean> {
+    try {
+      // Extract public ID from the URL
+      const publicId = this.extractPublicId(imageUrl);
+
+      if (!publicId) {
+        new HttpException(
+          {
+            status: HttpStatus.PRECONDITION_FAILED,
+            errors: {
+              file: this.i18n.t('file.failedDelete', {
+                lang: I18nContext.current()?.lang,
+              }),
+            },
+          },
+          HttpStatus.PRECONDITION_FAILED,
+        );
+      }
+
+      // Use the Cloudinary uploader to destroy the file
+      await new Promise<boolean | void>((resolve, reject) => {
+        this.cloudinary.uploader.destroy(publicId, (error) => {
+          if (error) {
+            return reject(
+              new HttpException(
+                {
+                  status: HttpStatus.BAD_REQUEST,
+                  errors: {
+                    file: `Failed to delete file: ${error.message}`,
+                  },
+                },
+                HttpStatus.BAD_REQUEST,
+              ),
+            );
+          }
+          resolve();
+        });
       });
-    });
+      return true;
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.PRECONDITION_FAILED,
+          errors: {
+            file: error.toString(),
+          },
+        },
+        HttpStatus.PRECONDITION_FAILED,
+      );
+    }
+  }
+
+  private extractPublicId(imageUrl: string): string | null {
+    const matches = imageUrl.match(/\/upload\/(?:v\d+\/)?([^.]+)/);
+    return matches?.[1] || null;
   }
 }

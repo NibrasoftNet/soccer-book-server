@@ -32,6 +32,9 @@ import {
 import { createReadStream } from 'fs';
 import { join } from 'path';
 import * as mime from 'mime-types';
+import { MapInterceptor } from 'automapper-nestjs';
+import { FileDto } from '@/domains/files/file.dto';
+import { NullableType } from '../utils/types/nullable.type';
 
 @ApiTags('Files')
 @ApiBearerAuth()
@@ -57,6 +60,8 @@ export class FilesController {
     },
   })
   @UseInterceptors(FileFastifyInterceptor('file'))
+  @UseInterceptors(MapInterceptor(FileEntity, FileDto))
+  @HttpCode(HttpStatus.CREATED)
   async uploadFile(@UploadedFile() file: MulterFile | Express.MulterS3.File) {
     return this.filesService.uploadFile(file);
   }
@@ -77,6 +82,8 @@ export class FilesController {
     },
   })
   @UseInterceptors(FilesFastifyInterceptor('files', 10))
+  @UseInterceptors(MapInterceptor(FileEntity, FileDto, { isArray: true }))
+  @HttpCode(HttpStatus.CREATED)
   @Post('upload-multiple')
   async uploadMultipleFiles(
     @UploadedFiles() files: Array<MulterFile | Express.MulterS3.File>,
@@ -84,7 +91,8 @@ export class FilesController {
     return this.filesService.uploadMultipleFiles(files);
   }
 
-  @Get(':path')
+  @HttpCode(HttpStatus.OK)
+  @Get('local/:path')
   displayFile(@Param('path') path, @Res() res) {
     const filePath = join(process.cwd(), 'uploads', path);
     const mimeType = mime.lookup(filePath) || 'application/octet-stream';
@@ -98,6 +106,13 @@ export class FilesController {
     // Stream the file to the browser
     const stream = createReadStream(filePath);
     return res.send(stream);
+  }
+
+  @UseInterceptors(MapInterceptor(FileEntity, FileDto))
+  @HttpCode(HttpStatus.OK)
+  @Get(':id')
+  async findOne(@Param('id') id: string): Promise<NullableType<FileEntity>> {
+    return this.filesService.findOne({ id });
   }
 
   /**
@@ -126,6 +141,7 @@ export class FilesController {
   })
   @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(FileFastifyInterceptor('file'))
+  @HttpCode(HttpStatus.OK)
   async updateFile(
     @Param('id') id: string,
     @UploadedFile() file: MulterFile | Express.MulterS3.File,
@@ -143,8 +159,8 @@ export class FilesController {
     description: 'This endpoint delete a file from storage and database.',
   })
   @UseGuards(AuthGuard('jwt'))
-  @Delete(':id')
   @HttpCode(HttpStatus.OK)
+  @Delete(':id')
   async deleteFile(@Param('id') id: string): Promise<DeleteResult> {
     return await this.filesService.deleteFile(id);
   }

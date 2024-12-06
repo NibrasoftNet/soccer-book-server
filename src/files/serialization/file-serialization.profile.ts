@@ -13,15 +13,7 @@ export class FileSerializationProfile extends AutomapperProfile {
 
   override get profile(): MappingProfile {
     return (mapper) => {
-      createMap(
-        mapper,
-        FileEntity,
-        FileDto,
-        /*        forMember(
-          (dto: StoreDto) => dto.image,
-          mapFrom((source: Store) => source.image?.path || null),
-        ),*/
-      );
+      createMap(mapper, FileEntity, FileDto);
     };
   }
 }

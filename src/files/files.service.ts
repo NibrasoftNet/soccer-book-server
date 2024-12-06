@@ -14,21 +14,33 @@ import * as path from 'path';
 import { AwsS3Service } from '../utils/aws-s3/aws-s3.service';
 import { I18nContext, I18nService } from 'nestjs-i18n';
 import { MulterFile } from 'fastify-file-interceptor';
+import { CloudinaryService } from '../utils/cloudinary/cloudinary.service';
+import { FileDriver } from '@/enums/file/file-driver.enum';
+import { NullableType } from '../utils/types/nullable.type';
 
 @Injectable()
 export class FilesService {
-  private readonly storage;
+  private readonly storage: FileDriver;
 
   constructor(
     private readonly configService: ConfigService<AllConfigType>,
     @InjectRepository(FileEntity)
     private readonly fileRepository: Repository<FileEntity>,
     private readonly awsS3Service: AwsS3Service,
+    private readonly cloudinaryService: CloudinaryService,
     private readonly i18n: I18nService,
     private dataSource: DataSource,
   ) {
     this.storage = this.configService.getOrThrow('file.driver', {
       infer: true,
+    });
+  }
+
+  async findOne(
+    fields: FindOptionsWhere<FileEntity>,
+  ): Promise<NullableType<FileEntity>> {
+    return await this.fileRepository.findOne({
+      where: fields,
     });
   }
 
@@ -135,13 +147,9 @@ export class FilesService {
       );
     }
     // Delete old file
-    const fileToUpdate = await this.findOneOrFail({
-      id,
-    });
+    const fileToUpdate = await this.findOneOrFail({ id });
     const fileKey = this.extractKeyFromUrl(fileToUpdate.path);
-    this.storage === 'local'
-      ? this.deleteFileFromLocal(fileKey)
-      : await this.awsS3Service.deleteFromS3Bucket(fileKey);
+    await this.handleDelete(this.storage, fileKey, fileToUpdate.path);
 
     // Create new path for updated file
     const path = {
@@ -149,6 +157,7 @@ export class FilesService {
         file.filename
       }`,
       s3: (file as Express.MulterS3.File).location,
+      cloudinary: (file as MulterFile).path,
     };
 
     const updatedFile = Object.assign({}, fileToUpdate, {
@@ -165,11 +174,42 @@ export class FilesService {
   async deleteFile(id: string): Promise<DeleteResult> {
     const fileToDelete = await this.findOneOrFail({ id });
     const fileKey = this.extractKeyFromUrl(fileToDelete.path);
-    this.storage === 'local'
-      ? this.deleteFileFromLocal(fileKey)
-      : await this.awsS3Service.deleteFromS3Bucket(fileKey);
 
-    return await this.fileRepository.delete(fileToDelete.id);
+    // Call the appropriate delete handler
+    await this.handleDelete(this.storage, fileKey, fileToDelete.path);
+
+    // Delete the record from the database
+    return this.fileRepository.delete(fileToDelete.id);
+  }
+
+  private async handleDelete(
+    storage: FileDriver,
+    fileKey: string,
+    filePath: string,
+  ): Promise<void> {
+    const deleteHandlers: Record<FileDriver, () => Promise<boolean>> = {
+      [FileDriver.LOCAL]: async () => await this.deleteFileFromLocal(fileKey),
+      [FileDriver.S3]: async () =>
+        await this.awsS3Service.deleteFromS3Bucket(fileKey),
+      [FileDriver.CLOUDINARY]: async () =>
+        await this.cloudinaryService.deleteFile(filePath),
+    };
+
+    const handler = deleteHandlers[storage];
+
+    if (!handler) {
+      throw new HttpException(
+        {
+          status: HttpStatus.EXPECTATION_FAILED,
+          errors: {
+            file: `Unsupported storage driver: ${storage}`,
+          },
+        },
+        HttpStatus.EXPECTATION_FAILED,
+      );
+    }
+
+    await handler();
   }
 
   /**
@@ -187,30 +227,34 @@ export class FilesService {
    * @returns {Promise<boolean>} success deletion of the file
    * @param {string} key local file key
    */
-  deleteFileFromLocal(key: string): boolean {
+  async deleteFileFromLocal(key: string): Promise<boolean> {
     const filePath = path.join(process.cwd(), 'uploads', key);
-    fs.unlink(filePath, (err) => {
-      if (err) {
-        throw new HttpException(
-          {
-            status: HttpStatus.EXPECTATION_FAILED,
-            errors: {
-              file: this.i18n.t('file.failedDelete', {
-                lang: I18nContext.current()?.lang,
-              }),
-            },
-          },
-          HttpStatus.EXPECTATION_FAILED,
-        );
-      }
+
+    return new Promise((resolve, reject) => {
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          reject(
+            new HttpException(
+              {
+                status: HttpStatus.EXPECTATION_FAILED,
+                errors: {
+                  file: this.i18n.t('file.failedDelete', {
+                    lang: I18nContext.current()?.lang,
+                  }),
+                },
+              },
+              HttpStatus.EXPECTATION_FAILED,
+            ),
+          );
+        } else {
+          resolve(true); // Resolve with true when file deletion succeeds
+        }
+      });
     });
-    return true;
   }
 
-  async createFileFromS3(url: string): Promise<FileEntity> {
-    const existingFile = await this.fileRepository.findOne({
-      where: { path: url },
-    });
+  async createFileFromUrl(url: string): Promise<FileEntity> {
+    const existingFile = await this.findOne({ path: url });
     if (!!existingFile) {
       throw new HttpException(
         {
@@ -224,11 +268,6 @@ export class FilesService {
         HttpStatus.PRECONDITION_FAILED,
       );
     }
-    const file = this.fileRepository.create({ path: url });
-    return await this.fileRepository.save(file);
-  }
-
-  async createFileFromUrl(url: string): Promise<FileEntity> {
     const file = this.fileRepository.create({ path: url });
     return await this.fileRepository.save(file);
   }
