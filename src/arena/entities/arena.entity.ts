@@ -17,6 +17,7 @@ import { FileEntity } from '../../files/entities/file.entity';
 import { ArenaCategory } from '../../arena-category/entities/arena-category.entity';
 import { Reservation } from '../../reservation/entities/reservation.entity';
 import { Tournament } from '../../tournament/entities/tournament.entity';
+import { ArenaTestimonial } from '../../arena-testimonials/entities/arena-testimonial.entity';
 
 @Entity()
 export class Arena extends EntityHelper {
@@ -87,6 +88,14 @@ export class Arena extends EntityHelper {
   })
   reservations: Reservation[];
 
+  @AutoMap(() => [Tournament])
   @OneToMany(() => Tournament, (tournament) => tournament.arena)
   tournaments: Tournament[];
+
+  @AutoMap(() => [ArenaTestimonial])
+  @OneToMany(() => ArenaTestimonial, (testimonial) => testimonial.arena, {
+    nullable: true,
+    eager: true,
+  })
+  testimonials: ArenaTestimonial[];
 }

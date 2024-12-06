@@ -48,6 +48,7 @@ import { TournamentModule } from './tournament/tournament.module';
 import { TournamentParticipationModule } from './tournament-participation/tournament-participation.module';
 import { FirebaseModule } from './utils/firabase-fcm/firebase.module';
 import { CloudinaryModule } from './utils/cloudinary/cloudinary.module';
+import { ArenaTestimonialsModule } from './arena-testimonials/arena-testimonials.module';
 
 @Module({
   imports: [
@@ -161,6 +162,7 @@ import { CloudinaryModule } from './utils/cloudinary/cloudinary.module';
     TeammateModule,
     TournamentModule,
     TournamentParticipationModule,
+    ArenaTestimonialsModule,
   ],
 
   providers: [

@@ -4,15 +4,17 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Testimonial } from './entities/testimonial.entity';
 import {
   DeepPartial,
+  DeleteResult,
   FindOptionsRelations,
   FindOptionsWhere,
   Repository,
 } from 'typeorm';
 import { UsersService } from '../users/users.service';
-import { paginate, Paginate, PaginateQuery } from 'nestjs-paginate';
+import { paginate, Paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 import { testimonialPaginationConfig } from './config/testimonial-pagination-config';
 import { CreateTestimonialDto } from '@/domains/testimonial/create-testimonial.dto';
 import { UpdateTestimonialDto } from '@/domains/testimonial/update-testimonial.dto';
+import { NullableType } from '../utils/types/nullable.type';
 
 @Injectable()
 export class TestimonialsService {
@@ -24,7 +26,7 @@ export class TestimonialsService {
   async create(
     userJwtPayload: JwtPayloadType,
     createTestimonialDto: CreateTestimonialDto,
-  ) {
+  ): Promise<Testimonial> {
     const testimonial = this.testimonialRepository.create(
       createTestimonialDto as DeepPartial<Testimonial>,
     );
@@ -34,7 +36,9 @@ export class TestimonialsService {
     return this.testimonialRepository.save(testimonial);
   }
 
-  async findAll(@Paginate() query: PaginateQuery) {
+  async findAll(
+    @Paginate() query: PaginateQuery,
+  ): Promise<Paginated<Testimonial>> {
     return await paginate(
       query,
       this.testimonialRepository,
@@ -45,8 +49,8 @@ export class TestimonialsService {
   async findOne(
     field: FindOptionsWhere<Testimonial>,
     relations?: FindOptionsRelations<Testimonial>,
-  ) {
-    return this.testimonialRepository.findOne({
+  ): Promise<NullableType<Testimonial>> {
+    return await this.testimonialRepository.findOne({
       where: field,
       relations,
     });
@@ -55,20 +59,23 @@ export class TestimonialsService {
   async findOneOrFail(
     field: FindOptionsWhere<Testimonial>,
     relations?: FindOptionsRelations<Testimonial>,
-  ) {
-    return this.testimonialRepository.findOneOrFail({
+  ): Promise<Testimonial> {
+    return await this.testimonialRepository.findOneOrFail({
       where: field,
       relations,
     });
   }
 
-  async update(id: string, updateTestimonialDto: UpdateTestimonialDto) {
+  async update(
+    id: string,
+    updateTestimonialDto: UpdateTestimonialDto,
+  ): Promise<Testimonial> {
     const testimonial = await this.findOneOrFail({ id });
     Object.assign(testimonial, updateTestimonialDto);
     return this.testimonialRepository.save(testimonial);
   }
 
-  async remove(id: number) {
+  async remove(id: number): Promise<DeleteResult> {
     return this.testimonialRepository.delete(id);
   }
 }
