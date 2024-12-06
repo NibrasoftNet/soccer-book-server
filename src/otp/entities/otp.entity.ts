@@ -21,6 +21,9 @@ export class Otp {
   @Column()
   otp: string;
 
+  @Column({ default: false })
+  validated: boolean;
+
   @BeforeInsert()
   @BeforeUpdate()
   async setOtp() {

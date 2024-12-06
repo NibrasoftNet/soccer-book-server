@@ -174,7 +174,7 @@ export class AuthAdminService {
         HttpStatus.PRECONDITION_FAILED,
       );
     }
-
+    await this.otpService.validateVerification(resetPasswordDto.email);
     user.password = resetPasswordDto.password;
     await user.save();
   }

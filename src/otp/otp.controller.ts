@@ -28,8 +28,9 @@ export class OtpController {
   @HttpCode(HttpStatus.CREATED)
   async verifyOtp(
     @Body() confirmOtpEmailDto: ConfirmOtpEmailDto,
+    deleteOtp?: boolean,
   ): Promise<void> {
-    await this.otpService.verifyOtp(confirmOtpEmailDto);
+    await this.otpService.verifyOtp(confirmOtpEmailDto, deleteOtp);
   }
   /**
    * Get all not confirmed otp

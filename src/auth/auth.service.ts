@@ -141,7 +141,7 @@ export class AuthService {
   }
 
   async confirmEmail(confirmOtpEmailDto: ConfirmOtpEmailDto): Promise<void> {
-    await this.otpService.verifyOtp(confirmOtpEmailDto);
+    await this.otpService.verifyOtp(confirmOtpEmailDto, true);
     const user = await this.usersService.findOne({
       email: confirmOtpEmailDto.email,
     });
@@ -206,6 +206,8 @@ export class AuthService {
         HttpStatus.PRECONDITION_FAILED,
       );
     }
+
+    await this.otpService.validateVerification(resetPasswordDto.email);
 
     user.password = resetPasswordDto.password;
     await user.save();

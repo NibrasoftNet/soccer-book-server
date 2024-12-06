@@ -105,19 +105,6 @@ export class OtpService {
     await this.otpRepository.save(otp);
   }
 
-  getExpirationDate(): Date {
-    const expireIn = new Date();
-    const expirationTimeInSeconds = this.configService.getOrThrow<number>(
-      'OTP_EXPIRATION_TIME',
-      180,
-      { infer: true },
-    );
-    expireIn.setMilliseconds(
-      expireIn.getMilliseconds() + expirationTimeInSeconds * 1000,
-    );
-    return expireIn;
-  }
-
   async createOtp(createOtpDto: CreateOtpDto): Promise<string> {
     // Generate a random 6-digit OTP
     const otpNumber = otpGenerator.generate(6, {
@@ -155,7 +142,10 @@ export class OtpService {
     return otpNumber;
   }
 
-  async verifyOtp(confirmOtpEmailDto: ConfirmOtpEmailDto): Promise<void> {
+  async verifyOtp(
+    confirmOtpEmailDto: ConfirmOtpEmailDto,
+    deleteOtp?: boolean,
+  ): Promise<void> {
     const otpRecord = await this.otpRepository.findOne({
       where: { email: confirmOtpEmailDto.email },
     });
@@ -206,7 +196,62 @@ export class OtpService {
       );
     }
 
+    otpRecord.validated = true;
+
     // OTP is valid, delete the record from database
-    await this.otpRepository.remove(otpRecord);
+    !!deleteOtp
+      ? await this.delete(otpRecord.id)
+      : await this.otpRepository.save(otpRecord);
+  }
+
+  async validateVerification(email: string) {
+    const otpRecord = await this.findOne({
+      email,
+    });
+    if (otpRecord && !otpRecord.validated) {
+      await this.otpRepository.delete(otpRecord.id);
+      throw new HttpException(
+        {
+          status: HttpStatus.PRECONDITION_FAILED,
+          errors: {
+            otp: this.i18n.t('auth.invalidOtp', {
+              lang: I18nContext.current()?.lang,
+            }),
+          },
+        },
+        HttpStatus.PRECONDITION_FAILED,
+      );
+    }
+    if (!otpRecord) {
+      throw new HttpException(
+        {
+          status: HttpStatus.PRECONDITION_FAILED,
+          errors: {
+            otp: this.i18n.t('auth.otpNotFound', {
+              lang: I18nContext.current()?.lang,
+            }),
+          },
+        },
+        HttpStatus.PRECONDITION_FAILED,
+      );
+    }
+    await this.delete(otpRecord.id);
+  }
+
+  async delete(id: string): Promise<DeleteResult> {
+    return await this.otpRepository.delete(id);
+  }
+
+  private getExpirationDate(): Date {
+    const expireIn = new Date();
+    const expirationTimeInSeconds = this.configService.getOrThrow<number>(
+      'OTP_EXPIRATION_TIME',
+      180,
+      { infer: true },
+    );
+    expireIn.setMilliseconds(
+      expireIn.getMilliseconds() + expirationTimeInSeconds * 1000,
+    );
+    return expireIn;
   }
 }
