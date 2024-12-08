@@ -44,7 +44,7 @@ services:
       context: .
       dockerfile: dev.Dockerfile
     ports:
-      - ${APP_PORT}:3002
+      - ${APP_PORT}:5001
     depends_on:
       postgres :
         condition: service_healthy
@@ -61,7 +61,7 @@ services:
       - internal-network
 
 volumes:
-  skaners-db-prod:
+  arena-book-db-prod:
 
 networks:
   internal-network:
