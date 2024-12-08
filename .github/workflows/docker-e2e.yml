@@ -27,21 +27,21 @@ jobs:
       - name: Start services
         run: |
           docker compose -f docker-compose.ci.yaml --env-file .env up -d --build
-      # Step 5: Wait for arena-booking-nestjs-server service to become healthy
-      - name: Wait for arena-booking-nestjs-server service
+      # Step 5: Wait for arena-book-nestjs-server service to become healthy
+      - name: Wait for arena-book-nestjs-server service
         run: |
-          # Wait for arena-booking-nestjs-server to be healthy
+          # Wait for arena-book-nestjs-server to be healthy
           for i in {1..10}; do
-            STATUS=$(docker inspect -f '{{.State.Health.Status}}' arena-booking-nestjs-server 2>/dev/null || echo "unavailable")
-            echo "arena-booking-nestjs-server status: $STATUS"
+            STATUS=$(docker inspect -f '{{.State.Health.Status}}' arena-book-nestjs-server 2>/dev/null || echo "unavailable")
+            echo "arena-book-nestjs-server status: $STATUS"
             if [ "$STATUS" == "healthy" ]; then
-              echo "arena-booking-server is healthy and ready."
+              echo "arena-book-server is healthy and ready."
               break
             elif [ "$i" -eq 10 ]; then
-              echo "arena-booking-server failed to become healthy in time."
+              echo "arena-book-server failed to become healthy in time."
               docker compose -f docker-compose.ci.yaml logs backend
             fi
-            echo "Waiting for arena-booking-server to become healthy..."
+            echo "Waiting for arena-book-server to become healthy..."
             sleep 5
           done
       # Step 6: Run database migrations

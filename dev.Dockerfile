@@ -33,7 +33,7 @@ COPY package-lock.json ./
 # Copy the build output and other required files from the builder stage
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
-# COPY --from=builder /app/.env ./.env
+COPY --from=builder /app/.env ./.env
 COPY --from=builder /app/ecosystem.config.js ./
 
 # Install PM2 globally
