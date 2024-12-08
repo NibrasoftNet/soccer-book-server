@@ -49,6 +49,7 @@ import { TournamentParticipationModule } from './tournament-participation/tourna
 import { FirebaseModule } from './utils/firabase-fcm/firebase.module';
 import { CloudinaryModule } from './utils/cloudinary/cloudinary.module';
 import { ArenaTestimonialsModule } from './arena-testimonials/arena-testimonials.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -163,6 +164,7 @@ import { ArenaTestimonialsModule } from './arena-testimonials/arena-testimonials
     TournamentModule,
     TournamentParticipationModule,
     ArenaTestimonialsModule,
+    ChatModule,
   ],
 
   providers: [

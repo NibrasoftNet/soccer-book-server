@@ -5,8 +5,7 @@
 ## Table of Contents <!-- omit in toc -->
 
 - [Comfortable development](#comfortable-development)
-- [Quick run](quick-run)
-  - [Video guideline](#video-guideline)
+- [Video guideline](#video-guideline)
 - [Links](#links)
 
 ---
@@ -20,35 +19,35 @@
    cd soccer-book-server/
    ```
 
-1. Go to folder, and copy `.development.env` as `.env`.
+2. Go to folder, and copy `env.example` as `.env`.
 
    ```bash
-   cp .development.env .env
+   cp env.example .env
    ```
 
-1. Change `DATABASE_HOST=postgres` to `DATABASE_HOST=localhost`
+3. Change `DATABASE_HOST=postgres` to `DATABASE_HOST=localhost`
 
    Change `MAIL_HOST=maildev` to `MAIL_HOST=localhost`
 
-1. Run container dev mode:
+4. Run container dev mode:
 
    ```bash
-   docker compose -f docker-compose.dev.yaml --env-file .development.env up -d
+   docker compose up -d --build
    ```
 
-1. Install dependency
+5. Install dependency
 
    ```bash
    npm install
    ```
 
-1. Run app in dev mode
+6. Run app in dev mode
 
    ```bash
    npm run start:dev
    ```
 
-1. Open <http://localhost:5001>
+7. Open <http://localhost:5001>
 
 
 ### Video guideline

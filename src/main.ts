@@ -1,5 +1,6 @@
 import {
   ClassSerializerInterceptor,
+  ImATeapotException,
   Logger,
   ValidationPipe,
   VersioningType,
@@ -28,12 +29,14 @@ import { contentParser } from 'fastify-file-interceptor';
 // import authPlugin from '@fastify/auth';
 
 const logger = new Logger('Soccer-main');
-/*const whitelist = [
+const whitelist = [
   'http://localhost:5000',
-  'http://localhost:1001',
+  'http://localhost:5001',
   'http://127.0.0.1:5000',
   'http://127.0.0.1:5001',
-];*/
+  'http://api-tachkila.genydev.com',
+  'http://dashboard-tachkila.genydev.com/',
+];
 
 async function bootstrap() {
   initializeTransactionalContext({ storageDriver: StorageDriver.AUTO });
@@ -49,7 +52,7 @@ async function bootstrap() {
     fallbackOnErrors: true, // fallbackOnErrors must be true
   });
   const configService = app.get(ConfigService<AllConfigType>);
-  /*  app.enableCors({
+  app.enableCors({
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
     origin: function (origin, callback) {
       if (!origin) {
@@ -67,7 +70,7 @@ async function bootstrap() {
         callback(new ImATeapotException('Not allowed by CORS'), false);
       }
     },
-  });*/
+  });
 
   app.enableShutdownHooks();
   app.setGlobalPrefix(
@@ -79,6 +82,8 @@ async function bootstrap() {
   app.enableVersioning({
     type: VersioningType.URI,
   });
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error
   await app.register(contentParser);
   app.useGlobalPipes(new ValidationPipe(validationOptions));
   app.useGlobalFilters(new HttpExceptionFilter(app.get(WinstonLoggerService)));
