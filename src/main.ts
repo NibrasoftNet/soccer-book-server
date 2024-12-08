@@ -82,9 +82,7 @@ async function bootstrap() {
   app.enableVersioning({
     type: VersioningType.URI,
   });
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-expect-error
-  await app.register(contentParser);
+  await app.register(contentParser as any);
   app.useGlobalPipes(new ValidationPipe(validationOptions));
   app.useGlobalFilters(new HttpExceptionFilter(app.get(WinstonLoggerService)));
   app.useGlobalInterceptors(

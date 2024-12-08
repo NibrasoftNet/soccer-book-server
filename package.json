@@ -68,6 +68,7 @@
     "dayjs": "^1.11.13",
     "exceljs": "^4.4.0",
     "farmhash": "^3.3.1",
+    "fastify": "^4.29.0",
     "fastify-file-interceptor": "^1.0.9",
     "firebase-admin": "^12.1.0",
     "googleapis": "^134.0.0",
