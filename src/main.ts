@@ -26,7 +26,6 @@ import {
 } from '@nestjs/platform-fastify';
 import { RolesSerializerInterceptor } from './utils/interceptors/role.serializer.interceptor';
 import { contentParser } from 'fastify-file-interceptor';
-// import authPlugin from '@fastify/auth';
 
 const logger = new Logger('Soccer-main');
 const whitelist = [
