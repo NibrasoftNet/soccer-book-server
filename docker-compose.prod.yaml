@@ -7,7 +7,7 @@ services:
     image: postgis/postgis:16-3.4-alpine
     container_name: area-book-postgres-prod
     ports:
-      - ${DATABASE_PORT}:5432
+      - 5435:5432
     volumes:
       - area-book-db-prod:/var/lib/postgresql/data
     environment:
