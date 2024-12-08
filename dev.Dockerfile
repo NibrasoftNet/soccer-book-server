@@ -34,7 +34,10 @@ COPY package-lock.json ./
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 # COPY --from=builder /app/.env ./.env
+COPY --from=builder /app/ecosystem.config.js ./
 
-ENV NEW_RELIC_CONFIG_FILENAME dist/newrelic.js
+# Install PM2 globally
+RUN npm install pm2@latest -g
 
-CMD ["node", "-r", "newrelic", "dist/main.js"]
+# Start the application using PM2
+CMD ["pm2-runtime", "start", "ecosystem.config.js"]
