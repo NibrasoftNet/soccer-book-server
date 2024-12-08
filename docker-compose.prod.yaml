@@ -25,7 +25,6 @@ services:
       - ${MAIL_CLIENT_PORT}:1080
       - ${MAIL_PORT}:1025
     networks:
-      - traefikNetwork
       - arenaServerNetwork
   adminer:
     image: adminer
@@ -34,7 +33,6 @@ services:
     ports:
       - ${ADMINER_PORT}:8080
     networks:
-      - traefikNetwork
       - arenaServerNetwork
   backend:
     build:
@@ -47,23 +45,10 @@ services:
       - postgres
     environment:
       DATABASE_URL: postgres://root:secret@postgres:5432/arena-book-db-prod
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.arenabookbackend.rule=Host(`api-tachkila.genydev.com`)"
-      - "traefik.http.routers.arenabookbackend.entrypoints=websecure"
-      - "traefik.http.routers.arenabookbackend.tls=true"
-      - "traefik.http.routers.arenabookbackend.tls.certresolver=le"
-      - "traefik.http.routers.arenabookbackend.tls.domains[0].main=api-tachkila.genydev.com"
-      - "traefik.http.middlewares.arenabookbackend-redirect.redirectscheme.scheme=https"
-      - "traefik.http.routers.arenabookbackend.middlewares=arenabookbackend-redirect"
     networks:
-      - traefikNetwork
       - arenaServerNetwork
     volumes:
       - uploads:/app/uploads
-      - "~/shared_vps/traefik/certs:/letsencrypt"
 networks:
-  traefikNetwork:
-    external: true
   arenaServerNetwork:
     internal: true
