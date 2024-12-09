@@ -104,7 +104,10 @@ async function bootstrap() {
   SwaggerModule.setup('docs', app, document);
   await app.get(WorkerService).run();
   await app.listen(
-    configService.getOrThrow('app.port', { infer: true }),
+    {
+      host: configService.getOrThrow('app.host', { infer: true }),
+      port: configService.getOrThrow('app.port', { infer: true }),
+    },
     () => {
       logger.log(
         `${configService.getOrThrow('app.name', {
