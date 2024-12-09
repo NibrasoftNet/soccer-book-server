@@ -3,9 +3,10 @@ import { FindOptionsRelations, FindOptionsWhere, Repository } from 'typeorm';
 import { NullableType } from '../utils/types/nullable.type';
 import { Chat } from './entities/chat.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Message, MessageType } from './entities/message.entity';
+import { Message } from './entities/message.entity';
 import { User } from '../users/entities/user.entity';
 import { UpdateGroupChatDto } from '@/domains/chat/update-chat.dto';
+import { MessageTypeEnum } from '@/enums/chat/message-type.enum';
 
 @Injectable()
 export class MessageService {
@@ -17,8 +18,8 @@ export class MessageService {
   async create(
     chat: Chat,
     sender: User,
-    content: string,
-    contentType: MessageType,
+    content: string[],
+    contentType: MessageTypeEnum,
   ): Promise<Message> {
     const message = this.messageRepository.create({
       content,

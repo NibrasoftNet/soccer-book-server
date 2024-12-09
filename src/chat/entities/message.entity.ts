@@ -2,13 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import EntityHelper from '../../utils/entities/entity-helper';
 import { User } from '../../users/entities/user.entity';
 import { Chat } from './chat.entity';
-
-export enum MessageType {
-  TEXT = 'text',
-  IMAGE = 'image',
-  VIDEO = 'video',
-  VOICE = 'voice',
-}
+import { MessageTypeEnum } from '@/enums/chat/message-type.enum';
 
 @Entity()
 export class Message extends EntityHelper {
@@ -23,11 +17,11 @@ export class Message extends EntityHelper {
 
   @Column({
     type: 'enum',
-    enum: MessageType,
-    default: MessageType.TEXT,
+    enum: MessageTypeEnum,
+    default: MessageTypeEnum.TEXT,
   })
-  contentType: MessageType;
+  contentType: MessageTypeEnum;
 
-  @Column()
-  content: string;
+  @Column('text', { array: true })
+  content: string[];
 }

@@ -10,10 +10,11 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { ChatService } from './chat.service';
-import { MessageType } from './entities/message.entity';
 import { UsersService } from '../users/users.service';
 import { MessageService } from './message.service';
 import { User } from '../users/entities/user.entity';
+import { MessageTypeEnum } from '@/enums/chat/message-type.enum';
+import { CreateChatDto } from '@/domains/chat/create-chat.dto';
 
 @WebSocketGateway({ cors: true })
 export class ChatGateway
@@ -56,13 +57,7 @@ export class ChatGateway
   @SubscribeMessage('send_message')
   async handlePrivateMessage(
     @MessageBody()
-    data: {
-      chatId?: string;
-      senderId: string;
-      receiverId: string;
-      content: string;
-      contentType: MessageType;
-    },
+    data: CreateChatDto,
     @ConnectedSocket() client: Socket,
   ) {
     const { chatId, senderId, receiverId, content, contentType } = data;
@@ -106,8 +101,8 @@ export class ChatGateway
     data: {
       chatId: string;
       senderId: string;
-      content: string;
-      contentType: MessageType;
+      content: string[];
+      contentType: MessageTypeEnum;
     },
     @ConnectedSocket() client: Socket,
   ) {
@@ -115,14 +110,24 @@ export class ChatGateway
 
     try {
       // Validate the group chat
-      const chat = await this.chatService.findOneOrFail({ id: chatId });
+      const resolvedChat = await this.chatService.findOneOrFail(
+        { id: chatId, isGroup: true },
+        { participants: true },
+      );
       const sender = await this.userService.findOneOrFail({ id: senderId });
       const message = this.messageService.create(
-        chat,
+        resolvedChat,
         sender,
         content,
         contentType,
       );
+      const roomId = resolvedChat.id;
+      await client.join(roomId);
+      // Assuming chat.participants is an array of user objects that are part of the chat
+      for (const participant of resolvedChat.participants!) {
+        const socket = this.server.sockets.sockets.get(participant.id);
+        socket && (await socket.join(roomId));
+      }
 
       // Emit to the group chat room
       this.server.to(chatId).emit('receive_group_message', { chatId, message });

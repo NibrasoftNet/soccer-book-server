@@ -8,9 +8,14 @@ import { Chat } from './entities/chat.entity';
 import { ChatController } from './chat.controller';
 import { ChatSerializationProfile } from './serialization/chat-serialization.profile';
 import { MessageService } from './message.service';
+import { FilesModule } from '../files/files.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Chat, Message]), UsersModule],
+  imports: [
+    TypeOrmModule.forFeature([Chat, Message]),
+    UsersModule,
+    FilesModule,
+  ],
   controllers: [ChatController],
   providers: [
     ChatGateway,
