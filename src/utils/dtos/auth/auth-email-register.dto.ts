@@ -50,7 +50,7 @@ export class AuthEmailRegisterDto {
   @IsOptional()
   @ValidateNested()
   @Type(() => CreateAddressDto)
-  address: CreateAddressDto;
+  address?: CreateAddressDto;
 
   @ApiProperty({ example: 'xe8emg58q2x27ohlfuz7n76u3btbzz4a' })
   @IsString()

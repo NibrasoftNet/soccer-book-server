@@ -32,10 +32,10 @@ export class OauthRegisterDto {
   userName?: string;
 
   @ApiProperty({ description: 'Address', required: false })
-  @IsNotEmpty()
+  @IsOptional()
   @Type(() => CreateAddressDto)
   @ValidateNested()
-  address: CreateAddressDto;
+  address?: CreateAddressDto;
 
   @ApiProperty({ description: 'The last name of the user', required: false })
   @IsOptional()
@@ -60,7 +60,7 @@ export class OauthRegisterDto {
     email: string;
     photo: string | null;
     userName?: string;
-    address: CreateAddressDto;
+    address?: CreateAddressDto;
     notificationToken?: string;
     provider: AuthProvidersEnum;
   }) {

@@ -36,9 +36,11 @@ export class UsersService {
           User,
           createProfileDto as DeepPartial<User>,
         );
-        user.address = await this.addressService.create(
-          createProfileDto.address,
-        );
+        if (createProfileDto.address) {
+          user.address = await this.addressService.create(
+            createProfileDto.address,
+          );
+        }
         return await entityManager.save(user);
       },
     );
@@ -79,10 +81,7 @@ export class UsersService {
     const user = await this.usersRepository.findOneByOrFail({ id });
     const { address, ...filteredUserDto } = updateUserDto;
     if (!!address) {
-      user.address = await this.addressService.update(
-        user.address!.id,
-        address,
-      );
+      user.address = await this.addressService.update(user.address.id, address);
     }
     if (!!file) {
       user.photo = user?.photo?.id

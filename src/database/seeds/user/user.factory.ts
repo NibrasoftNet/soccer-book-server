@@ -48,6 +48,7 @@ export class UserFactory {
       code: RoleCodeEnum.ADMIN,
     } as Role;
     return {
+      userName: faker.person.firstName(),
       email: faker.internet.email().toLowerCase(),
       password: 'H@mza12345',
       role: faker.helpers.arrayElement<Role>([userRole, adminRole]),
