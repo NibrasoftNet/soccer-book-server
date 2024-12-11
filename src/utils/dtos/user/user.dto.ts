@@ -5,6 +5,7 @@ import { RoleDto } from '@/domains/role/role.dto';
 import { StatusesDto } from '@/domains/status/statuses.dto';
 import { AddressDto } from '@/domains/address/address.dto';
 import { EntityHelperDto } from '@/domains/general/entity-helper.dto';
+import { UserSocketDto } from '@/domains/chat/user-socket.dto';
 
 export class UserDto extends EntityHelperDto {
   @AutoMap()
@@ -32,8 +33,11 @@ export class UserDto extends EntityHelperDto {
   address: AddressDto;
 
   @AutoMap(() => Date)
-  @Expose({ groups: ['admin'] })
+  @Expose({ groups: ['ADMIN'] })
   deletedAt: string;
+
+  @AutoMap(() => UserSocketDto)
+  socket: UserSocketDto;
 
   fullName: string;
 }

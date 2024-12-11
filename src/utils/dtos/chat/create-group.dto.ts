@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class CreateGroupChatDto {
+export class CreateGroupDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()

@@ -1,5 +1,9 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateGroupChatDto } from './create-group-chat.dto';
-export class UpdateGroupChatDto extends PartialType(CreateGroupChatDto) {
-  id: number;
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsString } from 'class-validator';
+
+export class UpdateChatDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  name: string;
 }

@@ -24,6 +24,7 @@ import { Team } from '../../team/entities/team.entity';
 import { SubscriptionToTeam } from '../../subscription-to-team/entities/subscription-to-team.entity';
 import { Reservation } from '../../reservation/entities/reservation.entity';
 import { NotificationRecipient } from '../../notification/entities/notification-recipient.entity';
+import { UserSocket } from '../../chat/entities/user-socket.entity';
 
 @Entity()
 export class User extends EntityHelper {
@@ -112,6 +113,14 @@ export class User extends EntityHelper {
     nullable: true,
   })
   reservations: Reservation[];
+
+  @AutoMap(() => UserSocket)
+  @OneToOne(() => UserSocket, (socket) => socket.user, {
+    eager: true,
+    nullable: true,
+    cascade: true,
+  })
+  socket: UserSocket;
 
   @AfterLoad()
   public loadPreviousPassword(): void {

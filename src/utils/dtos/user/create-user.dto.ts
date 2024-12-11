@@ -40,7 +40,7 @@ export class CreateUserDto {
   @IsOptional()
   @Type(() => CreateAddressDto)
   @ValidateNested()
-  address: CreateAddressDto;
+  address?: CreateAddressDto;
 
   @ApiProperty({ type: () => FileDto })
   @IsOptional()
@@ -92,7 +92,7 @@ export class CreateUserDto {
     email: string;
     role: RoleDto;
     status: StatusesDto;
-    address: CreateAddressDto;
+    address?: CreateAddressDto;
     photo?: FileDto | null;
     userName: string;
     password?: string;
