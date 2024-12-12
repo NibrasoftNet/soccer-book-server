@@ -81,6 +81,14 @@ export class Arena extends EntityHelper {
   @Column({ type: 'time', nullable: true, default: '23:59' })
   closeTime: string;
 
+  @AutoMap()
+  @Column({ type: 'decimal', precision: 2, nullable: false, default: 1 })
+  unitQuantity: number;
+
+  @AutoMap()
+  @Column({ type: 'decimal', precision: 2, nullable: false, default: 10 })
+  unitPrice: number;
+
   @AutoMap(() => [Reservation])
   @OneToMany(() => Reservation, (reservation) => reservation.arena, {
     nullable: true,

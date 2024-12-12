@@ -9,6 +9,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { CreateAddressDto } from '@/domains/address/create-address.dto';
+import { AutoMap } from 'automapper-classes';
 
 export class CreateArenaDto {
   @ApiProperty()
@@ -60,6 +61,26 @@ export class CreateArenaDto {
   })
   closeTime: string;
 
+  @ApiProperty({
+    description: 'Arena reservation unit quantity per hour',
+    example: 1,
+  })
+  @AutoMap()
+  @IsNotEmpty()
+  @IsNumber()
+  @Min(1)
+  unitQuantity: number;
+
+  @ApiProperty({
+    description: 'Arena reservation price per unit',
+    example: 1,
+  })
+  @AutoMap()
+  @IsNotEmpty()
+  @IsNumber()
+  @Min(1)
+  unitPrice: number;
+
   constructor({
     name,
     description,
@@ -69,6 +90,8 @@ export class CreateArenaDto {
     width,
     openTime,
     closeTime,
+    unitQuantity,
+    unitPrice,
   }: {
     name: string;
     description: string;
@@ -78,6 +101,8 @@ export class CreateArenaDto {
     width: number;
     openTime: string;
     closeTime: string;
+    unitQuantity: number;
+    unitPrice: number;
   }) {
     this.name = name;
     this.description = description;
@@ -87,5 +112,7 @@ export class CreateArenaDto {
     this.openTime = openTime;
     this.closeTime = closeTime;
     this.arenaCategoryId = arenaCategoryId;
+    this.unitQuantity = unitQuantity;
+    this.unitPrice = unitPrice;
   }
 }

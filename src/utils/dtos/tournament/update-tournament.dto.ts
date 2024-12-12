@@ -3,6 +3,8 @@ import {
   IsBoolean,
   IsDateString,
   IsInt,
+  IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   Max,
@@ -87,6 +89,12 @@ export class UpdateTournamentDto {
   @Max(99)
   numberOfTeams?: number;
 
+  @AutoMap()
+  @IsNotEmpty()
+  @IsNumber()
+  @Min(1)
+  price: number;
+
   constructor({
     active,
     arenaId,
@@ -96,6 +104,7 @@ export class UpdateTournamentDto {
     finishDate,
     lastSubscriptionDate,
     numberOfTeams,
+    price,
   }: {
     active?: boolean;
     arenaId?: string;
@@ -105,6 +114,7 @@ export class UpdateTournamentDto {
     finishDate?: Date;
     lastSubscriptionDate?: Date;
     numberOfTeams?: number;
+    price: number;
   }) {
     this.active = active;
     this.arenaId = arenaId;
@@ -114,5 +124,6 @@ export class UpdateTournamentDto {
     this.finishDate = finishDate;
     this.lastSubscriptionDate = lastSubscriptionDate;
     this.numberOfTeams = numberOfTeams;
+    this.price = price;
   }
 }

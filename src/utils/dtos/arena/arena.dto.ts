@@ -45,4 +45,10 @@ export class ArenaDto extends EntityHelperDto {
 
   @AutoMap(() => [ReservationDto])
   reservations: ReservationDto[];
+
+  @AutoMap()
+  unitQuantity: number;
+
+  @AutoMap()
+  unitPrice: number;
 }

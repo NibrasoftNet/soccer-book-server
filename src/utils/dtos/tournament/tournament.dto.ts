@@ -40,4 +40,7 @@ export class TournamentDto extends EntityHelperDto {
 
   @AutoMap(() => [TournamentParticipationDto])
   participations: TournamentParticipationDto[];
+
+  @AutoMap()
+  price: number;
 }

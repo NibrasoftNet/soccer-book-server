@@ -3,6 +3,7 @@ import {
   IsDateString,
   IsInt,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   Max,
@@ -80,6 +81,16 @@ export class CreateTournamentDto {
   @Max(99)
   numberOfTeams?: number;
 
+  @ApiProperty({
+    description: 'Subscription price to the tournament',
+    example: 10,
+  })
+  @AutoMap()
+  @IsNotEmpty()
+  @IsNumber()
+  @Min(1)
+  price: number;
+
   constructor({
     name,
     description,
@@ -87,6 +98,7 @@ export class CreateTournamentDto {
     finishDate,
     lastSubscriptionDate,
     numberOfTeams,
+    price,
   }: {
     name: string;
     description: string;
@@ -94,6 +106,7 @@ export class CreateTournamentDto {
     finishDate: Date;
     lastSubscriptionDate: Date;
     numberOfTeams?: number;
+    price: number;
   }) {
     this.name = name;
     this.description = description;
@@ -101,5 +114,6 @@ export class CreateTournamentDto {
     this.finishDate = finishDate;
     this.lastSubscriptionDate = lastSubscriptionDate;
     this.numberOfTeams = numberOfTeams;
+    this.price = price;
   }
 }

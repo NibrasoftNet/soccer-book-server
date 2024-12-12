@@ -68,4 +68,8 @@ export class Tournament extends EntityHelper {
     (participation) => participation.tournament,
   )
   participations: TournamentParticipation[];
+
+  @AutoMap()
+  @Column({ type: 'decimal', precision: 2, nullable: false, default: 10 })
+  price: number;
 }
