@@ -23,6 +23,11 @@ import { Repository } from 'typeorm';
 import { CreateChatGroupDto } from '@/domains/chat/create-chat-group.dto';
 import { UseGuards } from '@nestjs/common';
 import { WsGuard } from './guard/chat.guard';
+import { InjectMapper } from 'automapper-nestjs';
+import { Mapper } from 'automapper-core';
+import { Message } from './entities/message.entity';
+import { MessageDto } from '@/domains/chat/message.dto';
+import { UsersAdminService } from '../users-admin/users-admin.service';
 
 @WebSocketGateway({ cors: { origin: '*' } })
 @UseGuards(WsGuard)
@@ -36,7 +41,9 @@ export class ChatGateway
     private readonly chatService: ChatService,
     private readonly messageService: MessageService,
     private readonly userService: UsersService,
+    private readonly userAdminService: UsersAdminService,
     private readonly logger: WinstonLoggerService,
+    @InjectMapper() private mapper: Mapper,
   ) {}
 
   // Called once when the gateway is initialized
@@ -91,21 +98,36 @@ export class ChatGateway
     const createChatDto = new CreateChatDto(JSON.parse(data));
 
     // TODO CHECK WHY TRIGGER EXCEPTION await Utils.validateDtoOrFail(createChatDto);
-    const { chatId, senderId, receiverId, content, contentType } =
-      createChatDto;
+    const {
+      chatId,
+      senderId,
+      isSenderAdmin,
+      receiverId,
+      isReceiverAdmin,
+      content,
+      contentType,
+    } = createChatDto;
     try {
       const resolvedChat = chatId
         ? await this.chatService.findOneOrFail({ id: chatId })
-        : await this.chatService.createOneToOne({ senderId, receiverId });
+        : await this.chatService.createOneToOne({
+            senderId,
+            isSenderAdmin,
+            receiverId,
+            isReceiverAdmin,
+          });
 
       const message = await this.messageService.create({
         chat: resolvedChat as unknown as ChatDto,
-        sender: resolvedChat.sender as unknown as UserDto,
+        isSenderAdmin,
+        sender: (resolvedChat.sender!.id === senderId
+          ? resolvedChat.sender
+          : resolvedChat.receiver) as unknown as UserDto,
         content,
         contentType,
       });
 
-      // Ensure sender and receiver join the room
+      // Ensure sender and receiver join the selected room
       const roomId = resolvedChat.id;
       const receiverSocket = await this.getReceiverSocket(receiverId);
       !receiverSocket.rooms.has(roomId) && (await receiverSocket.join(roomId));
@@ -116,9 +138,10 @@ export class ChatGateway
         'sender id',
         client.rooms.has(roomId),
       );
+      const mappedMessage = this.mapper.map(message, Message, MessageDto);
       this.server
         .to(roomId)
-        .emit('receive_message', { chatId: resolvedChat.id, message });
+        .emit('receive_message', { chatId: resolvedChat.id, mappedMessage });
     } catch (error) {
       client.emit('error', 'Unable to send private message.');
       throw new WsException(`Invalid receiverSocket ${error}`);
@@ -145,9 +168,10 @@ export class ChatGateway
         { participants: true },
       );
       const sender = await this.userService.findOneOrFail({ id: senderId });
-      const message = this.messageService.create({
+      const message = await this.messageService.create({
         chat: resolvedChat as unknown as ChatDto,
         sender: sender as unknown as UserDto,
+        isSenderAdmin: false,
         content,
         contentType,
       });
@@ -156,11 +180,15 @@ export class ChatGateway
       // Assuming chat.participants is an array of user objects that are part of the chat
       for (const participant of resolvedChat.participants!) {
         const receiverSocket = await this.getReceiverSocket(participant.id);
-        await receiverSocket.join(roomId);
+        !receiverSocket.rooms.has(roomId) &&
+          (await receiverSocket.join(roomId));
       }
-      await client.join(roomId);
+      !client.rooms.has(roomId) && (await client.join(roomId));
+      const mappedMessage = this.mapper.map(message, Message, MessageDto);
       // Emit to the group chat room
-      this.server.to(chatId).emit('receive_group_message', { chatId, message });
+      this.server
+        .to(chatId)
+        .emit('receive_group_message', { chatId, mappedMessage });
     } catch (error) {
       this.logger.error(`chat-handleGroupMessage`, {
         description: `chat handleGroupMessage`,
@@ -177,22 +205,27 @@ export class ChatGateway
     socketId: string,
   ): Promise<void> {
     const existingSocket = await this.userSocketRepository.findOne({
-      where: { user: { id: userId } },
-      relations: { user: true },
+      where: [{ user: { id: userId } }, { userAdmin: { id: userId } }],
+      relations: ['user', 'userAdmin'],
     });
 
     if (existingSocket) {
       // Update existing socket
       existingSocket.socketId = socketId;
       await this.userSocketRepository.save(existingSocket);
-    } else {
-      // Create new socket
-      const newSocket = this.userSocketRepository.create({
-        user: await this.userService.findOneOrFail({ id: userId }),
-        socketId,
-      });
-      await this.userSocketRepository.save(newSocket);
+      return;
     }
+    // Create new socket
+    const newSocket = this.userSocketRepository.create({ socketId });
+    const user = await this.userService.findOne({ id: userId });
+    if (!!user) {
+      newSocket.user = user;
+    } else {
+      newSocket.userAdmin = await this.userAdminService.findOneOrFail({
+        id: userId,
+      });
+    }
+    await this.userSocketRepository.save(newSocket);
   }
 
   /**
@@ -209,24 +242,32 @@ export class ChatGateway
    * @throws {WsException} - If the receiver's socket ID or socket is invalid.
    */
   async getReceiverSocket(receiverId: string): Promise<Socket> {
-    const receiverSocketId = await this.userSocketRepository.findOneOrFail({
-      where: {
-        user: {
-          id: receiverId,
-        },
-      },
+    try {
+      const receiverSocketId = await this.findSocketId(receiverId);
+      const receiverSocket = this.server.sockets.sockets.get(receiverSocketId);
+
+      if (!receiverSocket) {
+        throw new WsException('Invalid receiverSocket. Socket not found.');
+      }
+
+      return receiverSocket;
+    } catch (error) {
+      throw new WsException(`Invalid receiverSocket: ${error.message}`);
+    }
+  }
+
+  private async findSocketId(receiverId: string): Promise<string> {
+    const userSocket = await this.userSocketRepository.findOne({
+      where: { user: { id: receiverId } },
     });
-    if (!receiverSocketId) {
-      throw new WsException(
-        'Invalid receiverSocketId. Receiver not connected.',
-      );
+
+    if (userSocket) {
+      return userSocket.socketId;
     }
-    const receiverSocket = this.server.sockets.sockets.get(
-      receiverSocketId.socketId,
-    );
-    if (!receiverSocket) {
-      throw new WsException('Invalid receiverSocket. Socket not found.');
-    }
-    return receiverSocket;
+
+    const adminSocket = await this.userSocketRepository.findOneOrFail({
+      where: { userAdmin: { id: receiverId } },
+    });
+    return adminSocket.socketId;
   }
 }

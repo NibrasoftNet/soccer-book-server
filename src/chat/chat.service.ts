@@ -8,10 +8,9 @@ import { UsersService } from '../users/users.service';
 import { CreateGroupDto } from '@/domains/chat/create-group.dto';
 import { JwtPayloadType } from '../auth/strategies/types/jwt-payload.type';
 import { paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
-import { Arena } from '../arena/entities/arena.entity';
-import { arenaPaginationConfig } from '../arena/config/arena-pagination-config';
 import { chatPaginationConfig } from './config/chat-pagination-config';
 import { UpdateChatDto } from '@/domains/chat/update-chat.dto';
+import { UsersAdminService } from '../users-admin/users-admin.service';
 
 @Injectable()
 export class ChatService {
@@ -19,34 +18,46 @@ export class ChatService {
     @InjectRepository(Chat)
     private chatRepository: Repository<Chat>,
     private readonly userService: UsersService,
+    private readonly userAdminService: UsersAdminService,
   ) {}
   async createOneToOne(
     createOneToOneChatDto: CreateOneToOneChatDto,
   ): Promise<Chat> {
-    const existingChat = await this.chatRepository.findOne({
-      where: [
-        {
-          sender: { id: createOneToOneChatDto.senderId },
-          receiver: { id: createOneToOneChatDto.receiverId },
-        },
-        {
-          sender: { id: createOneToOneChatDto.receiverId },
-          receiver: { id: createOneToOneChatDto.senderId },
-        },
-      ],
-    });
+    const existingChat = await this.chatRepository
+      .createQueryBuilder('chat')
+      .where('chat.sender @> :senderToReceiver', {
+        senderToReceiver: { id: createOneToOneChatDto.senderId },
+      })
+      .andWhere('chat.receiver @> :receiverToSender', {
+        receiverToSender: { id: createOneToOneChatDto.receiverId },
+      })
+      .orWhere('chat.sender @> :receiverToSender', {
+        receiverToSender: { id: createOneToOneChatDto.receiverId },
+      })
+      .andWhere('chat.receiver @> :senderToReceiver', {
+        senderToReceiver: { id: createOneToOneChatDto.senderId },
+      })
+      .getOne();
 
     if (!!existingChat) {
       return existingChat;
     }
 
     const chat = this.chatRepository.create();
-    chat.sender = await this.userService.findOneOrFail({
-      id: createOneToOneChatDto.senderId,
-    });
-    chat.receiver = await this.userService.findOneOrFail({
-      id: createOneToOneChatDto.receiverId,
-    });
+    chat.sender = createOneToOneChatDto.isSenderAdmin
+      ? await this.userAdminService.findOneOrFail({
+          id: createOneToOneChatDto.senderId,
+        })
+      : await this.userService.findOneOrFail({
+          id: createOneToOneChatDto.senderId,
+        });
+    chat.receiver = createOneToOneChatDto.isReceiverAdmin
+      ? await this.userAdminService.findOneOrFail({
+          id: createOneToOneChatDto.receiverId,
+        })
+      : await this.userService.findOneOrFail({
+          id: createOneToOneChatDto.receiverId,
+        });
     return await this.chatRepository.save(chat);
   }
 
@@ -92,18 +103,19 @@ export class ChatService {
   async getUserChatIds(userId: string): Promise<string[]> {
     const queryBuilder = this.chatRepository
       .createQueryBuilder('chat')
-      .leftJoinAndSelect('chat.sender', 'sender')
-      .leftJoinAndSelect('chat.receiver', 'receiver')
       .leftJoinAndSelect('chat.creator', 'creator')
       .leftJoinAndSelect('chat.participants', 'participants')
-      .where('sender.id = :userId', { userId })
-      .orWhere('receiver.id = :userId', { userId })
+      .where('chat.sender @> :jsonSearch', {
+        jsonSearch: { id: userId },
+      })
+      .orWhere('chat.receiver @> :jsonSearch', {
+        jsonSearch: { id: userId },
+      })
       .orWhere('creator.id = :userId', { userId })
       .orWhere('participants.id = :userId', { userId })
       .select('chat.id', 'chatId');
 
     const result = await queryBuilder.getRawMany();
-    console.log('res', result);
     return result.map((row) => row.chatId);
   }
 

@@ -8,6 +8,7 @@ import {
   Index,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Role } from '../../roles/entities/role.entity';
@@ -18,6 +19,7 @@ import { AutoMap } from 'automapper-classes';
 import { AuthProvidersEnum } from '@/enums/auth/auth-provider.enum';
 import { FileEntity } from '../../files/entities/file.entity';
 import { Arena } from '../../arena/entities/arena.entity';
+import { UserSocket } from '../../chat/entities/user-socket.entity';
 
 @Entity()
 export class UserAdmin extends EntityHelper {
@@ -81,6 +83,14 @@ export class UserAdmin extends EntityHelper {
     cascade: true,
   })
   arenas: Arena[];
+
+  @AutoMap(() => UserSocket)
+  @OneToOne(() => UserSocket, (socket) => socket.userAdmin, {
+    eager: true,
+    nullable: true,
+    cascade: true,
+  })
+  socket: UserSocket;
 
   @AfterLoad()
   public loadPreviousPassword(): void {

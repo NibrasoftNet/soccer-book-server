@@ -12,11 +12,14 @@ import { FilesModule } from '../files/files.module';
 import { UserSocket } from './entities/user-socket.entity';
 import { UserSocketSerializationProfile } from './serialization/user-socket-serialization.profile';
 import { JwtModule } from '@nestjs/jwt';
+import { UsersAdminModule } from '../users-admin/users-admin.module';
+import { MessageSerializationProfile } from './serialization/message-serialization.profile';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Chat, Message, UserSocket]),
     UsersModule,
+    UsersAdminModule,
     FilesModule,
     JwtModule.register({}),
   ],
@@ -26,6 +29,7 @@ import { JwtModule } from '@nestjs/jwt';
     ChatService,
     MessageService,
     ChatSerializationProfile,
+    MessageSerializationProfile,
     UserSocketSerializationProfile,
   ],
 })

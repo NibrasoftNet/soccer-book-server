@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateOneToOneChatDto {
   @ApiProperty()
@@ -9,6 +9,16 @@ export class CreateOneToOneChatDto {
 
   @ApiProperty()
   @IsNotEmpty()
+  @IsBoolean()
+  isSenderAdmin: boolean;
+
+  @ApiProperty()
+  @IsNotEmpty()
   @IsString()
   receiverId: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsBoolean()
+  isReceiverAdmin: boolean;
 }

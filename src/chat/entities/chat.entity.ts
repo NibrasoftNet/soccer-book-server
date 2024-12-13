@@ -37,13 +37,13 @@ export class Chat extends EntityHelper {
   @Column({ default: false })
   isGroup: boolean;
 
-  @AutoMap(() => User)
-  @ManyToOne(() => User, { nullable: true })
-  sender?: User | null; // Only applicable for one-to-one chats
+  @AutoMap()
+  @Column({ type: 'jsonb', nullable: true })
+  sender?: Record<string, any> | null;
 
-  @AutoMap(() => User)
-  @ManyToOne(() => User, { nullable: true })
-  receiver?: User | null;
+  @AutoMap()
+  @Column({ type: 'jsonb', nullable: true })
+  receiver?: Record<string, any> | null;
 
   @AutoMap(() => [User])
   @OneToMany(() => Message, (message) => message.chat)
