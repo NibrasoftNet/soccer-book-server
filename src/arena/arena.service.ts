@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Arena } from './entities/arena.entity';
 import {
   DeepPartial,
+  DeleteResult,
   EntityManager,
   FindOptionsRelations,
   FindOptionsWhere,
@@ -148,7 +149,7 @@ export class ArenaService {
     );
   }
 
-  async remove(id: string) {
+  async remove(id: string): Promise<DeleteResult> {
     return await this.arenaRepository.delete(id);
   }
 }

@@ -42,9 +42,11 @@ import { FilesFastifyInterceptor, MulterFile } from 'fastify-file-interceptor';
 import { arenaPaginationConfig } from './config/arena-pagination-config';
 import { IsCreatorPipe } from '../utils/pipes/is-creator.pipe';
 import { ProximityQueryDto } from '@/domains/arena/proximity-query.dto';
+import { DeleteResult } from 'typeorm';
 
 @ApiTags('Arena')
 @ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'), RolesGuard)
 @Controller({ version: '1', path: 'arenas' })
 export class ArenaController {
   constructor(
@@ -71,7 +73,6 @@ export class ArenaController {
       },
     },
   })
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @UseInterceptors(MapInterceptor(Arena, ArenaDto))
   @UseInterceptors(FilesFastifyInterceptor('files', 10))
   @Roles(RoleCodeEnum.ADMIN)
@@ -88,7 +89,7 @@ export class ArenaController {
   }
 
   @ApiPaginationQuery(arenaPaginationConfig)
-  @Roles(RoleCodeEnum.ADMIN, RoleCodeEnum.USER)
+  @Roles(RoleCodeEnum.ADMIN, RoleCodeEnum.USER, RoleCodeEnum.SUPERADMIN)
   @HttpCode(HttpStatus.OK)
   @Get()
   async findAll(
@@ -103,8 +104,8 @@ export class ArenaController {
     );
   }
 
+  @Roles(RoleCodeEnum.USER)
   @UseInterceptors(MapInterceptor(Arena, ArenaDto, { isArray: true }))
-  @Roles(RoleCodeEnum.ADMIN, RoleCodeEnum.USER)
   @HttpCode(HttpStatus.OK)
   @Get('list-with-distance')
   async findAllWithDistance(
@@ -140,7 +141,6 @@ export class ArenaController {
       },
     },
   })
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @UseInterceptors(MapInterceptor(Arena, ArenaDto))
   @UseInterceptors(FilesFastifyInterceptor('files'))
   @Roles(RoleCodeEnum.ADMIN)
@@ -156,12 +156,13 @@ export class ArenaController {
     return this.arenaService.update(id, updateArenaDto, files);
   }
 
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @UseInterceptors(MapInterceptor(Arena, ArenaDto))
   @Roles(RoleCodeEnum.ADMIN)
   @HttpCode(HttpStatus.OK)
   @Delete(':id')
-  remove(@Param('id', IsCreatorPipe('Arena', 'id', 'creator')) id: string) {
-    return this.arenaService.remove(id);
+  async remove(
+    @Param('id', IsCreatorPipe('Arena', 'id', 'creator')) id: string,
+  ): Promise<DeleteResult> {
+    return await this.arenaService.remove(id);
   }
 }
