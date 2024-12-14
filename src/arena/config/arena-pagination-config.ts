@@ -3,7 +3,7 @@ import { Arena } from '../entities/arena.entity';
 
 export const arenaPaginationConfig: PaginateConfig<Arena> = {
   defaultSortBy: [['createdAt', 'DESC']],
-  relations: ['arenas', 'image', 'category', 'userAdmin', 'reservations'],
+  relations: ['image', 'category', 'userAdmin', 'reservations'],
   searchableColumns: ['name'],
   sortableColumns: ['createdAt', 'updatedAt', 'name'],
   maxLimit: 100,
