@@ -40,13 +40,6 @@ export class AddressService {
     });
   }
 
-  async findAllCities(): Promise<{ label: string; value: string }[]> {
-    return await this.addressRepository
-      .createQueryBuilder('address')
-      .select('DISTINCT address.city AS label, address.city AS value')
-      .getRawMany();
-  }
-
   async update(id: string, payload: DeepPartial<Address>): Promise<Address> {
     const address = await this.findOneOrFail({ id });
     Object.assign(address, payload);

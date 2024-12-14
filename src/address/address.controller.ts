@@ -7,8 +7,8 @@ import {
   HttpStatus,
   Param,
   ParseIntPipe,
-  Patch,
   Post,
+  Put,
   UseInterceptors,
 } from '@nestjs/common';
 import { AddressService } from './address.service';
@@ -19,6 +19,8 @@ import { Mapper } from 'automapper-core';
 import { AddressDto } from '@/domains/address/address.dto';
 import { CreateAddressDto } from '@/domains/address/create-address.dto';
 import { UpdateAddressDto } from '@/domains/address/update-address.dto';
+import { NullableType } from '../utils/types/nullable.type';
+import { DeleteResult } from 'typeorm';
 
 @ApiTags('Address')
 @Controller({ path: 'address', version: '1' })
@@ -28,45 +30,40 @@ export class AddressController {
     @InjectMapper() private readonly mapper: Mapper,
   ) {}
 
-  @Post()
+  @UseInterceptors(MapInterceptor(Address, AddressDto))
   @HttpCode(HttpStatus.OK)
-  async create(@Body() createAddressDto: CreateAddressDto) {
+  @Post()
+  async create(@Body() createAddressDto: CreateAddressDto): Promise<Address> {
     return await this.addressService.create(createAddressDto);
   }
 
-  @Get()
-  @HttpCode(HttpStatus.OK)
   @UseInterceptors(MapInterceptor(Address, AddressDto, { isArray: true }))
+  @HttpCode(HttpStatus.OK)
+  @Get()
   async findAll(): Promise<Address[]> {
     return await this.addressService.findAll();
   }
 
-  @Get(':id')
-  @HttpCode(HttpStatus.OK)
   @UseInterceptors(MapInterceptor(Address, AddressDto))
-  async findOne(@Param('id') id: string) {
+  @HttpCode(HttpStatus.OK)
+  @Get(':id')
+  async findOne(@Param('id') id: string): Promise<NullableType<Address>> {
     return await this.addressService.findOne({ id });
   }
 
-  @Get('find/all-cities')
-  @HttpCode(HttpStatus.OK)
-  async findAllCities() {
-    return await this.addressService.findAllCities();
-  }
-
-  @Patch(':id')
-  @HttpCode(HttpStatus.OK)
   @UseInterceptors(MapInterceptor(Address, AddressDto))
+  @HttpCode(HttpStatus.OK)
+  @Put(':id')
   async update(
     @Param('id') id: string,
     @Body() updateAddressDto: UpdateAddressDto,
-  ) {
+  ): Promise<Address> {
     return await this.addressService.update(id, updateAddressDto);
   }
 
-  @Delete(':id')
   @HttpCode(HttpStatus.OK)
-  async remove(@Param('id', ParseIntPipe) id: number) {
+  @Delete(':id')
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<DeleteResult> {
     return await this.addressService.remove(id);
   }
 }
