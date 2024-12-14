@@ -38,6 +38,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../roles/roles.guard';
 import { UpdateArenaCategoryDto } from '@/domains/area-category/update-arena-category.dto';
 import { FileFastifyInterceptor, MulterFile } from 'fastify-file-interceptor';
+import { DeleteResult } from 'typeorm';
 
 @ApiTags('Arena-Category')
 @ApiBearerAuth()
@@ -94,12 +95,6 @@ export class ArenaCategoryController {
     );
   }
 
-  @Get('find/all-categories')
-  @HttpCode(HttpStatus.OK)
-  async findAllCategories() {
-    return await this.arenaCategoryService.findAllCategories();
-  }
-
   @Roles(RoleCodeEnum.SUPERADMIN, RoleCodeEnum.USER, RoleCodeEnum.ADMIN)
   @UseInterceptors(MapInterceptor(ArenaCategory, ArenaCategoryDto))
   @HttpCode(HttpStatus.OK)
@@ -148,7 +143,7 @@ export class ArenaCategoryController {
   @Roles(RoleCodeEnum.SUPERADMIN)
   @HttpCode(HttpStatus.OK)
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string): Promise<DeleteResult> {
     return await this.arenaCategoryService.remove(id);
   }
 }

@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsRelations, FindOptionsWhere, Repository } from 'typeorm';
+import {
+  DeleteResult,
+  FindOptionsRelations,
+  FindOptionsWhere,
+  Repository,
+} from 'typeorm';
 import { paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 import { arenaCategoryPaginationConfig } from './config/arena-category-pagination-config';
 import { NullableType } from '../utils/types/nullable.type';
@@ -38,13 +43,6 @@ export class ArenaCategoryService {
     );
   }
 
-  async findAllCategories(): Promise<{ label: string; value: string }[]> {
-    return await this.arenaCategoryRepository
-      .createQueryBuilder('category')
-      .select('DISTINCT category.name AS label, category.id AS value')
-      .getRawMany();
-  }
-
   async findOne(
     field: FindOptionsWhere<ArenaCategory>,
     relations?: FindOptionsRelations<ArenaCategory>,
@@ -80,7 +78,7 @@ export class ArenaCategoryService {
     return await this.arenaCategoryRepository.save(areaCategory);
   }
 
-  async remove(id: string) {
+  async remove(id: string): Promise<DeleteResult> {
     const category = await this.findOneOrFail({ id });
     if (category.image) {
       await this.fileService.deleteFile(category.image.path);
