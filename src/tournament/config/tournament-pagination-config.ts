@@ -3,8 +3,8 @@ import { Tournament } from '../entities/tournament.entity';
 
 export const tournamentPaginationConfig: PaginateConfig<Tournament> = {
   defaultSortBy: [['createdAt', 'DESC']],
-  relations: ['image', 'arena', 'participations'],
-  searchableColumns: ['arena.name'],
+  relations: ['image', 'complex', 'participations'],
+  searchableColumns: ['complex.name'],
   sortableColumns: ['createdAt', 'updatedAt'],
   defaultLimit: 20,
   maxLimit: 20,
@@ -14,6 +14,6 @@ export const tournamentPaginationConfig: PaginateConfig<Tournament> = {
     startDate: [FilterOperator.EQ, FilterSuffix.NOT],
     finishDate: [FilterOperator.EQ, FilterSuffix.NOT],
     lastSubscriptionDate: [FilterOperator.EQ, FilterSuffix.NOT],
-    'arena.name': [FilterOperator.EQ, FilterSuffix.NOT, FilterOperator.ILIKE],
+    'complex.name': [FilterOperator.EQ, FilterSuffix.NOT, FilterOperator.ILIKE],
   },
 };

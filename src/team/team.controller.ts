@@ -42,6 +42,7 @@ import { IsCreatorPipe } from '../utils/pipes/is-creator.pipe';
 
 @ApiTags('Teams')
 @ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'), RolesGuard)
 @Controller({ version: '1', path: 'teams' })
 export class TeamController {
   constructor(
@@ -65,10 +66,9 @@ export class TeamController {
       },
     },
   })
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(RoleCodeEnum.USER)
   @UseInterceptors(MapInterceptor(Team, TeamDto))
   @UseInterceptors(FileFastifyInterceptor('file'))
-  @Roles(RoleCodeEnum.SUPERADMIN, RoleCodeEnum.USER, RoleCodeEnum.ADMIN)
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async create(
@@ -82,8 +82,7 @@ export class TeamController {
   }
 
   @ApiPaginationQuery(teamPaginationConfig)
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(RoleCodeEnum.SUPERADMIN, RoleCodeEnum.ADMIN)
+  @Roles(RoleCodeEnum.SUPERADMIN)
   @HttpCode(HttpStatus.OK)
   @Get()
   async findAll(
@@ -94,8 +93,7 @@ export class TeamController {
   }
 
   @ApiPaginationQuery(teamPaginationConfig)
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(RoleCodeEnum.SUPERADMIN, RoleCodeEnum.USER, RoleCodeEnum.ADMIN)
+  @Roles(RoleCodeEnum.USER)
   @Get('list/_me')
   @HttpCode(HttpStatus.OK)
   async findAllMe(
@@ -106,8 +104,7 @@ export class TeamController {
     return new PaginatedDto<Team, TeamDto>(this.mapper, teams, Team, TeamDto);
   }
 
-  @Roles(RoleCodeEnum.SUPERADMIN, RoleCodeEnum.USER, RoleCodeEnum.ADMIN)
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(RoleCodeEnum.USER)
   @UseInterceptors(MapInterceptor(Team, TeamDto))
   @HttpCode(HttpStatus.OK)
   @Get(':id')
@@ -137,10 +134,9 @@ export class TeamController {
       },
     },
   })
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @UseInterceptors(MapInterceptor(Team, TeamDto))
   @UseInterceptors(FileFastifyInterceptor('file'))
-  @Roles(RoleCodeEnum.SUPERADMIN, RoleCodeEnum.USER, RoleCodeEnum.ADMIN)
+  @Roles(RoleCodeEnum.USER)
   @HttpCode(HttpStatus.OK)
   @Put(':id')
   async update(
@@ -153,8 +149,7 @@ export class TeamController {
     return this.teamService.update(id, updateTeamDto, file);
   }
 
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(RoleCodeEnum.SUPERADMIN, RoleCodeEnum.USER, RoleCodeEnum.ADMIN)
+  @Roles(RoleCodeEnum.SUPERADMIN, RoleCodeEnum.USER)
   @HttpCode(HttpStatus.OK)
   @Delete(':id')
   async remove(@Param('id') id: string) {

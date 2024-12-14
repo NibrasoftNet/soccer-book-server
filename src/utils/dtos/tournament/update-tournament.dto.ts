@@ -26,7 +26,7 @@ export class UpdateTournamentDto {
   @AutoMap()
   @IsString()
   @IsOptional()
-  arenaId?: string;
+  complexId?: string;
 
   @ApiProperty({
     description: 'Name of the tournament',
@@ -97,7 +97,7 @@ export class UpdateTournamentDto {
 
   constructor({
     active,
-    arenaId,
+    complexId,
     name,
     description,
     startDate,
@@ -107,7 +107,7 @@ export class UpdateTournamentDto {
     price,
   }: {
     active?: boolean;
-    arenaId?: string;
+    complexId?: string;
     name?: string;
     description?: string;
     startDate?: Date;
@@ -117,7 +117,7 @@ export class UpdateTournamentDto {
     price: number;
   }) {
     this.active = active;
-    this.arenaId = arenaId;
+    this.complexId = complexId;
     this.name = name;
     this.description = description;
     this.startDate = startDate;

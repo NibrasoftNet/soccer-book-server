@@ -10,6 +10,7 @@ import { Arena } from '../../arena/entities/arena.entity';
 import { TournamentParticipation } from '../../tournament-participation/entities/tournament-participation.entity';
 import { AutoMap } from 'automapper-classes';
 import { FileEntity } from '../../files/entities/file.entity';
+import { Complex } from '../../complex/entities/complex.entity';
 
 @Entity()
 export class Tournament extends EntityHelper {
@@ -55,12 +56,12 @@ export class Tournament extends EntityHelper {
   @Column({ default: true })
   active: boolean;
 
-  @AutoMap(() => Arena)
-  @ManyToOne(() => Arena, (arena) => arena.tournaments, {
+  @AutoMap(() => Complex)
+  @ManyToOne(() => Complex, (complex) => complex.tournaments, {
     eager: true,
     onDelete: 'CASCADE',
   })
-  arena: Arena;
+  complex: Complex;
 
   @AutoMap(() => Arena)
   @OneToMany(

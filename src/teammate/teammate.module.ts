@@ -4,11 +4,11 @@ import { TeammateController } from './teammate.controller';
 import { TeammateSerializationProfile } from './serialization/teammate-serialization.profile';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from '../users/users.module';
-import { ArenaModule } from '../arena/arena.module';
 import { Teammate } from './entities/teammate.entity';
+import { ComplexModule } from '../complex/complex.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Teammate]), UsersModule, ArenaModule],
+  imports: [TypeOrmModule.forFeature([Teammate]), UsersModule, ComplexModule],
   controllers: [TeammateController],
   providers: [TeammateService, TeammateSerializationProfile],
 })

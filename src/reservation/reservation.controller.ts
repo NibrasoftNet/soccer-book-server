@@ -57,7 +57,7 @@ export class ReservationController {
   }
 
   @ApiPaginationQuery(reservationPaginationConfig)
-  @Roles(RoleCodeEnum.ADMIN)
+  @Roles(RoleCodeEnum.ADMIN, RoleCodeEnum.SUPERADMIN)
   @HttpCode(HttpStatus.OK)
   @Get()
   async findAll(

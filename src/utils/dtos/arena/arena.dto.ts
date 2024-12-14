@@ -1,29 +1,20 @@
 import { AutoMap } from 'automapper-classes';
 import { EntityHelperDto } from '@/domains/general/entity-helper.dto';
 import { ArenaCategoryDto } from '@/domains/area-category/arena-category.dto';
-import { AddressDto } from '@/domains/address/address.dto';
 import { FileDto } from '@/domains/files/file.dto';
-import { UserAdminDto } from '@/domains/user-admin/user-admin.dto';
 import { ReservationDto } from '@/domains/reservation/reservation.dto';
+import { ComplexDto } from '@/domains/complex/complex.dto';
+import { ArenaTestimonialDto } from '@/domains/arena-testimonials/arena-testimonial.dto';
 
 export class ArenaDto extends EntityHelperDto {
   @AutoMap()
   id: string;
 
-  @AutoMap()
-  name: string;
-
-  @AutoMap()
-  description: string;
-
-  @AutoMap(() => UserAdminDto)
-  userAdmin: UserAdminDto;
+  @AutoMap(() => ComplexDto)
+  complex: ComplexDto;
 
   @AutoMap(() => ArenaCategoryDto)
   category: ArenaCategoryDto;
-
-  @AutoMap(() => AddressDto)
-  address: AddressDto;
 
   @AutoMap(() => [FileDto])
   image: FileDto[];
@@ -32,16 +23,13 @@ export class ArenaDto extends EntityHelperDto {
   active: boolean;
 
   @AutoMap()
+  covered: boolean;
+
+  @AutoMap()
   length: number;
 
   @AutoMap()
   width: number;
-
-  @AutoMap()
-  openTime: string;
-
-  @AutoMap()
-  closeTime: string;
 
   @AutoMap(() => [ReservationDto])
   reservations: ReservationDto[];
@@ -51,4 +39,7 @@ export class ArenaDto extends EntityHelperDto {
 
   @AutoMap()
   unitPrice: number;
+
+  @AutoMap(() => [ArenaTestimonialDto])
+  testimonials: ArenaTestimonialDto[];
 }

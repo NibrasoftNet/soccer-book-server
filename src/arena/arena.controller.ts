@@ -4,7 +4,6 @@ import {
   Post,
   Body,
   Param,
-  Query,
   Delete,
   UseGuards,
   UseInterceptors,
@@ -12,7 +11,6 @@ import {
   HttpStatus,
   Put,
   UploadedFiles,
-  Request,
 } from '@nestjs/common';
 import { ArenaService } from './arena.service';
 import {
@@ -40,8 +38,6 @@ import { PaginatedDto } from '../utils/serialization/paginated.dto';
 import { Mapper } from 'automapper-core';
 import { FilesFastifyInterceptor, MulterFile } from 'fastify-file-interceptor';
 import { arenaPaginationConfig } from './config/arena-pagination-config';
-import { IsCreatorPipe } from '../utils/pipes/is-creator.pipe';
-import { ProximityQueryDto } from '@/domains/arena/proximity-query.dto';
 import { DeleteResult } from 'typeorm';
 
 @ApiTags('Arena')
@@ -77,15 +73,15 @@ export class ArenaController {
   @UseInterceptors(FilesFastifyInterceptor('files', 10))
   @Roles(RoleCodeEnum.ADMIN)
   @HttpCode(HttpStatus.CREATED)
-  @Post()
+  @Post('complexes/:complexId')
   async create(
-    @Request() request,
+    @Param('complexId') complexId: string,
     @Body('data', ParseFormdataPipe) data,
     @UploadedFiles() files?: Array<MulterFile | Express.MulterS3.File>,
-  ) {
+  ): Promise<Arena> {
     const createArenaDto = new CreateArenaDto(data);
     await Utils.validateDtoOrFail(createArenaDto);
-    return await this.arenaService.create(request.user, createArenaDto, files);
+    return await this.arenaService.create(complexId, createArenaDto, files);
   }
 
   @ApiPaginationQuery(arenaPaginationConfig)
@@ -102,16 +98,6 @@ export class ArenaController {
       Arena,
       ArenaDto,
     );
-  }
-
-  @Roles(RoleCodeEnum.USER)
-  @UseInterceptors(MapInterceptor(Arena, ArenaDto, { isArray: true }))
-  @HttpCode(HttpStatus.OK)
-  @Get('list-with-distance')
-  async findAllWithDistance(
-    @Query() proximityQueryDto: ProximityQueryDto,
-  ): Promise<Arena[]> {
-    return await this.arenaService.findAllWithDistance(proximityQueryDto);
   }
 
   @Roles(RoleCodeEnum.ADMIN, RoleCodeEnum.USER)
@@ -147,11 +133,12 @@ export class ArenaController {
   @HttpCode(HttpStatus.OK)
   @Put(':id')
   async update(
-    @Param('id', IsCreatorPipe('Arena', 'id', 'creator')) id: string,
+    @Param('id') id: string,
     @Body('data', ParseFormdataPipe) data,
     @UploadedFiles() files?: Array<MulterFile | Express.MulterS3.File>,
   ): Promise<Arena> {
     const updateArenaDto = new UpdateArenaDto(data);
+    console.log('Arena-arena', data);
     await Utils.validateDtoOrFail(updateArenaDto);
     return this.arenaService.update(id, updateArenaDto, files);
   }
@@ -160,9 +147,7 @@ export class ArenaController {
   @Roles(RoleCodeEnum.ADMIN)
   @HttpCode(HttpStatus.OK)
   @Delete(':id')
-  async remove(
-    @Param('id', IsCreatorPipe('Arena', 'id', 'creator')) id: string,
-  ): Promise<DeleteResult> {
+  async remove(@Param('id') id: string): Promise<DeleteResult> {
     return await this.arenaService.remove(id);
   }
 }

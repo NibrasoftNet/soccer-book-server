@@ -40,6 +40,7 @@ export class ChatController {
     @InjectMapper() private readonly mapper: Mapper,
   ) {}
 
+  @Roles(RoleCodeEnum.USER, RoleCodeEnum.SUPERADMIN)
   @UseInterceptors(MapInterceptor(Chat, ChatDto))
   @HttpCode(HttpStatus.CREATED)
   @Post('group')
@@ -51,7 +52,7 @@ export class ChatController {
   }
 
   @ApiPaginationQuery(chatPaginationConfig)
-  @Roles(RoleCodeEnum.ADMIN, RoleCodeEnum.USER)
+  @Roles(RoleCodeEnum.SUPERADMIN)
   @HttpCode(HttpStatus.OK)
   @Get()
   async findAll(

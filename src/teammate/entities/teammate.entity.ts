@@ -1,8 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { AutoMap } from 'automapper-classes';
-import { Arena } from '../../arena/entities/arena.entity';
 import EntityHelper from '../../utils/entities/entity-helper';
+import { Complex } from '../../complex/entities/complex.entity';
 
 @Entity()
 export class Teammate extends EntityHelper {
@@ -14,9 +14,9 @@ export class Teammate extends EntityHelper {
   @ManyToOne(() => User, { eager: true })
   creator: User;
 
-  @AutoMap(() => Arena)
-  @ManyToOne(() => Arena, { eager: true })
-  arena: Arena;
+  @AutoMap(() => Complex)
+  @ManyToOne(() => Complex, { eager: true })
+  complex: Complex;
 
   @AutoMap()
   @Column({ type: 'timestamp' })

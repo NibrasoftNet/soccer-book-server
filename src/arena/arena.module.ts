@@ -5,14 +5,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Arena } from './entities/arena.entity';
 import { FilesModule } from '../files/files.module';
 import { ArenaSerializationProfile } from './serialization/arena-serialization.profile';
-import { UsersAdminModule } from '../users-admin/users-admin.module';
 import { AddressModule } from '../address/address.module';
 import { ArenaCategoryModule } from '../arena-category/arena-category.module';
+import { ComplexModule } from '../complex/complex.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Arena]),
-    UsersAdminModule,
+    ComplexModule,
     FilesModule,
     AddressModule,
     ArenaCategoryModule,

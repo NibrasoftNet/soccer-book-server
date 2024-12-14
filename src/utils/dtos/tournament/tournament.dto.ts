@@ -1,8 +1,8 @@
 import { AutoMap } from 'automapper-classes';
-import { ArenaDto } from '@/domains/arena/arena.dto';
 import { TournamentParticipationDto } from '@/domains/tournament-participation/tournament-participation.dto';
 import { EntityHelperDto } from '@/domains/general/entity-helper.dto';
 import { FileDto } from '@/domains/files/file.dto';
+import { ComplexDto } from '@/domains/complex/complex.dto';
 
 export class TournamentDto extends EntityHelperDto {
   @AutoMap()
@@ -35,8 +35,8 @@ export class TournamentDto extends EntityHelperDto {
   @AutoMap()
   active: boolean;
 
-  @AutoMap(() => ArenaDto)
-  arena: ArenaDto;
+  @AutoMap(() => ComplexDto)
+  complex: ComplexDto;
 
   @AutoMap(() => [TournamentParticipationDto])
   participations: TournamentParticipationDto[];

@@ -84,7 +84,7 @@ export class OtpService {
       ? oldOtp
       : this.otpRepository.create(resendVerifyOtpDto as DeepPartial<Otp>);
     // Generate new OTP
-    const otpNumber = otpGenerator.generate(6, {
+    const otpNumber = otpGenerator.generate(4, {
       upperCaseAlphabets: false,
       specialChars: false,
       lowerCaseAlphabets: false,
@@ -107,7 +107,7 @@ export class OtpService {
 
   async createOtp(createOtpDto: CreateOtpDto): Promise<string> {
     // Generate a random 6-digit OTP
-    const otpNumber = otpGenerator.generate(6, {
+    const otpNumber = otpGenerator.generate(4, {
       upperCaseAlphabets: false,
       specialChars: false,
       lowerCaseAlphabets: false,

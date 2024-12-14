@@ -39,7 +39,7 @@ export class TournamentParticipationController {
     @InjectMapper() private readonly mapper: Mapper,
   ) {}
 
-  @Roles(RoleCodeEnum.USER, RoleCodeEnum.SUPERADMIN, RoleCodeEnum.ADMIN)
+  @Roles(RoleCodeEnum.USER)
   @UseInterceptors(
     MapInterceptor(TournamentParticipation, TournamentParticipationDto),
   )
@@ -51,6 +51,7 @@ export class TournamentParticipationController {
   ): Promise<TournamentParticipation> {
     return this.tournamentParticipationService.create(tournamentId, teamId);
   }
+
   @ApiPaginationQuery(tournamentParticipationPaginateConfig)
   @Roles(RoleCodeEnum.ADMIN, RoleCodeEnum.USER)
   @HttpCode(HttpStatus.OK)

@@ -4,8 +4,8 @@ import { TournamentParticipation } from '../entities/tournament-participation.en
 export const tournamentParticipationPaginateConfig: PaginateConfig<TournamentParticipation> =
   {
     defaultSortBy: [['createdAt', 'DESC']],
-    relations: ['team', 'tournament', 'tournament.arena'],
-    searchableColumns: ['tournament.arena.name'],
+    relations: ['team', 'tournament', 'tournament.complex'],
+    searchableColumns: ['tournament.complex.name'],
     sortableColumns: ['createdAt', 'updatedAt'],
     defaultLimit: 20,
     maxLimit: 20,

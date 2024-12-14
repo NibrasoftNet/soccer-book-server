@@ -4,6 +4,9 @@ import { FileDto } from '@/domains/files/file.dto';
 import { RoleDto } from '@/domains/role/role.dto';
 import { StatusesDto } from '@/domains/status/statuses.dto';
 import { EntityHelperDto } from '@/domains/general/entity-helper.dto';
+import { Complex } from '../../../complex/entities/complex.entity';
+import { ComplexDto } from '@/domains/complex/complex.dto';
+import { UserSocketDto } from '@/domains/chat/user-socket.dto';
 
 export class UserAdminDto extends EntityHelperDto {
   @AutoMap()
@@ -19,7 +22,7 @@ export class UserAdminDto extends EntityHelperDto {
 
   @AutoMap(() => FileDto)
   @Expose()
-  photo?: string;
+  photo: FileDto;
 
   @AutoMap(() => RoleDto)
   role: string;
@@ -33,4 +36,10 @@ export class UserAdminDto extends EntityHelperDto {
 
   @AutoMap(() => Date)
   subscriptionExpiryDate: Date;
+
+  @AutoMap(() => [ComplexDto])
+  complexes: Complex[];
+
+  @AutoMap(() => UserSocketDto)
+  socket: UserSocketDto;
 }

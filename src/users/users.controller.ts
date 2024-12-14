@@ -7,8 +7,8 @@ import {
   HttpStatus,
   Param,
   ParseIntPipe,
-  Patch,
   Post,
+  Put,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -43,7 +43,7 @@ export class UsersController {
     @InjectMapper() private readonly mapper: Mapper,
   ) {}
 
-  @Roles(RoleCodeEnum.ADMIN)
+  @Roles(RoleCodeEnum.SUPERADMIN)
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @UseInterceptors(MapInterceptor(User, UserDto))
@@ -60,7 +60,7 @@ export class UsersController {
     return new PaginatedDto<User, UserDto>(this.mapper, users, User, UserDto);
   }
 
-  @Roles(RoleCodeEnum.ADMIN, RoleCodeEnum.USER)
+  @Roles(RoleCodeEnum.ADMIN, RoleCodeEnum.SUPERADMIN)
   @Get(':id')
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(MapInterceptor(User, UserDto))
@@ -68,8 +68,8 @@ export class UsersController {
     return await this.usersService.findOne({ id });
   }
 
-  @Roles(RoleCodeEnum.ADMIN, RoleCodeEnum.USER, RoleCodeEnum.SUPERADMIN)
-  @Patch(':id')
+  @Roles(RoleCodeEnum.SUPERADMIN)
+  @Put(':id')
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(MapInterceptor(User, UserDto))
   async update(

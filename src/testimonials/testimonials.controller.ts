@@ -92,6 +92,7 @@ export class TestimonialsController {
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(RoleCodeEnum.USER, RoleCodeEnum.ADMIN, RoleCodeEnum.SUPERADMIN)
   @HttpCode(HttpStatus.OK)
   @Delete(':id')
   async remove(@Param('id') id: string) {

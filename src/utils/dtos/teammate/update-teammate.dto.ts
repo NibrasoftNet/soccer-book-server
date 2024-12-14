@@ -6,7 +6,7 @@ export class UpdateTeammateDto extends PartialType(CreateTeammateDto) {
   @ApiProperty()
   @IsOptional()
   @IsString()
-  arenaId?: string;
+  complexId?: string;
 
   @ApiProperty()
   @IsOptional()

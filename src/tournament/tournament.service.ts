@@ -8,7 +8,6 @@ import {
   FindOptionsWhere,
   Repository,
 } from 'typeorm';
-import { ArenaService } from '../arena/arena.service';
 import { MulterFile } from 'fastify-file-interceptor';
 import { FilesService } from '../files/files.service';
 import { CreateTournamentDto } from '@/domains/tournament/create-tournament.dto';
@@ -16,24 +15,27 @@ import { UpdateTournamentDto } from '@/domains/tournament/update-tournament.dto'
 import { paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 import { tournamentPaginationConfig } from './config/tournament-pagination-config';
 import { NullableType } from '../utils/types/nullable.type';
+import { ComplexService } from '../complex/complex.service';
 
 @Injectable()
 export class TournamentService {
   constructor(
     @InjectRepository(Tournament)
     private readonly tournamentRepository: Repository<Tournament>,
-    private readonly arenaService: ArenaService,
+    private readonly complexService: ComplexService,
     private readonly fileService: FilesService,
   ) {}
   async create(
-    arenaId: string,
+    complexId: string,
     createTournamentDto: CreateTournamentDto,
     file?: MulterFile | Express.MulterS3.File,
   ): Promise<Tournament> {
     const tournament = this.tournamentRepository.create(
       createTournamentDto as DeepPartial<Tournament>,
     );
-    tournament.arena = await this.arenaService.findOneOrFail({ id: arenaId });
+    tournament.complex = await this.complexService.findOneOrFail({
+      id: complexId,
+    });
     if (!!file) {
       tournament.image = await this.fileService.uploadFile(file);
     }
@@ -80,9 +82,9 @@ export class TournamentService {
         ? await this.fileService.updateFile(tournament.image?.id, file)
         : await this.fileService.uploadFile(file);
     }
-    if (updateTournamentDto.arenaId) {
-      tournament.arena = await this.arenaService.findOneOrFail({
-        id: updateTournamentDto.arenaId,
+    if (updateTournamentDto.complexId) {
+      tournament.complex = await this.complexService.findOneOrFail({
+        id: updateTournamentDto.complexId,
       });
     }
     return await this.tournamentRepository.save(tournament);

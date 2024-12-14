@@ -70,23 +70,23 @@ export class TournamentController {
   @UseInterceptors(MapInterceptor(Tournament, TournamentDto))
   @UseInterceptors(FileFastifyInterceptor('file'))
   @HttpCode(HttpStatus.CREATED)
-  @Post('arenas/:arenaId')
+  @Post('complex/:complexId')
   async create(
-    @Param('arenaId') arenaId: string,
+    @Param('complexId') complexId: string,
     @Body('data', ParseFormdataPipe) data,
     @UploadedFile() file?: MulterFile | Express.MulterS3.File,
   ): Promise<Tournament> {
     const createTournamentDto = new CreateTournamentDto(data);
     await Utils.validateDtoOrFail(createTournamentDto);
     return await this.tournamentService.create(
-      arenaId,
+      complexId,
       createTournamentDto,
       file,
     );
   }
 
   @ApiPaginationQuery(tournamentPaginationConfig)
-  @Roles(RoleCodeEnum.ADMIN, RoleCodeEnum.USER)
+  @Roles(RoleCodeEnum.ADMIN, RoleCodeEnum.USER, RoleCodeEnum.SUPERADMIN)
   @HttpCode(HttpStatus.OK)
   @Get()
   async findAll(
@@ -101,7 +101,7 @@ export class TournamentController {
     );
   }
 
-  @Roles(RoleCodeEnum.ADMIN, RoleCodeEnum.USER)
+  @Roles(RoleCodeEnum.ADMIN, RoleCodeEnum.USER, RoleCodeEnum.ADMIN)
   @UseInterceptors(MapInterceptor(Tournament, TournamentDto))
   @HttpCode(HttpStatus.OK)
   @Get(':id')
@@ -140,6 +140,7 @@ export class TournamentController {
     return this.tournamentService.update(id, updateTournamentDto, file);
   }
 
+  @Roles(RoleCodeEnum.ADMIN, RoleCodeEnum.SUPERADMIN)
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<DeleteResult> {
     return await this.tournamentService.remove(id);

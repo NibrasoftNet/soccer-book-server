@@ -18,8 +18,8 @@ import EntityHelper from '../../utils/entities/entity-helper';
 import { AutoMap } from 'automapper-classes';
 import { AuthProvidersEnum } from '@/enums/auth/auth-provider.enum';
 import { FileEntity } from '../../files/entities/file.entity';
-import { Arena } from '../../arena/entities/arena.entity';
 import { UserSocket } from '../../chat/entities/user-socket.entity';
+import { Complex } from '../../complex/entities/complex.entity';
 
 @Entity()
 export class UserAdmin extends EntityHelper {
@@ -78,11 +78,11 @@ export class UserAdmin extends EntityHelper {
   @Column({ type: 'timestamp', nullable: false })
   subscriptionExpiryDate: Date;
 
-  @AutoMap(() => [Arena])
-  @OneToMany(() => Arena, (arena) => arena.creator, {
+  @AutoMap(() => [Complex])
+  @OneToMany(() => Complex, (complex) => complex.creator, {
     cascade: true,
   })
-  arenas: Arena[];
+  complexes: Complex[];
 
   @AutoMap(() => UserSocket)
   @OneToOne(() => UserSocket, (socket) => socket.userAdmin, {

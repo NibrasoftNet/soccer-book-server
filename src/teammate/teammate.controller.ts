@@ -28,6 +28,7 @@ import { PaginatedDto } from '../utils/serialization/paginated.dto';
 import { teammatePaginationConfig } from './config/teammate-pagination-config';
 import { UpdateTeammateDto } from '@/domains/teammate/update-teammate.dto';
 import { NullableType } from '../utils/types/nullable.type';
+import { IsCreatorPipe } from '../utils/pipes/is-creator.pipe';
 
 @ApiTags('Teammate')
 @ApiBearerAuth()
@@ -42,21 +43,21 @@ export class TeammateController {
   @UseInterceptors(MapInterceptor(Teammate, TeammateDto))
   @Roles(RoleCodeEnum.USER)
   @HttpCode(HttpStatus.CREATED)
-  @Post('arenas/:arenaId')
+  @Post('complex/:complexId')
   async create(
     @Request() request,
-    @Param('arenaId') arenaId: string,
+    @Param('complexId') complexId: string,
     @Body() createTeammateDto: CreateTeammateDto,
   ): Promise<Teammate> {
     return await this.teammateService.create(
       request.user,
-      arenaId,
+      complexId,
       createTeammateDto,
     );
   }
 
   @ApiPaginationQuery(teammatePaginationConfig)
-  @Roles(RoleCodeEnum.SUPERADMIN, RoleCodeEnum.USER, RoleCodeEnum.ADMIN)
+  @Roles(RoleCodeEnum.SUPERADMIN, RoleCodeEnum.USER)
   @HttpCode(HttpStatus.OK)
   @Get()
   async findAll(
@@ -88,7 +89,7 @@ export class TeammateController {
     );
   }
 
-  @Roles(RoleCodeEnum.SUPERADMIN, RoleCodeEnum.USER, RoleCodeEnum.ADMIN)
+  @Roles(RoleCodeEnum.SUPERADMIN, RoleCodeEnum.USER)
   @UseInterceptors(MapInterceptor(Teammate, TeammateDto))
   @HttpCode(HttpStatus.OK)
   @Get(':id')
@@ -96,19 +97,18 @@ export class TeammateController {
     return this.teammateService.findOne({ id });
   }
 
-  // IsCreatorPipe('Teammate', 'id', 'creator')
   @Roles(RoleCodeEnum.USER)
   @UseInterceptors(MapInterceptor(Teammate, TeammateDto))
   @HttpCode(HttpStatus.OK)
   @Put(':id')
   async update(
-    @Param('id') id: string,
+    @Param('id', IsCreatorPipe('Teammate', 'id', 'creator')) id: string,
     @Body() updateTeammateDto: UpdateTeammateDto,
   ): Promise<Teammate> {
     return this.teammateService.update(id, updateTeammateDto);
   }
 
-  @Roles(RoleCodeEnum.ADMIN, RoleCodeEnum.USER)
+  @Roles(RoleCodeEnum.SUPERADMIN, RoleCodeEnum.USER)
   @HttpCode(HttpStatus.OK)
   @Delete(':id')
   async remove(@Param('id') id: string) {

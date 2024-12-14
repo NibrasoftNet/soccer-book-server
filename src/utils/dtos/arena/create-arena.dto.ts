@@ -1,37 +1,19 @@
 import {
+  IsBoolean,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsString,
-  Matches,
   Min,
-  ValidateNested,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { CreateAddressDto } from '@/domains/address/create-address.dto';
 import { AutoMap } from 'automapper-classes';
 
 export class CreateArenaDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  name: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  description: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
   arenaCategoryId: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @Type(() => CreateAddressDto)
-  @ValidateNested()
-  address: CreateAddressDto;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -44,22 +26,6 @@ export class CreateArenaDto {
   @IsNumber()
   @Min(1)
   width: number;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  @Matches(/^([01]\d|2[0-3]):([0-5]\d)$/, {
-    message: 'openTime must be in the format HH:mm',
-  })
-  openTime: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  @Matches(/^([01]\d|2[0-3]):([0-5]\d)$/, {
-    message: 'openTime must be in the format HH:mm',
-  })
-  closeTime: string;
 
   @ApiProperty({
     description: 'Arena reservation unit quantity per hour',
@@ -81,38 +47,31 @@ export class CreateArenaDto {
   @Min(1)
   unitPrice: number;
 
+  @ApiProperty({ example: true })
+  @IsOptional()
+  @IsBoolean()
+  covered?: boolean;
+
   constructor({
-    name,
-    description,
     arenaCategoryId,
-    address,
     length,
     width,
-    openTime,
-    closeTime,
     unitQuantity,
     unitPrice,
+    covered,
   }: {
-    name: string;
-    description: string;
     arenaCategoryId: string;
-    address: CreateAddressDto;
     length: number;
     width: number;
-    openTime: string;
-    closeTime: string;
     unitQuantity: number;
     unitPrice: number;
+    covered?: boolean;
   }) {
-    this.name = name;
-    this.description = description;
-    this.address = address;
+    this.arenaCategoryId = arenaCategoryId;
     this.length = length;
     this.width = width;
-    this.openTime = openTime;
-    this.closeTime = closeTime;
-    this.arenaCategoryId = arenaCategoryId;
     this.unitQuantity = unitQuantity;
     this.unitPrice = unitPrice;
+    this.covered = covered;
   }
 }
