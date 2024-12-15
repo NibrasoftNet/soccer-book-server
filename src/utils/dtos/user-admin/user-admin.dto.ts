@@ -10,36 +10,46 @@ import { UserSocketDto } from '@/domains/chat/user-socket.dto';
 
 export class UserAdminDto extends EntityHelperDto {
   @AutoMap()
-  @Expose()
+  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
   id: string;
 
   @AutoMap()
-  @Expose({ groups: ['ADMIN'] })
+  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
   email: string;
 
   @AutoMap()
-  userName?: string;
+  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
+  userName: string;
 
   @AutoMap(() => FileDto)
-  @Expose()
+  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
   photo: FileDto;
 
   @AutoMap(() => RoleDto)
+  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
   role: string;
 
   @AutoMap(() => StatusesDto)
+  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
   status: string;
 
   @AutoMap(() => Date)
-  @Expose({ groups: ['SUPERADMIN'] })
+  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
   deletedAt: string;
 
+  @AutoMap()
+  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
+  notificationsToken: string;
+
   @AutoMap(() => Date)
+  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
   subscriptionExpiryDate: Date;
 
   @AutoMap(() => [ComplexDto])
+  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
   complexes: Complex[];
 
   @AutoMap(() => UserSocketDto)
+  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
   socket: UserSocketDto;
 }

@@ -9,35 +9,42 @@ import { UserSocketDto } from '@/domains/chat/user-socket.dto';
 
 export class UserDto extends EntityHelperDto {
   @AutoMap()
-  @Expose()
+  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
   id: string;
 
   @AutoMap()
-  @Expose({ groups: ['ADMIN'] })
+  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
   email: string;
 
   @AutoMap()
+  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
   userName: string;
 
   @AutoMap(() => FileDto)
-  @Expose()
-  photo?: string;
+  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
+  photo?: FileDto;
 
   @AutoMap(() => RoleDto)
+  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
   role: string;
 
   @AutoMap(() => StatusesDto)
+  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
   status: string;
 
   @AutoMap(() => AddressDto)
+  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
   address: AddressDto;
 
   @AutoMap(() => Date)
-  @Expose({ groups: ['ADMIN'] })
+  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
   deletedAt: string;
 
-  @AutoMap(() => UserSocketDto)
-  socket: UserSocketDto;
+  @AutoMap(() => String)
+  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
+  notificationsToken: string;
 
-  fullName: string;
+  @AutoMap(() => UserSocketDto)
+  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
+  socket: UserSocketDto;
 }

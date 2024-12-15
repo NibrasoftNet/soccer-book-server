@@ -4,25 +4,26 @@ import { EntityHelperDto } from '@/domains/general/entity-helper.dto';
 
 export class AddressDto extends EntityHelperDto {
   @AutoMap()
-  @Expose()
+  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
   id: string;
 
   @AutoMap()
-  @Expose()
+  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
   country: string;
 
   @AutoMap()
-  @Expose()
+  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
   city: string;
 
   @AutoMap()
-  @Expose()
+  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
   longitude: number;
 
   @AutoMap()
-  @Expose()
+  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
   latitude: number;
 
   @AutoMap()
+  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
   street: string;
 }

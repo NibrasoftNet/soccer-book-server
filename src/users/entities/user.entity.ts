@@ -82,7 +82,7 @@ export class User extends EntityHelper {
   @DeleteDateColumn()
   deletedAt: Date;
 
-  @AutoMap()
+  @AutoMap(() => String)
   @Column({ type: String, nullable: true })
   notificationsToken?: string | null;
 
