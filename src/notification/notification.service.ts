@@ -99,7 +99,7 @@ export class NotificationService {
         notificationId: notification.id,
       },
       {
-        maxAttempts: 1,
+        maxAttempts: 3,
       },
     );
   }
@@ -113,7 +113,7 @@ export class NotificationService {
         notificationId: notification.id,
       },
       {
-        maxAttempts: 1,
+        maxAttempts: 3,
         runAt: new Date(notification.punctualSendDate as Date),
       },
     );

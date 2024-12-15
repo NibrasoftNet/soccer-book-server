@@ -7,6 +7,9 @@ import {
   EntityManager,
   FindOptionsRelations,
   FindOptionsWhere,
+  LessThan,
+  MoreThan,
+  Not,
   Repository,
 } from 'typeorm';
 import { ArenaService } from '../arena/arena.service';
@@ -17,6 +20,13 @@ import { NullableType } from '../utils/types/nullable.type';
 import { ReservationTypeEnum } from '@/enums/reservation/reservation-type.enum';
 import { UpdateReservationDto } from '@/domains/reservation/update-reservation.dto';
 import { CreateReservationDto } from '@/domains/reservation/create-reservation.dto';
+import { NotificationService } from '../notification/notification.service';
+import { CreateNotificationDto } from '@/domains/notification/create-notification.dto';
+import { NotificationTypeOfSendingEnum } from '@/enums/notification/notification-type-of-sending.enum';
+import { UserDto } from '@/domains/user/user.dto';
+import { InjectMapper } from 'automapper-nestjs';
+import { Mapper } from 'automapper-core';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class ReservationService {
@@ -25,6 +35,8 @@ export class ReservationService {
     private readonly reservationRepository: Repository<Reservation>,
     private readonly usersService: UsersService,
     private readonly arenaService: ArenaService,
+    private readonly notificationService: NotificationService,
+    @InjectMapper() private readonly mapper: Mapper,
   ) {}
   async create(
     userJwtPayload: JwtPayloadType,
@@ -102,6 +114,20 @@ export class ReservationService {
         // Find the reservation to approve
         const reservation = await entityManager.findOneOrFail(Reservation, {
           where: { id },
+          relations: ['user'],
+        });
+
+        // Find overlapping reservations to be rejected
+        const overlappingReservations = await entityManager.find(Reservation, {
+          where: [
+            {
+              day: reservation.day,
+              startHour: LessThan(reservation.endHour),
+              endHour: MoreThan(reservation.startHour),
+              id: Not(reservation.id),
+            },
+          ],
+          relations: ['user'],
         });
 
         // Update the status of overlapping reservations in a single query
@@ -117,8 +143,33 @@ export class ReservationService {
           .andWhere('id != :id', { id: reservation.id })
           .execute();
 
+        if (overlappingReservations.length) {
+          // Notify users of rejected reservations
+          const rejectedUsers = overlappingReservations.map((overlap) =>
+            this.mapper.map(overlap.user, User, UserDto),
+          );
+
+          const rejectionNotificationDto = new CreateNotificationDto({
+            title: 'Reservation Rejected',
+            message: 'Unfortunately, your reservation has been rejected.',
+            forAllUsers: false,
+            typeOfSending: NotificationTypeOfSendingEnum.IMMEDIATELY,
+            users: rejectedUsers,
+          });
+          await this.notificationService.create(rejectionNotificationDto);
+        }
+
         // Approve the current reservation
         reservation.status = ReservationTypeEnum.CONFIRMED;
+        const mappedUser = this.mapper.map(reservation.user, User, UserDto);
+        const createNotificationDto = new CreateNotificationDto({
+          title: 'Approved',
+          message: 'Your reservation has been approved',
+          forAllUsers: false,
+          typeOfSending: NotificationTypeOfSendingEnum.IMMEDIATELY,
+          users: [mappedUser],
+        });
+        await this.notificationService.create(createNotificationDto);
         return await entityManager.save(Reservation, reservation);
       },
     );

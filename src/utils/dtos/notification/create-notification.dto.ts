@@ -28,7 +28,7 @@ export class CreateNotificationDto {
   @ApiProperty()
   @IsString()
   @IsOptional()
-  message: string;
+  message?: string;
 
   @ApiProperty()
   @IsBoolean()
@@ -74,7 +74,7 @@ export class CreateNotificationDto {
   @IsDate({ each: true })
   scheduledNotification?: Date[] | null;
 
-  /*  constructor({
+  constructor({
     title,
     message,
     forAllUsers,
@@ -84,7 +84,7 @@ export class CreateNotificationDto {
     scheduledNotification,
   }: {
     title: string;
-    message: string;
+    message?: string;
     forAllUsers: boolean;
     typeOfSending: NotificationTypeOfSendingEnum;
     users: UserDto[];
@@ -98,5 +98,5 @@ export class CreateNotificationDto {
     this.users = users;
     this.punctualSendDate = punctualSendDate;
     this.scheduledNotification = scheduledNotification;
-  }*/
+  }
 }

@@ -21,7 +21,6 @@ export class FirebaseMessagingService {
   ): Promise<void> {
     try {
       const response = await this.messaging.sendEachForMulticast(payload);
-      console.log('responce', response.responses[0].error);
       if (response.failureCount > 0) {
         this.logger.error('Notifications were not sent', {
           failureCount: response.failureCount,

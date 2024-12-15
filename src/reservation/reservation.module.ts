@@ -6,9 +6,15 @@ import { ArenaModule } from '../arena/arena.module';
 import { Reservation } from './entities/reservation.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ReservationSerializationProfileSerializationProfile } from './serialization/reservation-serialization.profile';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Reservation]), UsersModule, ArenaModule],
+  imports: [
+    TypeOrmModule.forFeature([Reservation]),
+    UsersModule,
+    ArenaModule,
+    NotificationModule,
+  ],
   controllers: [ReservationController],
   providers: [
     ReservationService,
