@@ -1,6 +1,8 @@
 volumes:
   arena-book-db-prod:
+    driver: local
   uploads:
+    driver: local
 
 services:
   postgres:
@@ -16,17 +18,14 @@ services:
       POSTGRES_DB: ${DATABASE_NAME}
     networks:
       - arenaServerNetwork
-  maildev:
-    container_name: arena-book-maildev-prod
-    build:
-      context: .
-      dockerfile: maildev.Dockerfile
-    ports:
-      - ${MAIL_CLIENT_PORT}:1080
-      - ${MAIL_PORT}:1025
-    networks:
-      - traefikNetwork
-      - arenaServerNetwork
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
   adminer:
     image: adminer
     container_name: arena-book-adminer-prod
@@ -36,6 +35,10 @@ services:
     networks:
       - traefikNetwork
       - arenaServerNetwork
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
   backend:
     build:
       context: .
@@ -62,6 +65,14 @@ services:
     volumes:
       - uploads:/app/uploads
       - "~/shared_vps/traefik/certs:/letsencrypt"
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
 networks:
   traefikNetwork:
     external: true

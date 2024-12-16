@@ -4,8 +4,10 @@ import validateConfig from '.././utils/validate-config';
 import {
   IsEnum,
   IsInt,
+  IsNotEmpty,
   IsOptional,
   IsString,
+  IsStrongPassword,
   IsUrl,
   Max,
   Min,
@@ -20,7 +22,7 @@ class EnvironmentVariablesValidator {
   @IsInt()
   @Min(0)
   @Max(65535)
-  @IsOptional()
+  @IsNotEmpty()
   APP_PORT: number;
 
   @IsString()
@@ -36,7 +38,7 @@ class EnvironmentVariablesValidator {
   BACKEND_DOMAIN: string;
 
   @IsString()
-  @IsOptional()
+  @IsNotEmpty()
   API_PREFIX: string;
 
   @IsString()
@@ -46,6 +48,21 @@ class EnvironmentVariablesValidator {
   @IsString()
   @IsOptional()
   APP_HEADER_LANGUAGE: string;
+
+  @IsNotEmpty()
+  @IsString()
+  SWAGGER_USERNAME: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @IsStrongPassword({
+    minLength: 5,
+    minLowercase: 1,
+    minNumbers: 1,
+    minSymbols: 0,
+    minUppercase: 0,
+  })
+  SWAGGER_PASSWORD: string;
 }
 
 export default registerAs<AppConfig>('app', () => {
@@ -66,5 +83,7 @@ export default registerAs<AppConfig>('app', () => {
     apiPrefix: process.env.API_PREFIX || 'api',
     fallbackLanguage: process.env.APP_FALLBACK_LANGUAGE || 'en',
     headerLanguage: process.env.APP_HEADER_LANGUAGE || 'x-custom-lang',
+    swaggerUsername: process.env.SWAGGER_USERNAME || 'arena-book-swagger-auth',
+    swaggerPassword: process.env.SWAGGER_PASSWORD || 'Arena-book@swagger123',
   };
 });

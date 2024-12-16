@@ -26,6 +26,7 @@ import {
 } from '@nestjs/platform-fastify';
 import { RolesSerializerInterceptor } from './utils/interceptors/role.serializer.interceptor';
 import { contentParser } from 'fastify-file-interceptor';
+import { SwaggerAuthService } from './swagger-auth.service';
 
 const logger = new Logger('Soccer-main');
 const whitelist = [
@@ -37,6 +38,7 @@ const whitelist = [
   'http://147.79.117.125:5001',
   'https://api-tachkila.genydev.com',
   'https://api-tachkila.genydev.com',
+  'https://dashboard-tachkila.genydev.com',
 ];
 
 async function bootstrap() {
@@ -92,6 +94,9 @@ async function bootstrap() {
     new ResponseInterceptor(),
   );
 
+  // Protect Swagger route
+  const swaggerAuthService = new SwaggerAuthService(app, configService);
+  await swaggerAuthService.onModuleInit();
   const options = new DocumentBuilder()
     .setTitle('Soccer booking API')
     .setDescription('Swagger docs')

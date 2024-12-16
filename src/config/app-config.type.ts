@@ -9,4 +9,6 @@ export type AppConfig = {
   apiPrefix: string;
   fallbackLanguage: string;
   headerLanguage: string;
+  swaggerUsername: string;
+  swaggerPassword: string;
 };

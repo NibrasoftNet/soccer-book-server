@@ -3,12 +3,13 @@ import { Complex } from '../entities/complex.entity';
 
 export const complexPaginationConfig: PaginateConfig<Complex> = {
   defaultSortBy: [['createdAt', 'DESC']],
-  relations: ['creator', 'arenas', 'image'],
+  relations: ['creator', 'arenas', 'image', 'arenas.image'],
   searchableColumns: ['name'],
   sortableColumns: ['createdAt', 'updatedAt', 'name'],
   maxLimit: 100,
   loadEagerRelations: true,
   filterableColumns: {
     name: [FilterOperator.EQ, FilterSuffix.NOT],
+    'arenas.category.id': [FilterOperator.EQ, FilterSuffix.NOT],
   },
 };
