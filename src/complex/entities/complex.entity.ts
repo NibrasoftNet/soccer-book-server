@@ -66,4 +66,8 @@ export class Complex extends EntityHelper {
   @AutoMap(() => [Tournament])
   @OneToMany(() => Tournament, (tournament) => tournament.complex)
   tournaments: Tournament[];
+
+  @AutoMap()
+  @Column({ default: true })
+  active: boolean;
 }

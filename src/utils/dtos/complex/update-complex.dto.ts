@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString, Matches, ValidateNested } from 'class-validator';
+import {
+  IsBoolean,
+  IsOptional,
+  IsString,
+  Matches,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { CreateAddressDto } from '@/domains/address/create-address.dto';
 
@@ -36,23 +42,31 @@ export class UpdateComplexDto {
   })
   closeTime?: string;
 
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
+  active?: boolean;
+
   constructor({
     name,
     description,
     address,
     openTime,
     closeTime,
+    active,
   }: {
     name?: string;
     description?: string;
     address?: CreateAddressDto;
     openTime?: string;
     closeTime?: string;
+    active?: boolean;
   }) {
     this.name = name;
     this.description = description;
     this.address = address;
     this.openTime = openTime;
     this.closeTime = closeTime;
+    this.active = active;
   }
 }

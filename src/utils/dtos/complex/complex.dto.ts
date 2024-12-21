@@ -47,4 +47,8 @@ export class ComplexDto extends EntityHelperDto {
   @AutoMap(() => [TournamentDto])
   @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
   tournaments: TournamentDto[];
+
+  @AutoMap()
+  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
+  active: boolean;
 }
