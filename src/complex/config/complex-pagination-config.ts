@@ -9,7 +9,22 @@ export const complexPaginationConfig: PaginateConfig<Complex> = {
   maxLimit: 100,
   loadEagerRelations: true,
   filterableColumns: {
-    name: [FilterOperator.EQ, FilterSuffix.NOT],
+    name: [
+      FilterOperator.EQ,
+      FilterSuffix.NOT,
+      FilterOperator.ILIKE,
+      FilterOperator.CONTAINS,
+    ],
     'arenas.category.id': [FilterOperator.EQ, FilterSuffix.NOT],
+    'arenas.unitPrice': [
+      FilterOperator.EQ,
+      FilterOperator.BTW,
+      FilterOperator.LTE,
+    ],
+    'arenas.length': [
+      FilterOperator.EQ,
+      FilterOperator.BTW,
+      FilterOperator.LTE,
+    ],
   },
 };
