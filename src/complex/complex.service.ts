@@ -78,6 +78,7 @@ export class ComplexService {
     const complexes = await this.complexRepository
       .createQueryBuilder('complex')
       .leftJoinAndSelect('complex.image', 'image')
+      .leftJoinAndSelect('complex.creator', 'creator')
       .leftJoinAndSelect('complex.arenas', 'arenas')
       .leftJoinAndSelect('complex.address', 'address')
       .where(
