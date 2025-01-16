@@ -105,7 +105,7 @@ export class ComplexController {
     );
   }
 
-  @Roles(RoleCodeEnum.USER)
+  @Roles(RoleCodeEnum.ADMIN, RoleCodeEnum.USER, RoleCodeEnum.SUPERADMIN)
   @UseInterceptors(MapInterceptor(Complex, ComplexDto, { isArray: true }))
   @HttpCode(HttpStatus.OK)
   @Get('list-with-distance')
