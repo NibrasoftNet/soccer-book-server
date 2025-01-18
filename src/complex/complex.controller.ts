@@ -122,7 +122,7 @@ export class ComplexController {
   @HttpCode(HttpStatus.OK)
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<NullableType<Complex>> {
-    return await this.complexService.findOne({ id });
+    return await this.complexService.findOne({ id }, { arenas: true });
   }
 
   @ApiConsumes('multipart/form-data')
