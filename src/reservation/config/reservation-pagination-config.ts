@@ -3,10 +3,10 @@ import { Reservation } from '../entities/reservation.entity';
 
 export const reservationPaginationConfig: PaginateConfig<Reservation> = {
   defaultSortBy: [['createdAt', 'DESC']],
-  relations: ['arena', 'creator'],
+  relations: ['arena', 'user'],
   searchableColumns: ['status'],
   sortableColumns: ['createdAt', 'updatedAt', 'status', 'day'],
-  defaultLimit: 20,
+  defaultLimit: 100,
   maxLimit: 100,
   loadEagerRelations: true,
   filterableColumns: {
