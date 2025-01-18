@@ -3,4 +3,5 @@ export enum ReservationTypeEnum {
   CONFIRMED = 'CONFIRMED',
   CANCELLED = 'CANCELLED',
   REJECTED = 'REJECTED',
+  ACCEPTED_NOT_PAID = 'ACCEPTED_NOT_PAID',
 }

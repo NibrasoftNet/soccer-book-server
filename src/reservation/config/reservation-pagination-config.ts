@@ -11,7 +11,7 @@ export const reservationPaginationConfig: PaginateConfig<Reservation> = {
   loadEagerRelations: true,
   filterableColumns: {
     status: [FilterOperator.EQ, FilterSuffix.NOT],
-    day: [FilterOperator.EQ, FilterSuffix.NOT, FilterOperator.GTE],
+    day: [FilterOperator.EQ, FilterSuffix.NOT, FilterOperator.GTE, FilterOperator.BTW],
     'arena.id': [FilterOperator.EQ, FilterSuffix.NOT],
   },
 };
