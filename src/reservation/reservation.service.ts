@@ -66,11 +66,12 @@ export class ReservationService {
   async findAllMe(
     userJwtPayload: JwtPayloadType,
     @Paginate() query: PaginateQuery,
-  ) {
+  ): Promise<Paginated<Reservation>> {
     const queryBuilder = this.reservationRepository
       .createQueryBuilder('reservation')
-      .leftJoinAndSelect('reservation.creator', 'creator')
-      .where('creator.id = :id', { id: userJwtPayload.id });
+      .leftJoinAndSelect('reservation.user', 'user')
+      .leftJoinAndSelect('reservation.arena', 'arena')
+      .where('user.id = :id', { id: userJwtPayload.id });
 
     return await paginate<Reservation>(
       query,
