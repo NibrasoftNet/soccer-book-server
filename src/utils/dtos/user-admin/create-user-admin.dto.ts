@@ -1,7 +1,7 @@
 import { Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsDate,
+  IsDateString,
   IsEmail,
   IsNotEmpty,
   IsOptional,
@@ -38,24 +38,6 @@ export class CreateUserAdminDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsDate()
+  @IsDateString()
   subscriptionExpiryDate: Date;
-
-  constructor({
-    email,
-    userName,
-    password,
-    subscriptionExpiryDate,
-  }: {
-    email: string;
-    userName: string;
-    password?: string;
-    notificationsToken?: string;
-    subscriptionExpiryDate: Date;
-  }) {
-    this.email = email;
-    this.userName = userName;
-    this.password = password;
-    this.subscriptionExpiryDate = subscriptionExpiryDate;
-  }
 }
