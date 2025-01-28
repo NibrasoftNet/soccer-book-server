@@ -20,18 +20,4 @@ export class OauthVerifyDto {
   @IsNotEmpty()
   @IsEnum(AuthProvidersEnum)
   provider: AuthProvidersEnum;
-
-  constructor({
-    id,
-    email,
-    provider,
-  }: {
-    id: string;
-    email: string;
-    provider: AuthProvidersEnum;
-  }) {
-    this.id = id;
-    this.email = email;
-    this.provider = provider;
-  }
 }

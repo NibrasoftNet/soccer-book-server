@@ -46,30 +46,4 @@ export class OauthRegisterDto {
   @IsNotEmpty()
   @IsEnum(AuthProvidersEnum)
   provider: AuthProvidersEnum;
-
-  constructor({
-    id,
-    email,
-    photo,
-    userName,
-    address,
-    notificationToken,
-    provider,
-  }: {
-    id: string;
-    email: string;
-    photo: string | null;
-    userName?: string;
-    address?: CreateAddressDto;
-    notificationToken?: string;
-    provider: AuthProvidersEnum;
-  }) {
-    this.id = id;
-    this.email = email;
-    this.photo = photo;
-    this.userName = userName;
-    this.address = address;
-    this.notificationToken = notificationToken;
-    this.provider = provider;
-  }
 }
