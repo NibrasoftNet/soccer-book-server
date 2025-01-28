@@ -32,6 +32,9 @@ export class UserDto extends EntityHelperDto {
   deletedAt: string;
 
   @AutoMap(() => String)
+  provider: string;
+
+  @AutoMap(() => String)
   notificationsToken: string;
 
   @AutoMap(() => UserSocketDto)
