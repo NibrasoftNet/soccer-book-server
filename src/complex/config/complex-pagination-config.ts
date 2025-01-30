@@ -9,6 +9,7 @@ export const complexPaginationConfig: PaginateConfig<Complex> = {
   maxLimit: 100,
   loadEagerRelations: true,
   filterableColumns: {
+    "creator.id": [FilterOperator.EQ, FilterSuffix.NOT],
     name: [
       FilterOperator.EQ,
       FilterSuffix.NOT,
