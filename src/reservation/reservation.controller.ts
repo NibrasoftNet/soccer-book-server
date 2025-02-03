@@ -74,7 +74,6 @@ export class ReservationController {
 
   @ApiPaginationQuery(reservationPaginationConfig)
   @Roles(RoleCodeEnum.USER)
-  @UseInterceptors(MapInterceptor(Reservation, ReservationDto))
   @HttpCode(HttpStatus.OK)
   @Get('me')
   async findAllMe(
