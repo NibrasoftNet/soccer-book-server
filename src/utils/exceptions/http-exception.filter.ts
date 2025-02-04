@@ -25,6 +25,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
       this.handleEntityNotFoundError(exception, host),
     HttpException: (exception, host) =>
       this.handleHttpException(exception, host),
+    UnauthorizedException: (exception, host) =>
+      this.handleUnauthorizedException(exception, host),
   };
 
   handleException(exception: any, host: any): void {
@@ -71,6 +73,31 @@ export class HttpExceptionFilter implements ExceptionFilter {
       path: request.url,
       message: {
         status: HttpStatus.PRECONDITION_FAILED,
+        errors: {
+          entity: exception.message,
+        },
+      },
+      stack: exception.stack,
+    });
+  }
+
+  private handleUnauthorizedException(
+    exception: EntityNotFoundError,
+    host: ArgumentsHost,
+  ) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse<FastifyReply>();
+    const request = ctx.getRequest<FastifyRequest>();
+    const status = HttpStatus.UNAUTHORIZED; // UnauthorizedException is treated as 401
+
+    this.logError(request, 'UnauthorizedException', exception);
+
+    void response.status(status).send({
+      status: false,
+      statusCode: status,
+      path: request.url,
+      message: {
+        status: HttpStatus.UNAUTHORIZED,
         errors: {
           entity: exception.message,
         },
