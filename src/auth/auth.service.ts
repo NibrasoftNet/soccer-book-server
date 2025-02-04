@@ -82,7 +82,7 @@ export class AuthService {
       await this.sendConfirmEmail(user.email);
       throw new HttpException(
         {
-          status: HttpStatus.PRECONDITION_FAILED,
+          status: HttpStatus.BAD_REQUEST,
           errors: {
             email: this.i18n.t('auth.emailNotConfirmed', {
               lang: I18nContext.current()?.lang,
