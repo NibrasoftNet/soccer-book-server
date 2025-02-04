@@ -105,7 +105,7 @@ export class ReservationController {
   @HttpCode(HttpStatus.OK)
   @Put(':id')
   async update(
-    @Param('id', IsCreatorPipe('Reservation', 'id', 'creator')) id: string,
+    @Param('id', IsCreatorPipe('Reservation', 'id', 'user')) id: string,
     @Body() updateReservationDto: UpdateReservationDto,
   ): Promise<Reservation> {
     return await this.reservationService.update(id, updateReservationDto);
