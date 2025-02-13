@@ -17,6 +17,11 @@ export class CreateArenaDto {
 
   @ApiProperty()
   @IsNotEmpty()
+  @IsString()
+  name: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
   @IsNumber()
   @Min(1)
   length: number;
@@ -54,6 +59,7 @@ export class CreateArenaDto {
 
   constructor({
     arenaCategoryId,
+    name,
     length,
     width,
     unitQuantity,
@@ -61,6 +67,7 @@ export class CreateArenaDto {
     covered,
   }: {
     arenaCategoryId: string;
+    name: string;
     length: number;
     width: number;
     unitQuantity: number;
@@ -68,6 +75,7 @@ export class CreateArenaDto {
     covered?: boolean;
   }) {
     this.arenaCategoryId = arenaCategoryId;
+    this.name = name;
     this.length = length;
     this.width = width;
     this.unitQuantity = unitQuantity;

@@ -12,6 +12,10 @@ export class ArenaDto extends EntityHelperDto {
   @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
   id: string;
 
+  @AutoMap()
+  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
+  name: string;
+
   @AutoMap(() => ComplexDto)
   @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
   complex: ComplexDto;

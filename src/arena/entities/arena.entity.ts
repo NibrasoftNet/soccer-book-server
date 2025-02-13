@@ -21,6 +21,10 @@ export class Arena extends EntityHelper {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @AutoMap()
+  @Column({ default: 'rades' })
+  name: string;
+
   @AutoMap(() => Complex)
   @ManyToOne(() => Complex, (complex) => complex.arenas, {
     onDelete: 'CASCADE',
