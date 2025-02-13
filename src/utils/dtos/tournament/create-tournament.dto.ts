@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsDateString,
+  IsEnum,
   IsInt,
   IsNotEmpty,
   IsNumber,
@@ -10,18 +11,17 @@ import {
   Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { AutoMap } from 'automapper-classes';
 import {
   CompareDate,
   DateComparisonMethod,
 } from '../../validators/compare-date.validator';
+import { TournamentTypeEnum } from '@/enums/tournament/tournament-type.enum';
 
 export class CreateTournamentDto {
   @ApiProperty({
     description: 'Name of the tournament',
     example: 'Champion League',
   })
-  @AutoMap()
   @IsString()
   @IsNotEmpty()
   name: string;
@@ -30,7 +30,6 @@ export class CreateTournamentDto {
     description: 'Description of the tournament',
     example: 'Annual championship for the best teams.',
   })
-  @AutoMap()
   @IsString()
   @IsNotEmpty()
   description: string;
@@ -39,7 +38,6 @@ export class CreateTournamentDto {
     description: 'Start date of the tournament',
     example: '2024-12-01T10:00:00.000Z',
   })
-  @AutoMap()
   @IsNotEmpty()
   @IsDateString()
   @Type(() => Date)
@@ -50,7 +48,6 @@ export class CreateTournamentDto {
     description: 'Finish date of the tournament',
     example: '2024-12-15T18:00:00.000Z',
   })
-  @AutoMap()
   @IsNotEmpty()
   @IsDateString()
   @Type(() => Date)
@@ -61,12 +58,16 @@ export class CreateTournamentDto {
     description: 'Last date for subscription to the tournament',
     example: '2024-11-20T23:59:59.000Z',
   })
-  @AutoMap()
   @IsNotEmpty()
   @IsDateString()
   @Type(() => Date)
   @CompareDate('finishDate', DateComparisonMethod.LESS)
   lastSubscriptionDate: Date;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsEnum(TournamentTypeEnum)
+  type: TournamentTypeEnum;
 
   @ApiProperty({
     description: 'Number of teams allowed in the tournament (maximum 2 digits)',
@@ -74,7 +75,6 @@ export class CreateTournamentDto {
     minimum: 2,
     maximum: 99,
   })
-  @AutoMap()
   @IsOptional()
   @IsInt()
   @Min(2)
@@ -85,7 +85,6 @@ export class CreateTournamentDto {
     description: 'Subscription price to the tournament',
     example: 10,
   })
-  @AutoMap()
   @IsNotEmpty()
   @IsNumber()
   @Min(1)
@@ -97,6 +96,7 @@ export class CreateTournamentDto {
     startDate,
     finishDate,
     lastSubscriptionDate,
+    type,
     numberOfTeams,
     price,
   }: {
@@ -105,6 +105,7 @@ export class CreateTournamentDto {
     startDate: Date;
     finishDate: Date;
     lastSubscriptionDate: Date;
+    type: TournamentTypeEnum;
     numberOfTeams?: number;
     price: number;
   }) {
@@ -113,6 +114,7 @@ export class CreateTournamentDto {
     this.startDate = startDate;
     this.finishDate = finishDate;
     this.lastSubscriptionDate = lastSubscriptionDate;
+    this.type = type;
     this.numberOfTeams = numberOfTeams;
     this.price = price;
   }

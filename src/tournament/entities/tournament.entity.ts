@@ -11,6 +11,7 @@ import { TournamentParticipation } from '../../tournament-participation/entities
 import { AutoMap } from 'automapper-classes';
 import { FileEntity } from '../../files/entities/file.entity';
 import { Complex } from '../../complex/entities/complex.entity';
+import { TournamentTypeEnum } from '@/enums/tournament/tournament-type.enum';
 
 @Entity()
 export class Tournament extends EntityHelper {
@@ -51,6 +52,10 @@ export class Tournament extends EntityHelper {
   @AutoMap()
   @Column({ type: 'int', width: 2, default: 0 })
   totalJoinedTeams: number;
+
+  @AutoMap()
+  @Column({ default: TournamentTypeEnum.CUP })
+  type: TournamentTypeEnum;
 
   @AutoMap()
   @Column({ default: true })

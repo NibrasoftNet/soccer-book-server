@@ -4,6 +4,7 @@ import { EntityHelperDto } from '@/domains/general/entity-helper.dto';
 import { FileDto } from '@/domains/files/file.dto';
 import { ComplexDto } from '@/domains/complex/complex.dto';
 import { Expose } from 'class-transformer';
+import { TournamentTypeEnum } from '@/enums/tournament/tournament-type.enum';
 
 export class TournamentDto extends EntityHelperDto {
   @AutoMap()
@@ -41,6 +42,10 @@ export class TournamentDto extends EntityHelperDto {
   @AutoMap()
   @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
   totalJoinedTeams: number;
+
+  @AutoMap()
+  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
+  type: TournamentTypeEnum;
 
   @AutoMap()
   @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
