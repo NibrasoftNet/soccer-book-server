@@ -17,11 +17,12 @@ import { MulterFile } from 'fastify-file-interceptor';
 import { CloudinaryService } from '../utils/cloudinary/cloudinary.service';
 import { FileDriver } from '@/enums/file/file-driver.enum';
 import { NullableType } from '../utils/types/nullable.type';
+import { PresignedUrlResponseDto } from '@/domains/files/presign-url-response.dto';
+import { WinstonLoggerService } from '../logger/winston-logger.service';
 
 @Injectable()
 export class FilesService {
   private readonly storage: FileDriver;
-
   constructor(
     private readonly configService: ConfigService<AllConfigType>,
     @InjectRepository(FileEntity)
@@ -30,6 +31,7 @@ export class FilesService {
     private readonly cloudinaryService: CloudinaryService,
     private readonly i18n: I18nService,
     private dataSource: DataSource,
+    private readonly logger: WinstonLoggerService,
   ) {
     this.storage = this.configService.getOrThrow('file.driver', {
       infer: true,
@@ -270,5 +272,14 @@ export class FilesService {
     }
     const file = this.fileRepository.create({ path: url });
     return await this.fileRepository.save(file);
+  }
+
+  async getPresignedUrl(type: string): Promise<PresignedUrlResponseDto> {
+    this.logger.info(`get-presigned-Url`, {
+      description: `get presigned Url`,
+      class: FilesService.name,
+      function: 'getPresignedUrl',
+    });
+    return await this.awsS3Service.generatePresignedUrl(type);
   }
 }

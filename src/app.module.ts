@@ -51,6 +51,7 @@ import { CloudinaryModule } from './utils/cloudinary/cloudinary.module';
 import { ArenaTestimonialsModule } from './arena-testimonials/arena-testimonials.module';
 import { ChatModule } from './chat/chat.module';
 import { ComplexModule } from './complex/complex.module';
+import { TeammateParticipationModule } from './teammate-participation/teammate-participation.module';
 
 @Module({
   imports: [
@@ -167,6 +168,7 @@ import { ComplexModule } from './complex/complex.module';
     ArenaTestimonialsModule,
     ChatModule,
     ComplexModule,
+    TeammateParticipationModule,
   ],
 
   providers: [

@@ -11,5 +11,6 @@ import { ComplexModule } from '../complex/complex.module';
   imports: [TypeOrmModule.forFeature([Teammate]), UsersModule, ComplexModule],
   controllers: [TeammateController],
   providers: [TeammateService, TeammateSerializationProfile],
+  exports: [TeammateService],
 })
 export class TeammateModule {}

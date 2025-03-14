@@ -40,6 +40,7 @@ export class SubscriptionToTeamController {
 
   @UseInterceptors(MapInterceptor(SubscriptionToTeam, SubscriptionToTeamDto))
   @Roles(RoleCodeEnum.SUPERADMIN, RoleCodeEnum.USER, RoleCodeEnum.ADMIN)
+  @HttpCode(HttpStatus.CREATED)
   @Post('teams/:teamId/users/:userId')
   async addMember(
     @Param('teamId', ParseIntPipe) teamId: string,
@@ -50,6 +51,7 @@ export class SubscriptionToTeamController {
 
   @ApiPaginationQuery(subscriptionToTeamPaginationConfig)
   @Roles(RoleCodeEnum.ADMIN, RoleCodeEnum.USER)
+  @HttpCode(HttpStatus.OK)
   @Get()
   async findAll(@Paginate() query: PaginateQuery) {
     return await this.subscriptionToTeamService.findAll(query);
@@ -57,6 +59,7 @@ export class SubscriptionToTeamController {
 
   @ApiPaginationQuery(subscriptionToTeamPaginationConfig)
   @Roles(RoleCodeEnum.SUPERADMIN, RoleCodeEnum.USER, RoleCodeEnum.ADMIN)
+  @HttpCode(HttpStatus.OK)
   @Get('list/_me')
   @HttpCode(HttpStatus.OK)
   async findAllMe(
@@ -77,6 +80,7 @@ export class SubscriptionToTeamController {
 
   @UseInterceptors(MapInterceptor(SubscriptionToTeam, SubscriptionToTeamDto))
   @Roles(RoleCodeEnum.SUPERADMIN, RoleCodeEnum.USER, RoleCodeEnum.ADMIN)
+  @HttpCode(HttpStatus.OK)
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return await this.subscriptionToTeamService.findOne(
@@ -87,6 +91,7 @@ export class SubscriptionToTeamController {
 
   @Put(':id/users/:userId/unsubscribe')
   @Roles(RoleCodeEnum.SUPERADMIN, RoleCodeEnum.USER, RoleCodeEnum.ADMIN)
+  @HttpCode(HttpStatus.OK)
   async cancelMyRequest(
     @Param('id') id: string,
     @Param('userId') userId: string,
@@ -96,6 +101,7 @@ export class SubscriptionToTeamController {
 
   @Put(':id')
   @Roles(RoleCodeEnum.SUPERADMIN, RoleCodeEnum.USER, RoleCodeEnum.ADMIN)
+  @HttpCode(HttpStatus.OK)
   async update(
     @Param('id') id: string,
     @Body() updateApplicantToDonationDto: UpdateSubscriptionToTeamDto,
@@ -107,6 +113,7 @@ export class SubscriptionToTeamController {
   }
 
   @Roles(RoleCodeEnum.SUPERADMIN, RoleCodeEnum.USER, RoleCodeEnum.ADMIN)
+  @HttpCode(HttpStatus.OK)
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return await this.subscriptionToTeamService.remove(id);

@@ -5,5 +5,6 @@ export type FileConfig = {
   awsDefaultS3Bucket?: string;
   awsDefaultS3Url?: string;
   awsS3Region?: string;
+  awsS3Endpoint?: string;
   maxFileSize: number;
 };

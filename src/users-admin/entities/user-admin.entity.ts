@@ -36,6 +36,9 @@ export class UserAdmin extends EntityHelper {
 
   public previousPassword: string;
 
+  @Column({ nullable: false, type: String, default: '0123456789' })
+  whatsApp: string;
+
   @AutoMap()
   @Column({ default: AuthProvidersEnum.EMAIL })
   provider: string;

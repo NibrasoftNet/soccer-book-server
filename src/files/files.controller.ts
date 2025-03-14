@@ -35,6 +35,7 @@ import * as mime from 'mime-types';
 import { MapInterceptor } from 'automapper-nestjs';
 import { FileDto } from '@/domains/files/file.dto';
 import { NullableType } from '../utils/types/nullable.type';
+import { PresignedUrlResponseDto } from '@/domains/files/presign-url-response.dto';
 
 @ApiTags('Files')
 @ApiBearerAuth()
@@ -106,6 +107,15 @@ export class FilesController {
     // Stream the file to the browser
     const stream = createReadStream(filePath);
     return res.send(stream);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @Get('presigned/:type')
+  async getPresignedUrl(
+    @Param('type') type: string,
+  ): Promise<PresignedUrlResponseDto> {
+    return await this.filesService.getPresignedUrl(type);
   }
 
   @UseInterceptors(MapInterceptor(FileEntity, FileDto))

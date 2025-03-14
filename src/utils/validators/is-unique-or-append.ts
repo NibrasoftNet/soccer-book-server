@@ -45,7 +45,7 @@ export class IsUniqueOrAppend implements ValidatorConstraintInterface {
           unknown
         >;
         while (entity) {
-          const suffix = customAlphabet('0123456789', 6)();
+          const suffix = customAlphabet('0123456789', 4)();
           value = `${value}-${suffix}`;
           entity = await this.dataSource.getRepository(repository).findOne({
             where: {

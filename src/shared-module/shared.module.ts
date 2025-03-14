@@ -49,6 +49,10 @@ import { FastifyRequest } from 'fastify';
                   { infer: true },
                 ),
               },
+              forcePathStyle: true, // Required for MinIO, to avoid AWS-style buckets
+              endpoint: configService.getOrThrow('file.awsS3Endpoint', {
+                infer: true,
+              }),
             });
 
             return multerS3({

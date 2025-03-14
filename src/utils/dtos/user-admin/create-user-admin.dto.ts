@@ -25,6 +25,11 @@ export class CreateUserAdminDto {
   @IsNotEmpty()
   userName: string;
 
+  @ApiProperty({ example: '0021655456398' })
+  @IsString()
+  @IsNotEmpty()
+  whatsApp: string;
+
   @ApiProperty()
   @IsOptional()
   @IsStrongPassword({

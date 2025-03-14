@@ -17,6 +17,9 @@ export class UserAdminDto extends EntityHelperDto {
   @AutoMap()
   userName: string;
 
+  @AutoMap()
+  whatsApp: string;
+
   @AutoMap(() => FileDto)
   photo: FileDto;
 

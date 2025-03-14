@@ -20,6 +20,9 @@ export const AwsS3Provider: Provider = {
     const bucket = configService.getOrThrow<string>('file.awsDefaultS3Bucket', {
       infer: true,
     });
+    const endpoint = configService.get<string>('file.awsS3Endpoint', {
+      infer: true,
+    });
 
     return {
       client: new S3Client({
@@ -28,6 +31,8 @@ export const AwsS3Provider: Provider = {
           secretAccessKey,
         },
         region,
+        endpoint,
+        forcePathStyle: true,
       }),
       bucket,
     };
