@@ -1,8 +1,8 @@
 import { AutoMap } from 'automapper-classes';
 import { EntityHelperDto } from '../general/entity-helper.dto';
 import { UserDto } from '@/domains/user/user.dto';
-import { ArenaDto } from '@/domains/arena/arena.dto';
 import { Expose } from 'class-transformer';
+import { ComplexDto } from '@/domains/complex/complex.dto';
 
 export class TeammateDto extends EntityHelperDto {
   @AutoMap()
@@ -13,9 +13,9 @@ export class TeammateDto extends EntityHelperDto {
   @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
   creator: UserDto;
 
-  @AutoMap(() => ArenaDto)
+  @AutoMap(() => ComplexDto)
   @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
-  arena: ArenaDto;
+  complex: ComplexDto;
 
   @AutoMap()
   @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })

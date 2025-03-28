@@ -4,7 +4,7 @@ import { TeammateParticipation } from '../entities/teammate-participation.entity
 export const teammateParticipationPaginationConfig: PaginateConfig<TeammateParticipation> =
   {
     defaultSortBy: [['createdAt', 'DESC']],
-    relations: ['user', 'user.photo'],
+    relations: ['creator', 'creator.photo', 'teammate'],
     searchableColumns: ['status'],
     sortableColumns: ['createdAt', 'updatedAt'],
     defaultLimit: 20,
