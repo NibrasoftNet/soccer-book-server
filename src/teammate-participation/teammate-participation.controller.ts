@@ -30,9 +30,9 @@ import { UpdateTeammateParticipationDto } from '@/domains/teammate-paticipation/
 import { NullableType } from '../utils/types/nullable.type';
 
 @ApiBearerAuth()
-@ApiTags('Participation-to-team')
+@ApiTags('Teammate-participations')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
-@Controller({ version: '1', path: 'teammate-participation' })
+@Controller({ version: '1', path: 'teammate-participations' })
 export class TeammateParticipationController {
   constructor(
     private readonly teammateParticipationService: TeammateParticipationService,
