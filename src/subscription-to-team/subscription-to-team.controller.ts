@@ -7,7 +7,6 @@ import {
   Delete,
   Put,
   UseGuards,
-  ParseIntPipe,
   Request,
   UseInterceptors,
   HttpCode,
@@ -43,8 +42,8 @@ export class SubscriptionToTeamController {
   @HttpCode(HttpStatus.CREATED)
   @Post('teams/:teamId/users/:userId')
   async addMember(
-    @Param('teamId', ParseIntPipe) teamId: string,
-    @Param('userId', ParseIntPipe) userId: string,
+    @Param('teamId') teamId: string,
+    @Param('userId') userId: string,
   ): Promise<SubscriptionToTeam> {
     return await this.subscriptionToTeamService.addMember(teamId, userId);
   }
