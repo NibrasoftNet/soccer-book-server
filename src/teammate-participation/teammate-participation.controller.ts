@@ -11,7 +11,6 @@ import {
   HttpCode,
   HttpStatus,
   Request,
-  ParseIntPipe,
 } from '@nestjs/common';
 import { TeammateParticipationService } from './teammate-participation.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -47,7 +46,7 @@ export class TeammateParticipationController {
   @Post('teammate/:teammateId')
   async create(
     @Request() request,
-    @Param('teammateId', ParseIntPipe) teammateId: string,
+    @Param('teammateId') teammateId: string,
   ): Promise<TeammateParticipation> {
     return await this.teammateParticipationService.create(
       request.user,
