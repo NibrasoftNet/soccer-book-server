@@ -74,29 +74,7 @@ export class CreateNotificationDto {
   @IsDate({ each: true })
   scheduledNotification?: Date[] | null;
 
-  constructor({
-    title,
-    message,
-    forAllUsers,
-    typeOfSending,
-    users,
-    punctualSendDate,
-    scheduledNotification,
-  }: {
-    title: string;
-    message?: string;
-    forAllUsers: boolean;
-    typeOfSending: NotificationTypeOfSendingEnum;
-    users: UserDto[];
-    punctualSendDate?: Date;
-    scheduledNotification?: Date[];
-  }) {
-    this.title = title;
-    this.message = message;
-    this.forAllUsers = forAllUsers;
-    this.typeOfSending = typeOfSending;
-    this.users = users;
-    this.punctualSendDate = punctualSendDate;
-    this.scheduledNotification = scheduledNotification;
+  constructor(data: Partial<CreateNotificationDto>) {
+    Object.assign(this, data);
   }
 }
