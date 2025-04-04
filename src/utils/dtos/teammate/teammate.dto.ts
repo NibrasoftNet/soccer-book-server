@@ -2,7 +2,7 @@ import { AutoMap } from 'automapper-classes';
 import { EntityHelperDto } from '../general/entity-helper.dto';
 import { UserDto } from '@/domains/user/user.dto';
 import { Expose } from 'class-transformer';
-import { ComplexDto } from '@/domains/complex/complex.dto';
+import { ReservationDto } from '@/domains/reservation/reservation.dto';
 
 export class TeammateDto extends EntityHelperDto {
   @AutoMap()
@@ -13,17 +13,17 @@ export class TeammateDto extends EntityHelperDto {
   @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
   creator: UserDto;
 
-  @AutoMap(() => ComplexDto)
+  @AutoMap(() => ReservationDto)
   @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
-  complex: ComplexDto;
-
-  @AutoMap()
-  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
-  matchDateTime: Date;
+  reservation: ReservationDto;
 
   @AutoMap()
   @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
   requiredPlayers: number;
+
+  @AutoMap()
+  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
+  totalAccepted: number;
 
   @AutoMap()
   @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })

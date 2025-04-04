@@ -3,7 +3,13 @@ import { Teammate } from '../entities/teammate.entity';
 
 export const teammatePaginationConfig: PaginateConfig<Teammate> = {
   defaultSortBy: [['createdAt', 'DESC']],
-  relations: ['creator', 'creator.photo', 'complex', 'complex.address'],
+  relations: [
+    'creator',
+    'creator.photo',
+    'reservation',
+    'reservation.complex',
+    'reservation.complex.address',
+  ],
   searchableColumns: ['preferences'],
   sortableColumns: ['createdAt', 'updatedAt', 'preferences'],
   defaultLimit: 20,
@@ -12,6 +18,6 @@ export const teammatePaginationConfig: PaginateConfig<Teammate> = {
   filterableColumns: {
     isFilled: [FilterOperator.EQ, FilterSuffix.NOT],
     requiredPlayers: [FilterOperator.EQ, FilterSuffix.NOT],
-    'complex.address.city': [FilterOperator.EQ, FilterSuffix.NOT],
+    'reservation.complex.address.city': [FilterOperator.EQ, FilterSuffix.NOT],
   },
 };

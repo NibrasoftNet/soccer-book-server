@@ -6,7 +6,7 @@ export class UpdateTeammateDto extends PartialType(CreateTeammateDto) {
   @ApiProperty()
   @IsOptional()
   @IsString()
-  complexId?: string;
+  reservationId?: string;
 
   @ApiProperty()
   @IsOptional()
@@ -21,5 +21,5 @@ export class UpdateTeammateDto extends PartialType(CreateTeammateDto) {
   @ApiProperty()
   @IsOptional()
   @IsNumber()
-  totalAccepted: number;
+  totalAccepted?: number;
 }

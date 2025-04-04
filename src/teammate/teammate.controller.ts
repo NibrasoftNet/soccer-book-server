@@ -43,15 +43,15 @@ export class TeammateController {
   @UseInterceptors(MapInterceptor(Teammate, TeammateDto))
   @Roles(RoleCodeEnum.USER)
   @HttpCode(HttpStatus.CREATED)
-  @Post('complex/:complexId')
+  @Post('reservations/:reservationId')
   async create(
     @Request() request,
-    @Param('complexId') complexId: string,
+    @Param('reservationId') reservationId: string,
     @Body() createTeammateDto: CreateTeammateDto,
   ): Promise<Teammate> {
     return await this.teammateService.create(
       request.user,
-      complexId,
+      reservationId,
       createTeammateDto,
     );
   }

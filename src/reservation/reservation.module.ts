@@ -20,5 +20,6 @@ import { NotificationModule } from '../notification/notification.module';
     ReservationService,
     ReservationSerializationProfileSerializationProfile,
   ],
+  exports: [ReservationService],
 })
 export class ReservationModule {}

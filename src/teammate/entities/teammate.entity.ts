@@ -2,8 +2,8 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { AutoMap } from 'automapper-classes';
 import EntityHelper from '../../utils/entities/entity-helper';
-import { Complex } from '../../complex/entities/complex.entity';
 import { TeammateParticipation } from '../../teammate-participation/entities/teammate-participation.entity';
+import { Reservation } from '../../reservation/entities/reservation.entity';
 
 @Entity()
 export class Teammate extends EntityHelper {
@@ -15,13 +15,9 @@ export class Teammate extends EntityHelper {
   @ManyToOne(() => User, { eager: true })
   creator: User;
 
-  @AutoMap(() => Complex)
-  @ManyToOne(() => Complex, { eager: true })
-  complex: Complex;
-
-  @AutoMap()
-  @Column({ type: 'timestamp' })
-  matchDateTime: Date;
+  @AutoMap(() => Reservation)
+  @ManyToOne(() => Reservation, { eager: true })
+  reservation: Reservation;
 
   @AutoMap()
   @Column({ type: 'int', default: 1 })
