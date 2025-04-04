@@ -7,8 +7,8 @@ export const teammatePaginationConfig: PaginateConfig<Teammate> = {
     'creator',
     'creator.photo',
     'reservation',
-    'reservation.complex',
-    'reservation.complex.address',
+    'reservation.arena.complex',
+    'reservation.arena.complex.address',
   ],
   searchableColumns: ['preferences'],
   sortableColumns: ['createdAt', 'updatedAt', 'preferences'],
@@ -18,6 +18,9 @@ export const teammatePaginationConfig: PaginateConfig<Teammate> = {
   filterableColumns: {
     isFilled: [FilterOperator.EQ, FilterSuffix.NOT],
     requiredPlayers: [FilterOperator.EQ, FilterSuffix.NOT],
-    'reservation.complex.address.city': [FilterOperator.EQ, FilterSuffix.NOT],
+    'reservation.arena.complex.address.city': [
+      FilterOperator.EQ,
+      FilterSuffix.NOT,
+    ],
   },
 };
