@@ -64,7 +64,7 @@ export class TeammateService {
     const teammates = await this.teammateRepository
       .createQueryBuilder('teammate')
       .leftJoinAndSelect('teammate.creator', 'creator')
-      .leftJoinAndSelect('creator.image', 'image')
+      .leftJoinAndSelect('creator.photo', 'photo')
       .leftJoinAndSelect('teammate.reservation', 'reservation')
       .leftJoinAndSelect('reservation.arena', 'arena')
       .leftJoinAndSelect('arena.complex', 'complex')
