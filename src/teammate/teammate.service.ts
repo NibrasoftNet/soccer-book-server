@@ -15,6 +15,8 @@ import { paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 import { teammatePaginationConfig } from './config/teammate-pagination-config';
 import { NullableType } from '../utils/types/nullable.type';
 import { ReservationService } from '../reservation/reservation.service';
+import { ProximityQueryDto } from '@/domains/complex/proximity-query.dto';
+import { WinstonLoggerService } from '../logger/winston-logger.service';
 
 @Injectable()
 export class TeammateService {
@@ -23,6 +25,7 @@ export class TeammateService {
     private readonly teammateRepository: Repository<Teammate>,
     private readonly usersService: UsersService,
     private readonly reservationService: ReservationService,
+    private readonly logger: WinstonLoggerService,
   ) {}
 
   async create(
@@ -48,6 +51,36 @@ export class TeammateService {
       this.teammateRepository,
       teammatePaginationConfig,
     );
+  }
+
+  async findAllWithDistance(
+    proximityQueryDto: ProximityQueryDto,
+  ): Promise<Teammate[]> {
+    const stopWatching = this.logger.watch('teammates-findAllWithDistance', {
+      description: `find All teammates With Distance`,
+      class: TeammateService.name,
+      function: 'findAllWithDistance',
+    });
+    const teammates = await this.teammateRepository
+      .createQueryBuilder('teammate')
+      .leftJoinAndSelect('teammate.creator', 'creator')
+      .leftJoinAndSelect('creator.image', 'image')
+      .leftJoinAndSelect('teammate.reservation', 'reservation')
+      .leftJoinAndSelect('reservation.arena', 'arena')
+      .leftJoinAndSelect('arena.complex', 'complex')
+      .leftJoinAndSelect('complex.address', 'address')
+      .where(
+        'ST_DWithin(ST_SetSRID(ST_MakePoint( :userLatitude, :userLongitude),4326)::geography, ST_SetSRID(ST_MakePoint(address.latitude, address.longitude),4326)::geography, :distance)',
+      )
+      .setParameters({
+        userLongitude: proximityQueryDto.longitude,
+        userLatitude: proximityQueryDto.latitude,
+        distance: proximityQueryDto.distance,
+      })
+      .getMany();
+
+    stopWatching();
+    return teammates;
   }
 
   async findAllMe(userJwtPayload: JwtPayloadType, query: PaginateQuery) {

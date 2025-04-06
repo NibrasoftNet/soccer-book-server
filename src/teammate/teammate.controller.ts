@@ -11,6 +11,7 @@ import {
   HttpStatus,
   Request,
   Put,
+  Query,
 } from '@nestjs/common';
 import { TeammateService } from './teammate.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -29,6 +30,7 @@ import { teammatePaginationConfig } from './config/teammate-pagination-config';
 import { UpdateTeammateDto } from '@/domains/teammate/update-teammate.dto';
 import { NullableType } from '../utils/types/nullable.type';
 import { IsCreatorPipe } from '../utils/pipes/is-creator.pipe';
+import { ProximityQueryDto } from '@/domains/complex/proximity-query.dto';
 
 @ApiTags('Teammate')
 @ApiBearerAuth()
@@ -70,6 +72,18 @@ export class TeammateController {
       Teammate,
       TeammateDto,
     );
+  }
+
+  @Roles(RoleCodeEnum.ADMIN, RoleCodeEnum.USER, RoleCodeEnum.SUPERADMIN)
+  @UseInterceptors(MapInterceptor(Teammate, TeammateDto, { isArray: true }))
+  @HttpCode(HttpStatus.OK)
+  @Get('list-with-distance')
+  async findAllWithDistance(
+    @Query() proximityQueryDto: ProximityQueryDto,
+  ): Promise<TeammateDto[]> {
+    const teammates =
+      await this.teammateService.findAllWithDistance(proximityQueryDto);
+    return this.mapper.mapArray(teammates, Teammate, TeammateDto);
   }
 
   @ApiPaginationQuery(teammatePaginationConfig)
