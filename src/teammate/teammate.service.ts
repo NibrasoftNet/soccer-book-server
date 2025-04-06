@@ -57,7 +57,7 @@ export class TeammateService {
     proximityQueryDto: ProximityQueryDto,
   ): Promise<Teammate[]> {
     const stopWatching = this.logger.watch('teammates-findAllWithDistance', {
-      description: `find All teammates With Distance`,
+      description: `find All teammates requests With Distance`,
       class: TeammateService.name,
       function: 'findAllWithDistance',
     });
