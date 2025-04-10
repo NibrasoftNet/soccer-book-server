@@ -70,4 +70,32 @@ export class Complex extends EntityHelper {
   @AutoMap()
   @Column({ default: true })
   active: boolean;
+
+  @AutoMap()
+  @Column({ default: false })
+  referee: boolean;
+
+  @AutoMap()
+  @Column({ default: false })
+  water: boolean;
+
+  @AutoMap()
+  @Column({ default: false })
+  shower: boolean;
+
+  @AutoMap()
+  @Column({ default: false })
+  towels: boolean;
+
+  @AutoMap()
+  @Column({ default: false })
+  parking: boolean;
+
+  @AutoMap()
+  @Column({ default: true })
+  room: boolean;
+
+  @AutoMap()
+  @Column({ default: false })
+  recording: boolean;
 }

@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, Matches, ValidateNested } from 'class-validator';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Matches,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { CreateAddressDto } from '@/domains/address/create-address.dto';
 
@@ -36,23 +43,76 @@ export class CreateComplexDto {
   })
   closeTime: string;
 
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
+  referee?: boolean;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
+  water?: boolean;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
+  shower?: boolean;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
+  towels?: boolean;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
+  parking?: boolean;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
+  room?: boolean;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
+  recording?: boolean;
+
   constructor({
     name,
     description,
     address,
     openTime,
     closeTime,
+    referee,
+    water,
+    shower,
+    parking,
+    room,
+    recording,
   }: {
     name: string;
     description: string;
     address: CreateAddressDto;
     openTime: string;
     closeTime: string;
+    referee?: boolean;
+    water?: boolean;
+    shower?: boolean;
+    parking?: boolean;
+    room?: boolean;
+    recording?: boolean;
   }) {
     this.name = name;
     this.description = description;
     this.address = address;
     this.openTime = openTime;
     this.closeTime = closeTime;
+    this.referee = referee;
+    this.water = water;
+    this.shower = shower;
+    this.parking = parking;
+    this.room = room;
+    this.recording = recording;
   }
 }
