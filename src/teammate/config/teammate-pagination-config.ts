@@ -19,6 +19,7 @@ export const teammatePaginationConfig: PaginateConfig<Teammate> = {
     isFilled: [FilterOperator.EQ, FilterSuffix.NOT],
     requiredPlayers: [FilterOperator.EQ, FilterSuffix.NOT],
     'creator.id': [FilterOperator.EQ, FilterSuffix.NOT],
+    'reservation.arena.complex.id': [FilterOperator.EQ, FilterSuffix.NOT],
     'reservation.arena.complex.address.city': [
       FilterOperator.EQ,
       FilterSuffix.NOT,
