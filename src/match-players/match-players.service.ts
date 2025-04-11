@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   DeepPartial,
+  EntityManager,
   FindOptionsRelations,
   FindOptionsWhere,
   Repository,
@@ -42,6 +43,31 @@ export class MatchPlayersService {
       id: matchId,
     });
     return this.matchPlayerRepository.save(player);
+  }
+
+  async createMany(
+    matchId: string,
+    createMatchPlayerDtos: CreateMatchPlayerDto[],
+  ): Promise<MatchPlayer[]> {
+    return await this.matchPlayerRepository.manager.transaction(
+      async (entityManager: EntityManager) => {
+        const match = await this.matchService.findOneOrFail({ id: matchId });
+        const players: MatchPlayer[] = [];
+
+        for (const dto of createMatchPlayerDtos) {
+          const player = entityManager.create(
+            MatchPlayer,
+            dto as DeepPartial<MatchPlayer>,
+          );
+          player.user = await this.userService.findOneOrFail({
+            id: dto.userId,
+          });
+          player.match = match;
+          players.push(player);
+        }
+        return entityManager.save(players);
+      },
+    );
   }
 
   async findAll(query: PaginateQuery): Promise<Paginated<MatchPlayer>> {

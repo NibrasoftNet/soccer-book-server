@@ -52,6 +52,22 @@ export class MatchPlayersController {
     return await this.matchPlayersService.create(matchId, createMatchPlayerDto);
   }
 
+  @UseInterceptors(
+    MapInterceptor(MatchPlayer, MatchPlayerDto, { isArray: true }),
+  )
+  @Roles(RoleCodeEnum.USER)
+  @HttpCode(HttpStatus.CREATED)
+  @Post('matches/:matchId/bulk')
+  async createMany(
+    @Param('matchId') matchId: string,
+    @Body() createMatchPlayerDtos: CreateMatchPlayerDto[],
+  ): Promise<MatchPlayer[]> {
+    return await this.matchPlayersService.createMany(
+      matchId,
+      createMatchPlayerDtos,
+    );
+  }
+
   @ApiPaginationQuery(matchPlayersPaginationConfig)
   @Roles(RoleCodeEnum.USER, RoleCodeEnum.ADMIN, RoleCodeEnum.SUPERADMIN)
   @HttpCode(HttpStatus.OK)
