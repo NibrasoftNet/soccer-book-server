@@ -61,10 +61,10 @@ export class MatchService {
   ): Promise<Paginated<Match>> {
     const queryBuilder = this.matchRepository
       .createQueryBuilder('teamReservation')
-      .leftJoinAndSelect('teamReservation.home', 'home')
-      .leftJoinAndSelect('home.creator', 'creator')
       .leftJoinAndSelect('teamReservation.arena', 'arena')
-      .where('creator.id = :id', { id: userJwtPayload.id });
+      .leftJoinAndSelect('teamReservation.players', 'players')
+      .leftJoinAndSelect('players.user', 'user')
+      .where('user.id = :id', { id: userJwtPayload.id });
 
     return await paginate<Match>(query, queryBuilder, matchPaginationConfig);
   }
