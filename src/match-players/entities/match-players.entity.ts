@@ -33,6 +33,10 @@ export class MatchPlayer extends EntityHelper {
   accepted: boolean;
 
   @AutoMap()
+  @Column({ default: false })
+  isOrganizer: boolean;
+
+  @AutoMap()
   @Column({ default: 0 })
   goals: number;
 }

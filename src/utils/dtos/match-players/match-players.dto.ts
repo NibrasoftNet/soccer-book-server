@@ -33,5 +33,9 @@ export class MatchPlayerDto extends EntityHelperDto {
 
   @ApiProperty()
   @AutoMap()
+  isOrganizer: boolean;
+
+  @ApiProperty()
+  @AutoMap()
   goals: number;
 }
