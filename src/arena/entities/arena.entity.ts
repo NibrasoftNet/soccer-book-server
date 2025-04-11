@@ -14,6 +14,7 @@ import { ArenaCategory } from '../../arena-category/entities/arena-category.enti
 import { Reservation } from '../../reservation/entities/reservation.entity';
 import { Complex } from '../../complex/entities/complex.entity';
 import { ArenaTestimonial } from '../../arena-testimonials/entities/arena-testimonial.entity';
+import { TeamReservation } from '../../team-reservation/entities/team-reservation.entity';
 
 @Entity()
 export class Arena extends EntityHelper {
@@ -76,6 +77,17 @@ export class Arena extends EntityHelper {
     eager: true,
   })
   reservations: Reservation[];
+
+  @AutoMap(() => [TeamReservation])
+  @OneToMany(
+    () => TeamReservation,
+    (teamReservation) => teamReservation.arena,
+    {
+      nullable: true,
+      eager: true,
+    },
+  )
+  teamReservations: TeamReservation[];
 
   @AutoMap(() => [ArenaTestimonial])
   @OneToMany(() => ArenaTestimonial, (testimonial) => testimonial.arena, {

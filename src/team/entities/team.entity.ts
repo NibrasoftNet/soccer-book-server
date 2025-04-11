@@ -11,6 +11,7 @@ import { AutoMap } from 'automapper-classes';
 import { FileEntity } from '../../files/entities/file.entity';
 import { SubscriptionToTeam } from '../../subscription-to-team/entities/subscription-to-team.entity';
 import { TournamentParticipation } from '../../tournament-participation/entities/tournament-participation.entity';
+import { TeamReservation } from '../../team-reservation/entities/team-reservation.entity';
 
 @Entity()
 export class Team extends EntityHelper {
@@ -61,4 +62,20 @@ export class Team extends EntityHelper {
     (participation) => participation.team,
   )
   participations: TournamentParticipation[];
+
+  @AutoMap(() => [TeamReservation])
+  @OneToMany(() => TeamReservation, (reservation) => reservation.home)
+  homeReservation: TeamReservation[];
+
+  @AutoMap(() => [TeamReservation])
+  @OneToMany(() => TeamReservation, (reservation) => reservation.away)
+  awayReservation: TeamReservation[];
+
+  @AutoMap()
+  @Column({ default: 0 })
+  winCount: number;
+
+  @AutoMap()
+  @Column({ default: 0 })
+  lossCount: number;
 }
