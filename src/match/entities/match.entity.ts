@@ -38,6 +38,7 @@ export class Match extends EntityHelperDto {
   @AutoMap(() => [MatchPlayer])
   @OneToMany(() => MatchPlayer, (matchPlayer) => matchPlayer.match, {
     cascade: true,
+    nullable: true,
   })
   players: MatchPlayer[];
 

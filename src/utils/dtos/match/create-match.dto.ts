@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { UserDto } from '@/domains/user/user.dto';
-import { IsNotEmpty, IsNumber, IsString, ValidateIf } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, ValidateIf } from 'class-validator';
+import { MatchPlayerDto } from '@/domains/match-players/match-players.dto';
 
 export class CreateMatchDto {
   @ApiProperty()
@@ -12,14 +12,10 @@ export class CreateMatchDto {
   @ApiProperty()
   @ValidateIf((dto) => !dto.reservationId)
   @IsNotEmpty()
-  @IsNumber()
+  @IsString()
   teamReservationId?: string;
 
   @ApiProperty()
-  @IsNotEmpty()
-  home: [UserDto];
-
-  @ApiProperty()
-  @IsNotEmpty()
-  away: [UserDto];
+  @IsOptional()
+  players?: [MatchPlayerDto];
 }
