@@ -1,6 +1,5 @@
 import { AutoMap } from 'automapper-classes';
 import { WinnerEnum } from '@/enums/team-reservation/winner.enum';
-import { EntityHelperDto } from '@/domains/general/entity-helper.dto';
 import {
   Column,
   Entity,
@@ -9,12 +8,12 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { TeamReservation } from '../../team-reservation/entities/team-reservation.entity';
 import { Reservation } from '../../reservation/entities/reservation.entity';
 import { MatchPlayer } from '../../match-players/entities/match-players.entity';
+import EntityHelper from '../../utils/entities/entity-helper';
 
 @Entity()
-export class Match extends EntityHelperDto {
+export class Match extends EntityHelper {
   @AutoMap()
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -27,14 +26,6 @@ export class Match extends EntityHelperDto {
   @JoinColumn()
   reservation: Reservation;
 
-  @AutoMap(() => TeamReservation)
-  @OneToOne(() => TeamReservation, (teamReservation) => teamReservation.id, {
-    eager: true,
-    nullable: true,
-  })
-  @JoinColumn()
-  teamReservation: TeamReservation;
-
   @AutoMap(() => [MatchPlayer])
   @OneToMany(() => MatchPlayer, (matchPlayer) => matchPlayer.match, {
     cascade: true,
@@ -43,14 +34,14 @@ export class Match extends EntityHelperDto {
   players: MatchPlayer[];
 
   @AutoMap()
-  @Column()
+  @Column({ default: 0 })
   homeScore: number;
 
   @AutoMap()
-  @Column()
+  @Column({ default: 0 })
   awayScore: number;
 
   @AutoMap()
-  @Column()
+  @Column({ default: WinnerEnum.DRAW })
   winner: WinnerEnum;
 }

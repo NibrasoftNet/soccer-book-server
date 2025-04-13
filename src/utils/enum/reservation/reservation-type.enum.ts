@@ -5,3 +5,8 @@ export enum ReservationTypeEnum {
   REJECTED = 'REJECTED',
   ACCEPTED_NOT_PAID = 'ACCEPTED_NOT_PAID',
 }
+
+export enum ReservationCreatorEnum {
+  SINGLE = 'SINGLE',
+  TEAM = 'TEAM',
+}

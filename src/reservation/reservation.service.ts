@@ -27,6 +27,7 @@ import { UserDto } from '@/domains/user/user.dto';
 import { InjectMapper } from 'automapper-nestjs';
 import { Mapper } from 'automapper-core';
 import { User } from '../users/entities/user.entity';
+import { TeamService } from '../team/team.service';
 
 @Injectable()
 export class ReservationService {
@@ -35,6 +36,7 @@ export class ReservationService {
     private readonly reservationRepository: Repository<Reservation>,
     private readonly usersService: UsersService,
     private readonly arenaService: ArenaService,
+    private readonly teamService: TeamService,
     private readonly notificationService: NotificationService,
     @InjectMapper() private readonly mapper: Mapper,
   ) {}
@@ -43,8 +45,9 @@ export class ReservationService {
     arenaId: string,
     createReservationDto: CreateReservationDto,
   ): Promise<Reservation> {
+    const { homeId, awayId, ...filteredReservationDto } = createReservationDto;
     const reservation = this.reservationRepository.create(
-      createReservationDto as DeepPartial<Reservation>,
+      filteredReservationDto as DeepPartial<Reservation>,
     );
     reservation.user = await this.usersService.findOneOrFail({
       id: userJwtPayload.id,
@@ -52,6 +55,14 @@ export class ReservationService {
     reservation.arena = await this.arenaService.findOneOrFail({
       id: arenaId,
     });
+    if (homeId && awayId) {
+      reservation.home = await this.teamService.findOneOrFail({
+        id: homeId,
+      });
+      reservation.away = await this.teamService.findOneOrFail({
+        id: awayId,
+      });
+    }
     return this.reservationRepository.save(reservation);
   }
 
@@ -71,6 +82,8 @@ export class ReservationService {
       .createQueryBuilder('reservation')
       .leftJoinAndSelect('reservation.user', 'user')
       .leftJoinAndSelect('reservation.arena', 'arena')
+      .leftJoinAndSelect('reservation.home', 'home')
+      .leftJoinAndSelect('reservation.away', 'away')
       .where('user.id = :id', { id: userJwtPayload.id });
 
     return await paginate<Reservation>(

@@ -6,7 +6,6 @@ import { ReservationDto } from '@/domains/reservation/reservation.dto';
 import { ComplexDto } from '@/domains/complex/complex.dto';
 import { ArenaTestimonialDto } from '@/domains/arena-testimonials/arena-testimonial.dto';
 import { Expose } from 'class-transformer';
-import { TeamReservationDto } from '@/domains/team-reservation/team-reservation.dto';
 
 export class ArenaDto extends EntityHelperDto {
   @AutoMap()
@@ -60,8 +59,4 @@ export class ArenaDto extends EntityHelperDto {
   @AutoMap(() => [ArenaTestimonialDto])
   @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
   testimonials: ArenaTestimonialDto[];
-
-  @AutoMap(() => [TeamReservationDto])
-  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
-  teamReservations: TeamReservationDto[];
 }

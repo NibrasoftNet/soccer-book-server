@@ -3,7 +3,11 @@ import { AutoMap } from 'automapper-classes';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Arena } from '../../arena/entities/arena.entity';
-import { ReservationTypeEnum } from '@/enums/reservation/reservation-type.enum';
+import {
+  ReservationCreatorEnum,
+  ReservationTypeEnum,
+} from '@/enums/reservation/reservation-type.enum';
+import { Team } from '../../team/entities/team.entity';
 
 @Entity()
 export class Reservation extends EntityHelper {
@@ -14,6 +18,14 @@ export class Reservation extends EntityHelper {
   @AutoMap(() => User)
   @ManyToOne(() => User, (user) => user.reservations)
   user: User;
+
+  @AutoMap(() => Team)
+  @ManyToOne(() => Team, { nullable: true, onDelete: 'CASCADE' })
+  home: Team;
+
+  @AutoMap(() => Team)
+  @ManyToOne(() => Team, { nullable: true, onDelete: 'CASCADE' })
+  away: Team;
 
   @AutoMap(() => Arena)
   @ManyToOne(() => Arena, (arena) => arena.reservations)
@@ -38,4 +50,12 @@ export class Reservation extends EntityHelper {
     default: ReservationTypeEnum.PENDING,
   })
   status: ReservationTypeEnum;
+
+  @AutoMap()
+  @Column({
+    type: 'enum',
+    enum: ReservationCreatorEnum,
+    default: ReservationCreatorEnum.SINGLE,
+  })
+  type: ReservationCreatorEnum;
 }

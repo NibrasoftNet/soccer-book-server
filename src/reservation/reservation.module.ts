@@ -7,12 +7,14 @@ import { Reservation } from './entities/reservation.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ReservationSerializationProfileSerializationProfile } from './serialization/reservation-serialization.profile';
 import { NotificationModule } from '../notification/notification.module';
+import { TeamModule } from '../team/team.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Reservation]),
     UsersModule,
     ArenaModule,
+    TeamModule,
     NotificationModule,
   ],
   controllers: [ReservationController],

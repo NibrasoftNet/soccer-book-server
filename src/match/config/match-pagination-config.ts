@@ -3,7 +3,7 @@ import { Match } from '../entities/match.entity';
 
 export const matchPaginationConfig: PaginateConfig<Match> = {
   defaultSortBy: [['createdAt', 'DESC']],
-  relations: ['home', 'away', 'arena'],
+  relations: ['reservation', 'players'],
   searchableColumns: ['winner'],
   sortableColumns: ['createdAt', 'updatedAt', 'winner'],
   defaultLimit: 100,

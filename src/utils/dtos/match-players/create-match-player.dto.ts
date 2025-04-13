@@ -9,12 +9,12 @@ export class CreateMatchPlayerDto {
   @IsString()
   userId: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: PlayerPositionEnum.MF })
   @IsNotEmpty()
   @IsEnum(PlayerPositionEnum)
   position: PlayerPositionEnum;
 
-  @ApiProperty()
+  @ApiProperty({ example: PlayerSideEnum.HOME })
   @IsNotEmpty()
   @IsEnum(PlayerSideEnum)
   side: PlayerSideEnum;

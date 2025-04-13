@@ -52,7 +52,6 @@ import { ArenaTestimonialsModule } from './arena-testimonials/arena-testimonials
 import { ChatModule } from './chat/chat.module';
 import { ComplexModule } from './complex/complex.module';
 import { TeammateParticipationModule } from './teammate-participation/teammate-participation.module';
-import { TeamReservationModule } from './team-reservation/team-reservation.module';
 import { MatchModule } from './match/match.module';
 import { MatchPlayersModule } from './match-players/match-players.module';
 
@@ -172,7 +171,6 @@ import { MatchPlayersModule } from './match-players/match-players.module';
     ChatModule,
     ComplexModule,
     TeammateParticipationModule,
-    TeamReservationModule,
     MatchModule,
     MatchPlayersModule,
   ],

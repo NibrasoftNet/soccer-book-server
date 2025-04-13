@@ -14,7 +14,6 @@ import { Mapper } from 'automapper-core';
 import { JwtPayloadType } from '../auth/strategies/types/jwt-payload.type';
 import { Match } from './entities/match.entity';
 import { ReservationService } from '../reservation/reservation.service';
-import { TeamReservationService } from '../team-reservation/team-reservation.service';
 import { CreateMatchDto } from '@/domains/match/create-match.dto';
 import { UpdateMatchDto } from '@/domains/match/update-match.dto';
 
@@ -24,26 +23,19 @@ export class MatchService {
     @InjectRepository(Match)
     private readonly matchRepository: Repository<Match>,
     private readonly reservationService: ReservationService,
-    private readonly teamReservationService: TeamReservationService,
     //private readonly notificationService: NotificationService,
     @InjectMapper() private readonly mapper: Mapper,
   ) {}
-  async create(createMatchDto: CreateMatchDto): Promise<Match> {
-    const { reservationId, teamReservationId, ...filteredCreateMatchDto } =
-      createMatchDto;
+  async create(
+    reservationId: string,
+    createMatchDto: CreateMatchDto,
+  ): Promise<Match> {
     const match = this.matchRepository.create(
-      filteredCreateMatchDto as DeepPartial<Match>,
+      createMatchDto as DeepPartial<Match>,
     );
-    if (reservationId) {
-      match.reservation = await this.reservationService.findOneOrFail({
-        id: reservationId,
-      });
-    }
-    if (teamReservationId) {
-      match.teamReservation = await this.teamReservationService.findOneOrFail({
-        id: teamReservationId,
-      });
-    }
+    match.reservation = await this.reservationService.findOneOrFail({
+      id: reservationId,
+    });
     return this.matchRepository.save(match);
   }
 
@@ -60,10 +52,9 @@ export class MatchService {
     @Paginate() query: PaginateQuery,
   ): Promise<Paginated<Match>> {
     const queryBuilder = this.matchRepository
-      .createQueryBuilder('teamReservation')
-      .leftJoinAndSelect('teamReservation.arena', 'arena')
-      .leftJoinAndSelect('teamReservation.players', 'players')
-      .leftJoinAndSelect('players.user', 'user')
+      .createQueryBuilder('match')
+      .leftJoinAndSelect('match.reservation', 'reservation')
+      .leftJoinAndSelect('reservation.user', 'user')
       .where('user.id = :id', { id: userJwtPayload.id });
 
     return await paginate<Match>(query, queryBuilder, matchPaginationConfig);

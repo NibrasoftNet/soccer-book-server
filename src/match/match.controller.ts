@@ -44,9 +44,12 @@ export class MatchController {
   @UseInterceptors(MapInterceptor(Match, MatchDto))
   @Roles(RoleCodeEnum.USER)
   @HttpCode(HttpStatus.CREATED)
-  @Post()
-  async create(@Body() createMatchDto: CreateMatchDto): Promise<Match> {
-    return await this.matchService.create(createMatchDto);
+  @Post('reservations/:reservationId')
+  async create(
+    @Param('reservationId') reservationId: string,
+    @Body() createMatchDto: CreateMatchDto,
+  ): Promise<Match> {
+    return await this.matchService.create(reservationId, createMatchDto);
   }
 
   @ApiPaginationQuery(matchPaginationConfig)
