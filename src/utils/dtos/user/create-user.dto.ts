@@ -78,6 +78,11 @@ export class CreateUserDto {
   @IsOptional()
   notificationsToken?: string;
 
+  @ApiProperty({ example: '0021658741369' })
+  @IsOptional()
+  @IsString()
+  whatsApp?: string;
+
   constructor({
     email,
     role,
@@ -88,6 +93,7 @@ export class CreateUserDto {
     password,
     provider,
     socialId,
+    whatsApp,
   }: {
     email: string;
     role: RoleDto;
@@ -98,6 +104,7 @@ export class CreateUserDto {
     password?: string;
     provider?: string;
     socialId?: string | null;
+    whatsApp?: string;
   }) {
     this.email = email;
     this.role = role;
@@ -108,5 +115,6 @@ export class CreateUserDto {
     this.password = password;
     this.provider = provider;
     this.socialId = socialId;
+    this.whatsApp = whatsApp;
   }
 }
