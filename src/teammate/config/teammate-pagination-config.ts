@@ -10,6 +10,7 @@ export const teammatePaginationConfig: PaginateConfig<Teammate> = {
     'reservation.arena.complex',
     'reservation.arena.complex.address',
     'participations',
+    'participations.creator',
   ],
   searchableColumns: ['preferences'],
   sortableColumns: ['createdAt', 'updatedAt', 'preferences'],
