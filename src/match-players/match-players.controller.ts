@@ -13,7 +13,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { MatchPlayersService } from './match-players.service';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { InjectMapper, MapInterceptor } from 'automapper-nestjs';
 import { Mapper } from 'automapper-core';
 import { AuthGuard } from '@nestjs/passport';
@@ -52,6 +52,7 @@ export class MatchPlayersController {
     return await this.matchPlayersService.create(matchId, createMatchPlayerDto);
   }
 
+  @ApiBody({ type: CreateMatchPlayerDto, isArray: true })
   @UseInterceptors(
     MapInterceptor(MatchPlayer, MatchPlayerDto, { isArray: true }),
   )
