@@ -45,6 +45,7 @@ export class Teammate extends EntityHelper {
   @OneToMany(
     () => TeammateParticipation,
     (teammateParticipation) => teammateParticipation.teammate,
+    { eager: true, nullable: true },
   )
   participations: TeammateParticipation[];
 
