@@ -13,6 +13,7 @@ export class TeammateParticipation extends EntityHelper {
 
   @AutoMap(() => User)
   @ManyToOne(() => User, {
+    eager: true,
     onDelete: 'CASCADE',
   })
   creator: User;
