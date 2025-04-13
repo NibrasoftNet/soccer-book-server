@@ -39,4 +39,7 @@ export class UserDto extends EntityHelperDto {
 
   @AutoMap(() => UserSocketDto)
   socket: UserSocketDto;
+
+  @AutoMap()
+  whatsApp: string;
 }

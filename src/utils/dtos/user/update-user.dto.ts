@@ -2,7 +2,13 @@ import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { CreateUserDto } from './create-user.dto';
 
 import { Transform } from 'class-transformer';
-import { IsEmail, IsOptional, MinLength, Validate } from 'class-validator';
+import {
+  IsEmail,
+  IsOptional,
+  IsString,
+  MinLength,
+  Validate,
+} from 'class-validator';
 import { lowerCaseTransformer } from '../../transformers/lower-case.transformer';
 import { IsNotExist } from '../../validators/is-not-exists.validator';
 import { FileDto } from '@/domains/files/file.dto';
@@ -45,6 +51,11 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
   @IsOptional()
   @Validate(IsExist, ['Status', 'id', 'validation.statusNotExists'])
   status?: StatusesDto;
+
+  @ApiProperty({ example: '0021658741369' })
+  @IsOptional()
+  @IsString()
+  whatsApp?: string;
 
   hash?: string | null;
 }

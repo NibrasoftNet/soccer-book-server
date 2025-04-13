@@ -114,6 +114,10 @@ export class User extends EntityHelper {
   })
   reservations: Reservation[];
 
+  @AutoMap()
+  @Column({ nullable: true })
+  whatsApp: string;
+
   @AutoMap(() => UserSocket)
   @OneToOne(() => UserSocket, (socket) => socket.user, {
     eager: true,
