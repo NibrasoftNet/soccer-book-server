@@ -3,6 +3,7 @@ import { EntityHelperDto } from '../general/entity-helper.dto';
 import { UserDto } from '@/domains/user/user.dto';
 import { Expose } from 'class-transformer';
 import { ReservationDto } from '@/domains/reservation/reservation.dto';
+import { TeammateParticipationDto } from '@/domains/teammate-paticipation/teammate-participation.dto';
 
 export class TeammateDto extends EntityHelperDto {
   @AutoMap()
@@ -32,4 +33,12 @@ export class TeammateDto extends EntityHelperDto {
   @AutoMap()
   @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
   isFilled: boolean;
+
+  @AutoMap(() => [TeammateParticipationDto])
+  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
+  participations: TeammateParticipationDto[];
+
+  @AutoMap()
+  @Expose({ groups: ['ADMIN', 'USER', 'SUPERADMIN'] })
+  active: boolean;
 }

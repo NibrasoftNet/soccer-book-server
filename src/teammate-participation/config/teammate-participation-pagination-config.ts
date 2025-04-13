@@ -13,5 +13,6 @@ export const teammateParticipationPaginationConfig: PaginateConfig<TeammateParti
     filterableColumns: {
       createdAt: [FilterOperator.EQ, FilterSuffix.NOT],
       status: [FilterOperator.EQ, FilterSuffix.NOT],
+      'teammate.id': [FilterOperator.EQ, FilterSuffix.NOT],
     },
   };

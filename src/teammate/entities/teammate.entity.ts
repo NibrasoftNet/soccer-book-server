@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { AutoMap } from 'automapper-classes';
 import EntityHelper from '../../utils/entities/entity-helper';
@@ -36,11 +42,11 @@ export class Teammate extends EntityHelper {
   isFilled: boolean;
 
   @AutoMap(() => [TeammateParticipation])
-  @ManyToOne(
+  @OneToMany(
     () => TeammateParticipation,
     (teammateParticipation) => teammateParticipation.teammate,
   )
-  participations: TeammateParticipation;
+  participations: TeammateParticipation[];
 
   @AutoMap()
   @Column({ default: true })
