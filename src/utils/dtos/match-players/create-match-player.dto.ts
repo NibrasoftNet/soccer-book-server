@@ -1,7 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsEnum, IsNotEmpty, IsString } from 'class-validator';
-import { PlayerSideEnum } from '@/enums/match-players/player-side.enum';
-import { PlayerPositionEnum } from '@/enums/match-players/player-position.enum';
+import {
+  PlayerMatchEnum,
+  PlayerSideEnum,
+} from '@/enums/match-players/player-match.enum';
 
 export class CreateMatchPlayerDto {
   @ApiProperty()
@@ -9,10 +11,10 @@ export class CreateMatchPlayerDto {
   @IsString()
   userId: string;
 
-  @ApiProperty({ example: PlayerPositionEnum.MF })
+  @ApiProperty({ example: PlayerMatchEnum.MF })
   @IsNotEmpty()
-  @IsEnum(PlayerPositionEnum)
-  position: PlayerPositionEnum;
+  @IsEnum(PlayerMatchEnum)
+  position: PlayerMatchEnum;
 
   @ApiProperty({ example: PlayerSideEnum.HOME })
   @IsNotEmpty()

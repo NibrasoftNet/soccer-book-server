@@ -29,6 +29,7 @@ import { NullableType } from '../utils/types/nullable.type';
 import { IsCreatorPipe } from '../utils/pipes/is-creator.pipe';
 import { CreateReservationDto } from '@/domains/reservation/create-reservation.dto';
 import { UpdateReservationDto } from '@/domains/reservation/update-reservation.dto';
+import { DeleteResult } from 'typeorm';
 
 @ApiTags('Reservation')
 @ApiBearerAuth()
@@ -92,7 +93,7 @@ export class ReservationController {
     );
   }
 
-  @Roles(RoleCodeEnum.ADMIN, RoleCodeEnum.USER)
+  @Roles(RoleCodeEnum.USER, RoleCodeEnum.ADMIN, RoleCodeEnum.SUPERADMIN)
   @UseInterceptors(MapInterceptor(Reservation, ReservationDto))
   @HttpCode(HttpStatus.OK)
   @Get(':id')
@@ -105,7 +106,7 @@ export class ReservationController {
   @HttpCode(HttpStatus.OK)
   @Put(':id')
   async update(
-    @Param('id', IsCreatorPipe('Reservation', 'id', 'user')) id: string,
+    @Param('id') id: string,
     @Body() updateReservationDto: UpdateReservationDto,
   ): Promise<Reservation> {
     return await this.reservationService.update(id, updateReservationDto);
@@ -124,7 +125,7 @@ export class ReservationController {
   @Delete(':id')
   async remove(
     @Param('id', IsCreatorPipe('Reservation', 'id', 'creator')) id: string,
-  ) {
+  ): Promise<DeleteResult> {
     return await this.reservationService.remove(id);
   }
 }

@@ -1,10 +1,13 @@
 import { AutoMap } from 'automapper-classes';
 import { Entity, ManyToOne, PrimaryGeneratedColumn, Column } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
-import { PlayerPositionEnum } from '@/enums/match-players/player-position.enum';
+import {
+  PlayerSideEnum,
+  PlayerInvitationStatusEnum,
+  PlayerMatchEnum,
+} from '@/enums/match-players/player-match.enum';
 import EntityHelper from '../../utils/entities/entity-helper';
 import { Match } from '../../match/entities/match.entity';
-import { PlayerSideEnum } from '@/enums/match-players/player-side.enum';
 
 @Entity()
 export class MatchPlayer extends EntityHelper {
@@ -21,16 +24,16 @@ export class MatchPlayer extends EntityHelper {
   match: Match;
 
   @AutoMap()
-  @Column({ default: PlayerPositionEnum.MF })
-  position: PlayerPositionEnum;
+  @Column({ default: PlayerMatchEnum.MF })
+  position: PlayerMatchEnum;
 
   @AutoMap()
   @Column({ default: PlayerSideEnum.HOME })
   side: PlayerSideEnum;
 
   @AutoMap()
-  @Column({ default: false })
-  accepted: boolean;
+  @Column({ default: PlayerInvitationStatusEnum.PENDING })
+  accepted: PlayerInvitationStatusEnum;
 
   @AutoMap()
   @Column({ default: false })

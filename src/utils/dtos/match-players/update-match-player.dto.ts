@@ -1,12 +1,13 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { IsBoolean, IsNumber, IsOptional } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional } from 'class-validator';
 import { CreateMatchPlayerDto } from '@/domains/match-players/create-match-player.dto';
+import { PlayerInvitationStatusEnum } from '@/enums/match-players/player-match.enum';
 
 export class UpdateMatchPlayerDto extends PartialType(CreateMatchPlayerDto) {
-  @ApiProperty()
+  @ApiProperty({ example: PlayerInvitationStatusEnum.PENDING })
   @IsOptional()
-  @IsBoolean()
-  accepted?: boolean;
+  @IsEnum(PlayerInvitationStatusEnum)
+  accepted?: PlayerInvitationStatusEnum;
 
   @ApiProperty()
   @IsOptional()
