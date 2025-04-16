@@ -6,7 +6,9 @@ import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../users/users.service';
 import { AllConfigType } from '../config/config.type';
 import { OAuthGoogleResponseDto } from '../auth/dto/oAuth-google-response.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('OAuth-Google')
 @Controller({
   path: 'auth/google',
   version: '1',
@@ -15,7 +17,6 @@ export class OauthGoogleController {
   constructor(
     private readonly oauthGoogleService: OauthGoogleService,
     private readonly usersService: UsersService,
-    private readonly configService: ConfigService<AllConfigType>,
   ) {}
   @Get()
   @UseGuards(GoogleAuthGuard)
