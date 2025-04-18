@@ -137,7 +137,7 @@ export class MailService {
   async sendDummyMail() {
     const result = await this.mailerService.sendMail({
       from: 'help@soccer.com',
-      to: 'soccer.book@gmail.com',
+      to: 'weavers.top@gmail.com',
       subject: 'WELCOME',
       text: 'hello world',
     });
