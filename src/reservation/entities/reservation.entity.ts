@@ -16,7 +16,10 @@ export class Reservation extends EntityHelper {
   id: string;
 
   @AutoMap(() => User)
-  @ManyToOne(() => User, (user) => user.reservations)
+  @ManyToOne(() => User, (user) => user.reservations, {
+    eager: true,
+    onDelete: 'CASCADE',
+  })
   user: User;
 
   @AutoMap(() => Team)
@@ -28,7 +31,9 @@ export class Reservation extends EntityHelper {
   away: Team;
 
   @AutoMap(() => Arena)
-  @ManyToOne(() => Arena, (arena) => arena.reservations)
+  @ManyToOne(() => Arena, (arena) => arena.reservations, {
+    onDelete: 'CASCADE',
+  })
   arena: Arena;
 
   @AutoMap()

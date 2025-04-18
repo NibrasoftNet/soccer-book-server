@@ -28,6 +28,14 @@ import { InjectMapper } from 'automapper-nestjs';
 import { Mapper } from 'automapper-core';
 import { User } from '../users/entities/user.entity';
 import { TeamService } from '../team/team.service';
+import { CreateApprovedReservationDto } from '@/domains/reservation/create-approved-reservation.dto';
+import { CreateUserDto } from '@/domains/user/create-user.dto';
+import { nanoid } from 'nanoid';
+import { plainToClass } from 'class-transformer';
+import { Role } from '../roles/entities/role.entity';
+import { RoleCodeEnum } from '@/enums/role/roles.enum';
+import { Status } from '../statuses/entities/status.entity';
+import { StatusCodeEnum } from '@/enums/status/statuses.enum';
 
 @Injectable()
 export class ReservationService {
@@ -64,6 +72,87 @@ export class ReservationService {
       });
     }
     return this.reservationRepository.save(reservation);
+  }
+
+  async createApprovedReservation(
+    arenaId: string,
+    createApprovedReservationDto: CreateApprovedReservationDto,
+  ): Promise<Reservation> {
+    return await this.reservationRepository.manager.transaction(
+      async (entityManager: EntityManager) => {
+        const { userName, ...filteredReservationDto } =
+          createApprovedReservationDto;
+        const reservation = entityManager.create(
+          Reservation,
+          filteredReservationDto as DeepPartial<Reservation>,
+        );
+
+        // 1. Create guest user and approved his reservation
+        const randomId = nanoid();
+        const guestUser = new CreateUserDto({
+          userName: userName + '-' + 'guest' + '-' + randomId,
+          email: `${userName}.guest${randomId}@tachkila.com`,
+          role: plainToClass(Role, {
+            id: RoleCodeEnum.USER,
+            code: RoleCodeEnum.USER,
+          }),
+          status: plainToClass(Status, {
+            id: StatusCodeEnum.INACTIVE,
+            code: StatusCodeEnum.INACTIVE,
+          }),
+        });
+
+        reservation.user = await this.usersService.create(guestUser);
+        reservation.arena = await this.arenaService.findOneOrFail({
+          id: arenaId,
+        });
+        reservation.status = ReservationTypeEnum.CONFIRMED;
+
+        // Find overlapping reservations to be rejected
+        const overlappingReservations = await entityManager.find(Reservation, {
+          where: [
+            {
+              day: reservation.day,
+              startHour: LessThan(reservation.endHour),
+              endHour: MoreThan(reservation.startHour),
+              id: Not(reservation.id),
+            },
+          ],
+          relations: ['user'],
+        });
+
+        // Update the status of overlapping reservations in a single query
+        await entityManager
+          .createQueryBuilder(Reservation, 'reservation')
+          .update()
+          .set({ status: ReservationTypeEnum.REJECTED })
+          .where('day = :day', { day: reservation.day })
+          .andWhere('(startHour < :endHour AND endHour > :startHour)', {
+            startHour: reservation.startHour,
+            endHour: reservation.endHour,
+          })
+          .andWhere('id != :id', { id: reservation.id })
+          .execute();
+
+        if (overlappingReservations.length) {
+          // Notify users of rejected reservations
+          const rejectedUsers = overlappingReservations.map((overlap) =>
+            this.mapper.map(overlap.user, User, UserDto),
+          );
+
+          const rejectionNotificationDto = new CreateNotificationDto({
+            title: 'Reservation Rejected',
+            message: 'Unfortunately, your reservation has been rejected.',
+            forAllUsers: false,
+            typeOfSending: NotificationTypeOfSendingEnum.IMMEDIATELY,
+            users: rejectedUsers,
+          });
+          await this.notificationService.create(rejectionNotificationDto);
+        }
+
+        return entityManager.save(reservation);
+      },
+    );
   }
 
   async findAll(query: PaginateQuery): Promise<Paginated<Reservation>> {

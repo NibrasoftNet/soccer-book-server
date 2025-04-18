@@ -30,6 +30,7 @@ import { IsCreatorPipe } from '../utils/pipes/is-creator.pipe';
 import { CreateReservationDto } from '@/domains/reservation/create-reservation.dto';
 import { UpdateReservationDto } from '@/domains/reservation/update-reservation.dto';
 import { DeleteResult } from 'typeorm';
+import { CreateApprovedReservationDto } from '@/domains/reservation/create-approved-reservation.dto';
 
 @ApiTags('Reservation')
 @ApiBearerAuth()
@@ -54,6 +55,20 @@ export class ReservationController {
       request.user,
       arenaId,
       createReservationDto,
+    );
+  }
+
+  @UseInterceptors(MapInterceptor(Reservation, ReservationDto))
+  @Roles(RoleCodeEnum.ADMIN)
+  @HttpCode(HttpStatus.CREATED)
+  @Post('/arenas/:arenaId/guest')
+  async createApprovedReservation(
+    @Param('arenaId') arenaId: string,
+    @Body() createApprovedReservationDto: CreateApprovedReservationDto,
+  ): Promise<Reservation> {
+    return await this.reservationService.createApprovedReservation(
+      arenaId,
+      createApprovedReservationDto,
     );
   }
 

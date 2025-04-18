@@ -98,9 +98,9 @@ export class CreateUserDto {
     email: string;
     role: RoleDto;
     status: StatusesDto;
+    userName: string;
     address?: CreateAddressDto;
     photo?: FileDto | null;
-    userName: string;
     password?: string;
     provider?: string;
     socialId?: string | null;
@@ -109,9 +109,9 @@ export class CreateUserDto {
     this.email = email;
     this.role = role;
     this.status = status;
+    this.userName = userName;
     this.address = address;
     this.photo = photo;
-    this.userName = userName;
     this.password = password;
     this.provider = provider;
     this.socialId = socialId;
