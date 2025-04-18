@@ -309,9 +309,9 @@ export class NotificationService {
   ): Promise<string[] | User[]> {
     if (!notification.forAllUsers) {
       return onlyTokens
-        ? (notification.users.map(
-            (item) => item.notificationsToken,
-          ) as string[])
+        ? (notification.users
+            .map((item) => item.notificationsToken)
+            .filter((token) => token !== null) as string[])
         : (notification.users.map((item) => item) as User[]);
     }
     return onlyTokens

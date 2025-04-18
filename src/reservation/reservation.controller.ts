@@ -31,6 +31,7 @@ import { CreateReservationDto } from '@/domains/reservation/create-reservation.d
 import { UpdateReservationDto } from '@/domains/reservation/update-reservation.dto';
 import { DeleteResult } from 'typeorm';
 import { CreateApprovedReservationDto } from '@/domains/reservation/create-approved-reservation.dto';
+import { ReportReservationDto } from '@/domains/reservation/report-reservation.dto';
 
 @ApiTags('Reservation')
 @ApiBearerAuth()
@@ -133,6 +134,20 @@ export class ReservationController {
   @Put(':id/approve')
   async approveReservation(@Param('id') id: string): Promise<Reservation> {
     return await this.reservationService.approveReservation(id);
+  }
+
+  @Roles(RoleCodeEnum.ADMIN)
+  @UseInterceptors(MapInterceptor(Reservation, ReservationDto))
+  @HttpCode(HttpStatus.OK)
+  @Put(':id/report')
+  async reportReservation(
+    @Param('id') id: string,
+    @Body() reportReservationDto: ReportReservationDto,
+  ): Promise<Reservation> {
+    return await this.reservationService.reportReservation(
+      id,
+      reportReservationDto,
+    );
   }
 
   @Roles(RoleCodeEnum.USER)

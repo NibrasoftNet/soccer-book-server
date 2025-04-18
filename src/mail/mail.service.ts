@@ -136,10 +136,10 @@ export class MailService {
   }
   async sendDummyMail() {
     const result = await this.mailerService.sendMail({
-      from: 'help@soccer.com',
-      to: 'weavers.top@gmail.com',
-      subject: 'WELCOME',
-      text: 'hello world',
+      from: 'service.tachkila@gmail.com',
+      to: 'nibrasoft.net@gmail.com',
+      subject: 'SMTP testing',
+      text: 'hello tachkila',
     });
     this.logger.log('Success send email', result);
   }
