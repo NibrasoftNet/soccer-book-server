@@ -67,14 +67,14 @@ export class AuthService {
     if (!isValidPassword) {
       throw new HttpException(
         {
-          status: HttpStatus.PRECONDITION_FAILED,
+          status: HttpStatus.BAD_REQUEST,
           errors: {
             password: this.i18n.t('auth.invalidPassword', {
               lang: I18nContext.current()?.lang,
             }),
           },
         },
-        HttpStatus.PRECONDITION_FAILED,
+        HttpStatus.BAD_REQUEST,
       );
     }
 
@@ -82,7 +82,7 @@ export class AuthService {
       await this.sendConfirmEmail(user.email);
       throw new HttpException(
         {
-          status: HttpStatus.BAD_REQUEST,
+          status: HttpStatus.PRECONDITION_FAILED,
           errors: {
             email: this.i18n.t('auth.emailNotConfirmed', {
               lang: I18nContext.current()?.lang,
